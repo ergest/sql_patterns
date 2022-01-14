@@ -1,0 +1,1 @@
+Several patterns to dedupe rows like group by, distinct or row_number() combined with [[Chaining CTEs]]

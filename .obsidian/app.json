@@ -1,0 +1,16 @@
+{
+  "alwaysUpdateLinks": true,
+  "promptDelete": false,
+  "spellcheck": true,
+  "spellcheckDictionary": [
+    "analytics"
+  ],
+  "legacyEditor": false,
+  "fileSortOrder": "alphabetical",
+  "pdfExportSettings": {
+    "pageSize": "Letter",
+    "landscape": false,
+    "margin": "0",
+    "downscalePercent": 100
+  }
+}

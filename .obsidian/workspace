@@ -1,0 +1,119 @@
+{
+  "main": {
+    "id": "8bf7357d08fc4a6a",
+    "type": "split",
+    "children": [
+      {
+        "id": "d14f51b1136bb3d1",
+        "type": "leaf",
+        "state": {
+          "type": "markdown",
+          "state": {
+            "file": "Introduction/Introduction.md",
+            "mode": "source",
+            "source": false
+          }
+        }
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "9e882ae75bcca575",
+    "type": "split",
+    "children": [
+      {
+        "id": "20fb20cf20a323eb",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "196688334c92bba7",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {}
+            }
+          },
+          {
+            "id": "7344326a0882a3d0",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 328
+  },
+  "right": {
+    "id": "06fd7f74b6ef412f",
+    "type": "split",
+    "children": [
+      {
+        "id": "b7fd7964bea27dcd",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "9275c37ed45661eb",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "Introduction/Introduction.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": false
+              }
+            }
+          },
+          {
+            "id": "fd9b22a934b8c367",
+            "type": "leaf",
+            "state": {
+              "type": "advanced-tables-toolbar",
+              "state": {}
+            }
+          },
+          {
+            "id": "1c472aaecfd1f70a",
+            "type": "leaf",
+            "state": {
+              "type": "git-view",
+              "state": {}
+            }
+          }
+        ],
+        "currentTab": 2
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "active": "d14f51b1136bb3d1",
+  "lastOpenFiles": [
+    "Introduction/Introduction.md",
+    "Misc/Article.md",
+    "Introduction/Outline.md",
+    "Part 2 - SQL Design Patterns/2. Query Maintainability/0. Principles/2. Don't Mix Levels of Abstraction.md",
+    "Part 2 - SQL Design Patterns/1. Query Decomposition/0. Principles/1. Start with the Ground Truth.md",
+    "Part 2 - SQL Design Patterns/3. Query Robustness/1. Patterns/Deduping Rows.md",
+    "Part 2 - SQL Design Patterns/3. Query Robustness/1. Patterns/Start with a Left Join.md",
+    "Part 2 - SQL Design Patterns/3. Query Robustness/1. Patterns/Expect the Unexpected.md",
+    "Part 2 - SQL Design Patterns/4. Query Performance/0. Principles/2. Only Select the Columns You Need.md",
+    "Part 2 - SQL Design Patterns/2. Query Maintainability/0. Principles/3. Create Reusable Components.md"
+  ]
+}
