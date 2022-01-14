@@ -106,14 +106,14 @@
   "active": "d14f51b1136bb3d1",
   "lastOpenFiles": [
     "Introduction/Introduction.md",
+    "Misc/Outline.md",
+    "Query Decomposition.md",
+    "Part 1 - Core Principles/1. Data Granularity.md",
+    "Part 1 - Core Principles/2. Common Table Expressions (CTEs).md",
     "Misc/Article.md",
-    "Introduction/Outline.md",
     "Part 2 - SQL Design Patterns/2. Query Maintainability/0. Principles/2. Don't Mix Levels of Abstraction.md",
     "Part 2 - SQL Design Patterns/1. Query Decomposition/0. Principles/1. Start with the Ground Truth.md",
     "Part 2 - SQL Design Patterns/3. Query Robustness/1. Patterns/Deduping Rows.md",
-    "Part 2 - SQL Design Patterns/3. Query Robustness/1. Patterns/Start with a Left Join.md",
-    "Part 2 - SQL Design Patterns/3. Query Robustness/1. Patterns/Expect the Unexpected.md",
-    "Part 2 - SQL Design Patterns/4. Query Performance/0. Principles/2. Only Select the Columns You Need.md",
-    "Part 2 - SQL Design Patterns/2. Query Maintainability/0. Principles/3. Create Reusable Components.md"
+    "Part 2 - SQL Design Patterns/3. Query Robustness/1. Patterns/Start with a Left Join.md"
   ]
 }
