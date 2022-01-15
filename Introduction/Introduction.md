@@ -43,10 +43,6 @@ In Part 1 we cover SQL Core Concepts. These are the most important concepts I ha
 
 In Part 2 we cover SQL querying Core Principles. 
 These principles act as categories for the patterns while also providing guidelines on how to solve problems quickly and easily:
-1. [[Query Decomposition]] which explains how to break down a complex query into easy to write and easy to understand chunks to make sure the query is right
-2. [[Query Robustness]] which explains how to ensure that you write code that can deal with unexpected changes to the data or missing data
-3. [[Query Performance]] which explains how to write queries that are both accurate and fast without having to rewrite them later
-4. [[Query Maintainability]] which explains concepts like DRY (Don't Repeat Yourself) and a few others to ensure your code is easily maintained by future developers
 
 In Part 3 we cover SQL query patterns. These patterns are divided into meta-patterns and regular patterns. The meta-patterns are basically patterns of patterns and are used in almost all the queries and the actual patterns 
 

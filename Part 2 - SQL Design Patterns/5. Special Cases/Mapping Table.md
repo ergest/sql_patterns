@@ -1,0 +1,1 @@
+Replace CASE WHEN with a mapping table
