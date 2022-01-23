@@ -3,9 +3,9 @@
 2. [[Chaining CTEs]]
 3. [[Custom Grouping]]
 4. [[Custom Row Ranking]]
-5. [[3. Joining Data]] 
+5. [[Chapter 3. Joining Data]] 
 6. [[6. Aggregating Data]]
-7. [[1. Data Granularity]]
+7. [[Chapter 1. Data Granularity]]
 
 ### ChannelMappingAnodot
 1.  [[Custom Grouping]]

@@ -9,7 +9,7 @@
         "state": {
           "type": "markdown",
           "state": {
-            "file": "Part 2 - SQL Design Patterns/5. Special Cases/Mapping Table.md",
+            "file": "Part 1 - Core Principles/Chapter 3. Joining Data.md",
             "mode": "source",
             "source": false
           }
@@ -69,7 +69,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Part 2 - SQL Design Patterns/5. Special Cases/Mapping Table.md",
+                "file": "Part 1 - Core Principles/Chapter 3. Joining Data.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -105,15 +105,15 @@
   },
   "active": "d14f51b1136bb3d1",
   "lastOpenFiles": [
-    "Part 2 - SQL Design Patterns/5. Special Cases/Mapping Table.md",
-    "Part 1 - Core Principles/2. Common Table Expressions (CTEs).md",
-    "Part 1 - Core Principles/1. Data Granularity.md",
-    "Misc/Article.md",
-    "Misc/Outline.md",
+    "Part 1 - Core Principles/Chapter 3. Joining Data.md",
+    "Part 1 - Core Principles/Chapter 1. Data Granularity.md",
+    "Part 1 - Core Principles/Chapter 2. Common Table Expressions (CTEs).md",
+    "Part 2 - SQL Design Patterns/1. Query Decomposition/0. Principles/2. Use CTEs to Decompose Queries.md",
+    "2022-01-23_12-03-27.png",
+    "2022-01-23_11-54-23.png",
     "Introduction/Introduction.md",
-    "Query Decomposition.md",
-    "Part 2 - SQL Design Patterns/2. Query Maintainability/0. Principles/2. Don't Mix Levels of Abstraction.md",
-    "Part 2 - SQL Design Patterns/1. Query Decomposition/0. Principles/1. Start with the Ground Truth.md",
-    "Part 2 - SQL Design Patterns/3. Query Robustness/1. Patterns/Deduping Rows.md"
+    "Misc/Outline.md",
+    "Part 2 - SQL Design Patterns/4. Query Performance/1. Patterns/Postpone Ordering.md",
+    "Part 1 - Core Principles/5. Appending Rows.md"
   ]
 }

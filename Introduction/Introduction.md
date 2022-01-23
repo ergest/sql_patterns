@@ -53,3 +53,36 @@ Main selling points
 - Patterns and best practices 
 - Project based learning
 - Fundamentals plus advanced stuff
+
+### Project based learning
+I'm a huge fan of project-based learning. The idea that you can learn anything if you can come up with an interesting project to use that thing in has proven incredibly useful in my own career. I taught myself data science in just a few months by focusing on a project to build a feature table for leads so I could predict their propensity convert based on these features.
+
+A feature table is basically a wide, potentially sparse table that has one row for every element we want to make predictions on (in my case leads) and the columns describe attributes of the element in question (in my case lead attributes)
+
+In this book we'll be working with the Stackoverflow dataset that's publicly available in BigQuery for free. You can access it here: https://console.cloud.google.com/marketplace/product/stack-exchange/stack-overflow. BigQuery also offers 1TB/month free of processing so even if you sign up for it with a credit card, you can complete this entire course for free. I've made sure that the queries we run are small and limited so you won't have to worry about being charged.
+
+As an alternative, I've extracted a small subset of the core tables of this data set and created a PostgreSQL database which you can download and install locally. See the section on [[Downloading the Data]] 
+
+In this book we'll be working on a similar table for users. We want to build a feature table to identify highly engaged users to whom we can offer 
+
+We will create a user reputation metrics table. This will be a table with one row per user and each column will contain a user based engagement metric that can be used to compute a user engagement score and perhaps predict future engagement. The metrics will be:
+
+total_posts,
+avg_posts_per_day,
+avg_posts_per_week,
+avg_posts_per_month
+avg_posts_per_day_trend,,
+answer_to_question_ratio,
+total_post_upvotes,
+total_post_down_votes,
+total_post_comments,
+total_post_bookmarks,
+total_post_favorites,
+upvote_to_downvote_ratio,
+comments_per_post,
+favorites_per_post,
+avg_comments_per_post,
+avg_favorites_per_post,
+avg_bookmarks_per_post,
+bookmarks_per_post
+favorites_per_post
