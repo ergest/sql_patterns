@@ -118,4 +118,41 @@ where (creation_date >= '2021-09-01'
 	and last_activity_date < '2021-09-02');
 ```
 
-What's wrong with this query? Well yes it will get us the desired result but it's kind of clunky. We had to use parentheses to separate the `AND` from the `OR`
+What's wrong with this query? Well yes it will get us the desired result but it's kind of clunky. We had to use parentheses to separate the `AND` from the `OR` so the logic doesn't get messed up. BigQuery doesn't complain, but if we had a different system the query would be much slower as it will not take advantage of indexes. 
+
+We can rewrite it using `UNION DISTINCT` . We have to use `DISTINCT` because we only want a row that satisfies both conditions to appear just once.
+
+```
+with posts as (
+	 select
+        id as post_id,
+        p.creation_date,
+        p.last_activity_date,
+        'question' as post_type,
+        p.score as post_score
+    from
+        `bigquery-public-data.stackoverflow.posts_questions` p
+    union all
+    select
+        id as post_id,
+        p.creation_date,
+        p.last_activity_date,
+        'answer' as post_type,
+        p.score as post_score
+    from
+        `bigquery-public-data.stackoverflow.posts_answers` p
+)
+select *
+from posts
+where creation_date >= '2021-09-01'
+	and creation_date < '2021-09-02'
+
+union distinct
+
+select *
+from posts
+where last_activity_date >= '2021-09-01'
+	and last_activity_date < '2021-09-02';
+```
+
+Both queries get us 18,909 rows!
