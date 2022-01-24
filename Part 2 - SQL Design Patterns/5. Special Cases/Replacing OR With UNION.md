@@ -1,1 +1,0 @@
-Patterns of using union to break up large queries

@@ -9,7 +9,7 @@
         "state": {
           "type": "markdown",
           "state": {
-            "file": "Part 1 - Core Principles/Chapter 3. Joining Data.md",
+            "file": "Part 1 - Core Principles/Chapter 4. Appending Rows.md",
             "mode": "source",
             "source": false
           }
@@ -40,7 +40,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "",
+                "query": "union",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -49,7 +49,8 @@
               }
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "horizontal",
@@ -69,7 +70,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Part 1 - Core Principles/Chapter 3. Joining Data.md",
+                "file": "Part 1 - Core Principles/Chapter 4. Appending Rows.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -105,15 +106,15 @@
   },
   "active": "d14f51b1136bb3d1",
   "lastOpenFiles": [
+    "Part 1 - Core Principles/Chapter 4. Appending Rows.md",
+    "Part 2 - SQL Design Patterns/5. Special Cases/Create start date, end date from time-series.md",
+    "Part 2 - SQL Design Patterns/5. Special Cases/Replacing OR With UNION.md",
     "Part 1 - Core Principles/Chapter 3. Joining Data.md",
+    "Part 1 - Core Principles/4. Filtering Data.md",
+    "Part 2 - SQL Design Patterns/1. Query Decomposition/0. Principles/3. Keep the Elements Small.md",
+    "Part 2 - SQL Design Patterns/1. Query Decomposition/1. Patterns/Chaining CTEs.md",
     "Part 1 - Core Principles/Chapter 1. Data Granularity.md",
     "Part 1 - Core Principles/Chapter 2. Common Table Expressions (CTEs).md",
-    "Part 2 - SQL Design Patterns/1. Query Decomposition/0. Principles/2. Use CTEs to Decompose Queries.md",
-    "2022-01-23_12-03-27.png",
-    "2022-01-23_11-54-23.png",
-    "Introduction/Introduction.md",
-    "Misc/Outline.md",
-    "Part 2 - SQL Design Patterns/4. Query Performance/1. Patterns/Postpone Ordering.md",
-    "Part 1 - Core Principles/5. Appending Rows.md"
+    "Part 2 - SQL Design Patterns/1. Query Decomposition/0. Principles/2. Use CTEs to Decompose Queries.md"
   ]
 }

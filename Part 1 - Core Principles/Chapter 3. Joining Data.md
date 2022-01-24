@@ -45,23 +45,116 @@ post_id|user_id |user_name                   |revision_date          |
 
 We can see that the `user_id` and `user_name` are repeated several times because the `post_history` table contains multiple rows for the same user id while the `users` table contains one row per user id.
 
-We talked about this in Chapter 1 on granularity. We can validate our claim quickly by running the granularity checking query:
+We talked about this in Chapter 1 on granularity. We can validate our claim quickly by running the granularity checking queries for both tables:
+```
+select 
+	user_id,
+	count(*) as cnt
+from `bigquery-public-data.stackoverflow.post_history` ph
+group by 1
+having count(*) > 1;
+```
+```
+select 
+	id,
+	count(*) as cnt
+from `bigquery-public-data.stackoverflow.users` ph
+group by 1
+having count(*) > 1;
+```
+Here we see multiple rows for the same `user_id` in the `post_history` table and no rows with duplicate `user_id` in the `users` table, so the final result will contain as many entries for the same `user_id` as there are in the `post_history` table.
 
+So if the history table has 10 entries for the same user and the `users` table has 1, the final result will contain 10 x 1 entries for the same user. If for some reason the `users` contained 2 entries for the same user, we'd see 10 x 2 = 20 entries for that user in the final result.
 
-So if the history table has 10 entries for the same user and the `users` table has 1, the final result will contain 10 x 1 entries for the same user. If for some reason the `users` contained 2 entries for the same user, we'd see 10 x 2 = 20 entries for that users in the final result.
-
-That's what I mean by multiplicity. This is extremely important when doing analysis because a single duplicate row will multiply all your results by a factor of 2!
+That's what I mean by multiplicity. This is extremely important when doing analysis because a single duplicate row will multiply all your results by a factor of 2 so your numbers will be inflated.
 
 #### Data Reduction
-Whenever we do an `inner join` the final result is always reduced down to just the matching rows. This is fine if both tables have a foreign key relationship enforced by the database which ensures no orphaned rows. However in modern data warehouses this relationship is not enforced.
+Whenever we do an `inner join` the final result is always reduced down to just the matching rows.
 
-What this means is that by doing an `inner join` you might be inadvertently restricting rows from a table because there's no data for them in the joined table. This gives rise to a pattern I call [[Start with a Left Join]] 
+For example it's very likely that only a subset of users that exist in the `users` table have ever made changes to, commented, or voted on posts on StackOverflow the majority being silent observers. When we do an `inner join` between `post_history` and `users` we only get the information for the active users.
 
-When doing a left join always put the table you care about the most on the from clause and the left joined table after. But don't take this to the extreme and do a `full outer join` just yet
+For the purposes of our project, we only want the active ones so an `inner join` is very appropriate here. If we wanted everyone, we'd have to user an `outer join` There is one important point on this however.
+
+By doing an `inner join` you might be inadvertently restricting rows from a result because there might be missing data in the joined table. That's why as a rule of thumb I always advise to start with a `left join`. We'll cover that in Part 2 when we start to talk about patterns.
 
 #### Accidental Inner Join
-Whenever you're doing a `left join` always keep in mind the dirty little secret that will ignore your `left join` go ahead and perform an `inner join` instead and leave you none the wiser.
+Did you know that SQL will ignore a `left join` clause and perform an `inner join` instead if you make this one simple mistake? This is one of those SQL hidden secrets which sometimes gets asked as a trick question in interviews so strap in.
 
-#### The Dangerous CROSS JOIN
+When doing a `left join` you're intending to show all the results on the table in the `from` clause but if you need to limit
 
-#### The FULL OUTER JOIN
+Let's take a look at the example query from above:
+```
+select
+	ph.post_id,
+	ph.user_id,
+	u.display_name as user_name,
+	ph.creation_date as revision_date
+from
+	`bigquery-public-data.stackoverflow.post_history` ph
+	inner join `bigquery-public-data.stackoverflow.users` u on u.id = ph.user_id
+where
+	true
+	and ph.post_id = 4
+order by
+	revision_date;
+```
+
+This query will produce 58 rows. Now let's change the `inner join` to a `left join`and rerun the query:
+```
+select
+	ph.post_id,
+	ph.user_id,
+	u.display_name as user_name,
+	ph.creation_date as revision_date
+from
+	`bigquery-public-data.stackoverflow.post_history` ph
+	left join `bigquery-public-data.stackoverflow.users` u on u.id = ph.user_id
+where
+	true
+	and ph.post_id = 4
+order by
+	revision_date;
+```
+
+Now we get 72 rows!! If you scan the results, you'll notice several where both the `user_name` and the `user_id` are `NULL` which means they're unknown. These could be people who made changes to that post and then deleted their accounts. Notice how the `inner join` was filtering them out? That's what I mean by data reduction which we discussed previously.
+
+Suppose we only want to see users with a reputation of higher than 50. That's seems pretty straightforward just add the condition to the where clause
+```
+select
+	ph.post_id,
+	ph.user_id,
+	u.display_name as user_name,
+	ph.creation_date as revision_date
+from
+	`bigquery-public-data.stackoverflow.post_history` ph
+	left join `bigquery-public-data.stackoverflow.users` u on u.id = ph.user_id
+where
+	true
+	and ph.post_id = 4
+	and u.reputation > 50
+order by
+	revision_date;
+```
+
+We only get 56 rows! What happened?
+
+Adding filters on the where clause for tables that are `left joined` will ALWAYS perform an `inner join` except for one single condition where the left join is preserved. If we ONLY wanted to see the `NULL` users, we can add the `IS NULL` check to the `where` clause like this:
+
+```
+select
+	ph.post_id,
+	ph.user_id,
+	u.display_name as user_name,
+	ph.creation_date as revision_date
+from
+	`bigquery-public-data.stackoverflow.post_history` ph
+	left join `bigquery-public-data.stackoverflow.users` u on u.id = ph.user_id
+where
+	true
+	and ph.post_id = 4
+	and u.id is null
+order by
+	revision_date;
+```
+
+Now we only get the 12 missing users
