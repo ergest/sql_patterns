@@ -4,7 +4,7 @@
 3. [[Custom Grouping]]
 4. [[Custom Row Ranking]]
 5. [[Chapter 3. Joining Data]] 
-6. [[6. Aggregating Data]]
+6. [[Chapter 6. Aggregating Data]]
 7. [[Chapter 1. Data Granularity]]
 
 ### ChannelMappingAnodot
