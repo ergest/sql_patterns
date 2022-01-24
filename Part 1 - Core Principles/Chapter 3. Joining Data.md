@@ -69,18 +69,18 @@ So if the history table has 10 entries for the same user and the `users` table h
 That's what I mean by multiplicity. This is extremely important when doing analysis because a single duplicate row will multiply all your results by a factor of 2 so your numbers will be inflated.
 
 #### Data Reduction
-Whenever we do an `inner join` the final result is always reduced down to just the matching rows.
+Whenever we do an `INNER JOIN` the final result is always reduced down to just the matching rows.
 
-For example it's very likely that only a subset of users that exist in the `users` table have ever made changes to, commented, or voted on posts on StackOverflow the majority being silent observers. When we do an `inner join` between `post_history` and `users` we only get the information for the active users.
+For example it's very likely that only a subset of users that exist in the `users` table have ever made changes to, commented, or voted on posts on StackOverflow the majority being silent observers. When we do an `INNER JOIN` between `post_history` and `users` we only get the information for the active users.
 
-For the purposes of our project, we only want the active ones so an `inner join` is very appropriate here. If we wanted everyone, we'd have to user an `outer join` There is one important point on this however.
+For the purposes of our project, we only want the active ones so an `INNER JOIN` is very appropriate here. If we wanted everyone, we'd have to user a `LEFT OUTER JOIN` There is one important point on this however.
 
-By doing an `inner join` you might be inadvertently restricting rows from a result because there might be missing data in the joined table. That's why as a rule of thumb I always advise to start with a `left join`. We'll cover that in Part 2 when we start to talk about patterns.
+By doing an `INNER JOIN` you might be inadvertently restricting rows from a result because there might be missing data in the joined table. That's why as a rule of thumb I always advise to start with a `LEFT JOIN`. We'll cover that in Part 2 when we start to talk about patterns.
 
 #### Accidental Inner Join
-Did you know that SQL will ignore a `left join` clause and perform an `inner join` instead if you make this one simple mistake? This is one of those SQL hidden secrets which sometimes gets asked as a trick question in interviews so strap in.
+Did you know that SQL will ignore a `LEFT JOIN` clause and perform an `INNER JOIN` instead if you make this one simple mistake? This is one of those SQL hidden secrets which sometimes gets asked as a trick question in interviews so strap in.
 
-When doing a `left join` you're intending to show all the results on the table in the `from` clause but if you need to limit
+When doing a `LEFT JOIN` you're intending to show all the results on the table in the `FROM` clause but if you need to limit
 
 Let's take a look at the example query from above:
 ```
@@ -99,7 +99,7 @@ order by
 	revision_date;
 ```
 
-This query will produce 58 rows. Now let's change the `inner join` to a `left join`and rerun the query:
+This query will produce 58 rows. Now let's change the `INNER JOIN` to a `LEFT JOIN`and rerun the query:
 ```
 select
 	ph.post_id,
@@ -116,7 +116,7 @@ order by
 	revision_date;
 ```
 
-Now we get 72 rows!! If you scan the results, you'll notice several where both the `user_name` and the `user_id` are `NULL` which means they're unknown. These could be people who made changes to that post and then deleted their accounts. Notice how the `inner join` was filtering them out? That's what I mean by data reduction which we discussed previously.
+Now we get 72 rows!! If you scan the results, you'll notice several where both the `user_name` and the `user_id` are `NULL` which means they're unknown. These could be people who made changes to that post and then deleted their accounts. Notice how the `INNER JOIN` was filtering them out? That's what I mean by data reduction which we discussed previously.
 
 Suppose we only want to see users with a reputation of higher than 50. That's seems pretty straightforward just add the condition to the where clause
 ```
@@ -138,7 +138,7 @@ order by
 
 We only get 56 rows! What happened?
 
-Adding filters on the where clause for tables that are `left joined` will ALWAYS perform an `inner join` except for one single condition where the left join is preserved. If we ONLY wanted to see the `NULL` users, we can add the `IS NULL` check to the `where` clause like this:
+Adding filters on the where clause for tables that are left joined will ALWAYS perform an `INNER JOIN` except for one single condition where the left join is preserved. If we ONLY wanted to see the `NULL` users, we can add the `IS NULL` check to the `where` clause like this:
 
 ```
 select
