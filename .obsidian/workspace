@@ -9,7 +9,7 @@
         "state": {
           "type": "markdown",
           "state": {
-            "file": "Part 2 - SQL Design Patterns/5. Special Cases/Mapping Table.md",
+            "file": "Part 1 - Core Principles/Chapter 7. Type Conversion.md",
             "mode": "source",
             "source": false
           }
@@ -69,7 +69,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Part 2 - SQL Design Patterns/5. Special Cases/Mapping Table.md",
+                "file": "Part 1 - Core Principles/Chapter 7. Type Conversion.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -105,15 +105,15 @@
   },
   "active": "d14f51b1136bb3d1",
   "lastOpenFiles": [
-    "Part 2 - SQL Design Patterns/5. Special Cases/Mapping Table.md",
+    "Part 1 - Core Principles/Chapter 7. Type Conversion.md",
     "Part 1 - Core Principles/Chapter 6. Aggregating Data.md",
-    "Introduction/Introduction.md",
-    "Part 1 - Core Principles/Chapter 4. Appending Rows.md",
-    "Part 2 - SQL Design Patterns/5. Special Cases/Create start date, end date from time-series.md",
-    "Part 2 - SQL Design Patterns/5. Special Cases/Replacing OR With UNION.md",
+    "Part 1 - Core Principles/Chapter 2. Common Table Expressions (CTEs).md",
     "Part 1 - Core Principles/Chapter 3. Joining Data.md",
-    "Part 1 - Core Principles/4. Filtering Data.md",
-    "Part 2 - SQL Design Patterns/1. Query Decomposition/0. Principles/3. Keep the Elements Small.md",
-    "Part 2 - SQL Design Patterns/1. Query Decomposition/1. Patterns/Chaining CTEs.md"
+    "Part 1 - Core Principles/Chapter 4. Appending Rows.md",
+    "Part 1 - Core Principles/7. String Functions.md",
+    "Part 2 - SQL Design Patterns/5. Special Cases/Mapping Table.md",
+    "Introduction/Introduction.md",
+    "Part 2 - SQL Design Patterns/5. Special Cases/Create start date, end date from time-series.md",
+    "Part 2 - SQL Design Patterns/5. Special Cases/Replacing OR With UNION.md"
   ]
 }
