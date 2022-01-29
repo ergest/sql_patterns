@@ -9,7 +9,7 @@
         "state": {
           "type": "markdown",
           "state": {
-            "file": "Part 1 - Core Principles/Chapter 7. Type Conversion.md",
+            "file": "Part 1 - Core Principles/Chapter 1. Data Granularity.md",
             "mode": "source",
             "source": false
           }
@@ -69,7 +69,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Part 1 - Core Principles/Chapter 7. Type Conversion.md",
+                "file": "Part 1 - Core Principles/Chapter 1. Data Granularity.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -105,15 +105,15 @@
   },
   "active": "d14f51b1136bb3d1",
   "lastOpenFiles": [
+    "Part 1 - Core Principles/Chapter 1. Data Granularity.md",
+    "Part 2 - SQL Design Patterns/4. Query Performance/0. Principles/1. Reduce Your Data Before Joining.md",
     "Part 1 - Core Principles/Chapter 7. Type Conversion.md",
+    "Part 2 - SQL Design Patterns/3. Query Robustness/0. Principles/1. Dealing with nulls.md",
+    "Part 2 - SQL Design Patterns/3. Query Robustness/0. Principles/2. Type Conversion.md",
     "Part 1 - Core Principles/Chapter 6. Aggregating Data.md",
+    "Part 2 - SQL Design Patterns/4. Query Performance/0. Principles/3. Avoid Functions in the WHERE clause.md",
+    "Part 2 - SQL Design Patterns/4. Query Performance/0. Principles/2. Only Select the Columns You Need.md",
     "Part 1 - Core Principles/Chapter 2. Common Table Expressions (CTEs).md",
-    "Part 1 - Core Principles/Chapter 3. Joining Data.md",
-    "Part 1 - Core Principles/Chapter 4. Appending Rows.md",
-    "Part 1 - Core Principles/7. String Functions.md",
-    "Part 2 - SQL Design Patterns/5. Special Cases/Mapping Table.md",
-    "Introduction/Introduction.md",
-    "Part 2 - SQL Design Patterns/5. Special Cases/Create start date, end date from time-series.md",
-    "Part 2 - SQL Design Patterns/5. Special Cases/Replacing OR With UNION.md"
+    "Part 1 - Core Principles/Chapter 3. Joining Data.md"
   ]
 }
