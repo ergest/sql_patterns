@@ -9,7 +9,7 @@
         "state": {
           "type": "markdown",
           "state": {
-            "file": "Part 1 - Core Principles/Chapter 8 - String Manipulation.md",
+            "file": "Part 1 - Core Principles/Chapter 1. Data Granularity.md",
             "mode": "source",
             "source": false
           }
@@ -69,7 +69,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Part 1 - Core Principles/Chapter 8 - String Manipulation.md",
+                "file": "Part 1 - Core Principles/Chapter 1. Data Granularity.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -105,15 +105,15 @@
   },
   "active": "d14f51b1136bb3d1",
   "lastOpenFiles": [
-    "Part 1 - Core Principles/Chapter 8 - String Manipulation.md",
-    "Part 1 - Core Principles/7. String Functions.md",
-    "Part 3 - Case Study/Stackoverflow User Engagement.md",
-    "Part 2 - SQL Design Patterns/4. Query Performance/0. Principles/1. Reduce Your Data Before Joining.md",
-    "TA Analysis/SQL Analysis.md",
-    "Downloading the Data.md",
-    "Part 1 - Core Principles/Chapter 7. Type Conversion.md",
     "Part 1 - Core Principles/Chapter 1. Data Granularity.md",
-    "Part 2 - SQL Design Patterns/3. Query Robustness/0. Principles/1. Dealing with nulls.md",
-    "Part 2 - SQL Design Patterns/3. Query Robustness/0. Principles/2. Type Conversion.md"
+    "Introduction/Introduction.md",
+    "Part 1 - Core Principles/Chapter 3. Joining Data.md",
+    "Part 1 - Core Principles/Chapter 7. Type Conversion.md",
+    "Part 2 - SQL Design Patterns/2. Query Maintainability/0. Principles/1. Don't Repeat Yourself (DRY).md",
+    "Part 2 - SQL Design Patterns/2. Query Maintainability/0. Principles/0. Introduction.md",
+    "Part 2 - SQL Design Patterns/3. Query Robustness/1. Patterns/Start with a Left Join.md",
+    "Part 2 - SQL Design Patterns/3. Query Robustness/1. Patterns/Granularity Alignment.md",
+    "Part 2 - SQL Design Patterns/3. Query Robustness/1. Patterns/Expect the Unexpected.md",
+    "Part 2 - SQL Design Patterns/3. Query Robustness/1. Patterns/Deduping Rows.md"
   ]
 }

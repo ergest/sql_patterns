@@ -1,4 +1,4 @@
-Data granularity is the most important concept in SQL. Granularity is a measure of the level of detail in a table or view. Typically this is determined by the primary key (PK) of a table which ensures row uniqueness. This is true in traditional databases where the PK is enforced by the system but in cloud data warehouses that's not true.
+Data granularity is the most important concept in SQL. Granularity is a measure of the level of detail that determines an individual row in a table or view. Typically this is determined by the primary key (PK) of a table which ensures row uniqueness. This is true in traditional databases where the PK is enforced by the system but in cloud data warehouses that's not true.
 
 The concept of granularity is really important. As we'll see in the next chapter, when you join two tables with different granularity the final number of rows gets multiplied. So if one of the tables contains duplicate rows you will duplicate the final result causing inaccuracies.
 
