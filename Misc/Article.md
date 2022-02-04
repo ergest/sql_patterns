@@ -31,7 +31,7 @@ I’ve been writing SQL for ~15 years. I’ve seen hundreds of thousands of line
 
 If you're starting out as a data analyst, scientist or engineer and you study these patterns you'll be able to:
 -   Level up your SQL skills in record time without taking yet another boring course
--   Write high-quality, production-ready SQL that's easy to understand and maintain
+-   Write efficient, production-ready SQL that's easy to understand and maintain
 -   Solve complex queries like an expert without having to wait decades to become on
 
 The following are only a subset of what I've decoded so far. 
