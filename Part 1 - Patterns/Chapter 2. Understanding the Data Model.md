@@ -82,7 +82,20 @@ comment             |STRING   |
 
 Both post types (question and answer) have a one-to-many relationship to the `post_history`. A single post can have many types of activities identified by the `post_history_type_id` column. 
 
+This id indicates the different types of activities a user can do on the site. We're only concerned with the first 6. You can see the rest of them [here](https://meta.stackexchange.com/questions/2677/database-schema-documentation-for-the-public-data-dump-and-sede/2678#2678) if you're curious.
+
+1 = Initial Title - initial title _(questions only)_  
+2 = Initial Body - initial post raw body text  
+3 = Initial Tags - initial list of tags _(questions only)_  
+4 = Edit Title - modified title _(questions only)_  
+5 = Edit Body - modified post body (raw markdown)  
+6 = Edit Tags - modified list of tags _(questions only)
+
+The first 3 indicate when a post is first submitted and the next 3 when a post is edited.
+
 This table also connects to the `users` table. A single user can perform multiple activities on a post. This is known as a bridge table between the users and posts which have a many-to-many relationship which cannot be modeled otherwise.
+
+The `users` table has one row per user and contains user attributes such as name, reputation, etc. We'll use some of these attributes in our final table.
 ```
 SELECT column_name, data_type
 FROM `bigquery-public-data.stackoverflow.INFORMATION_SCHEMA.COLUMNS`
@@ -105,7 +118,46 @@ profile_image_url|STRING   |
 website_url      |STRING   |
 ```
 
-It has all the user attributes, like name, age, date of creation, reputation, etc. We'll use some of these attributes in our final table.
+Next we take a look at the `comments` table. It has a zero-to-many relationship with posts and with users, which means that both a user or a post could have 0 comments. The connection to the posts indicates comments on a post and the connection to the user indicates comments by a user.
 
-The same thing happens with the `comments` table. It has a zero-to-many relationship with posts and with users, which means that both a user or a post could have 0 comments. The connection to the posts indicates comments on a post and the connection to the user indicates comments by a user.
+```
+SELECT column_name, data_type
+FROM `bigquery-public-data.stackoverflow.INFORMATION_SCHEMA.COLUMNS`
+WHERE table_name = 'comments'
 
+column_name      |data_type|
+-----------------+---------+
+id               |INT64    |
+text             |STRING   |
+creation_date    |TIMESTAMP|
+post_id          |INT64    |
+user_id          |INT64    |
+user_display_name|STRING   |
+score            |INT64    |
+```
+
+Finally the `votes` table represents the upvotes and downvotes on a post. Once we connect a post to a user, we can compute This is exactly what we need to compute the total vote count on a user's post which will indicate how good the question or the answer is. This table has a granularity of one row per vote per post per date.
+
+```
+SELECT column_name, data_type
+FROM `bigquery-public-data.stackoverflow.INFORMATION_SCHEMA.COLUMNS`
+WHERE table_name = 'votes'
+
+column_name  |data_type|
+-------------+---------+
+id           |INT64    |
+creation_date|TIMESTAMP|
+post_id      |INT64    |
+vote_type_id |INT64    |
+```
+
+Note that the `votes` table is connected to a post, so in order for us to get upvotes and downvotes on a user's post, we'll need to join it with the `users` table
+
+#### Recap
+Ok let's recap what we've seen so far:
+
+1. We want to build a table at the `user_id, date` granularity based on the various activities a user can do on the StackOverflow website
+2. So far we've seen that a user can create questions and answers, edit questions and answers, comment on a post, receive comments and votes on their post.
+3. We've seen that this information is in various tables and each one has different granularities with respect to the user
+
+In the next chapter we'll cover the most important concept in SQL: granularity. If you're already familiar with it, feel free to skip.
