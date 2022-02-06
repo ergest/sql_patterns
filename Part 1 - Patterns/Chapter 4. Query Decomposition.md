@@ -89,114 +89,17 @@ We know that a user can perform any of the following activities on any given dat
 6. Receive a comment on their post
 7. Receive a vote (upvote or downvote) on their post
 
-In order to sketch out a solution for this query, we'll start by getting the *create* and *edit* posting activity from the `post_history` table and reduce its granularity to one row per user, per date, per post. 
+Solving a complex problem is a matter of breaking it down into simpler problems. Let's illustrate this with our user engagement project.
 
-Since we want to apply the SRP to our CTEs, we can create one for each post activity like this:
-```
-WITH post_created AS (
-	SELECT
-		ph.post_id,
-        ph.user_id,
-        u.display_name AS user_name,
-        ph.creation_date AS activity_date,
-        'posted' AS activity_type
-    FROM
-        `bigquery-public-data.stackoverflow.post_history` ph
-        LEFT JOIN `bigquery-public-data.stackoverflow.users` u on u.id = ph.user_id
-    WHERE
-    	TRUE 
-    	AND ph.post_history_type_id = 1
-    	AND user_id > 0 --anything < 0 are automated processes
-    	AND user_id IS NOT NULL
-    	AND ph.creation_date >= CAST('2021-06-01' as TIMESTAMP) 
-    	AND ph.creation_date <= CAST('2021-09-30' as TIMESTAMP)
-    GROUP BY
-    	1,2,3,4
-)
-, post_edited AS (
-	SELECT
-		ph.post_id,
-        ph.user_id,
-        u.display_name AS user_name,
-        ph.creation_date AS activity_date,
-        'edited' AS activity_type
-    FROM
-        `bigquery-public-data.stackoverflow.post_history` ph
-        LEFT JOIN `bigquery-public-data.stackoverflow.users` u on u.id = ph.user_id
-    WHERE
-    	TRUE 
-    	AND ph.post_history_type_id = 4
-    	AND user_id > 0 --anything < 0 are automated processes
-    	AND user_id IS NOT NULL
-    	AND ph.creation_date >= CAST('2021-06-01' as TIMESTAMP) 
-    	AND ph.creation_date <= CAST('2021-09-30' as TIMESTAMP)
-    GROUP BY
-    	1,2,3,4
+Sub-problem 1
+In order to get the first 4 activities at the `user_id, date granularity` we first need to solve the problem of reducing the granularity of the `post_history` to the `user_id, date, post_id` level.
 
-)
-```
+Then we'll join that back to the posts (by combining questions and answers) so we can get the post types. Finally we will reduce the granularity to just the `user_id, date` by aggregating each activity on each post type.
 
-This is a perfect application of the SRP to CTEs. Each one has a very specific responsibility. But notice how the code for each CTE is 98% the same. This pattern violates the DRY principle.
+Sub-problem 2
+We will apply the same granularity reduction logic to comments and votes so that in the end we have 3-4 CTEs all at the same granularity of `user_id, date`. 
 
-**Don't Repeat Yourself (DRY)**
-The DRY principle states that if you find yourself copy-pasting the same chunk of code in multiple locations, it's probably a good idea to put that code in a single CTE and reference that CTE where it's needed.
+Sub-problem 3
+Once we get all activity types on the same granularity, it will be very easy to calculate all the metrics per user per date.
 
-We can rewrite the above pattern by using a `CASE WHEN` statement to define the activity type like this:
-```
-WITH post_activity AS (
-	SELECT
-		ph.post_id,
-        ph.user_id,
-        u.display_name AS user_name,
-        ph.creation_date AS activity_date,
-        CASE ph.post_history_type_id
-        	WHEN 1 THEN 'created'
-        	WHEN 4 THEN 'edited' 
-        END AS activity_type
-    FROM
-        `bigquery-public-data.stackoverflow.post_history` ph
-        INNER JOIN `bigquery-public-data.stackoverflow.users` u on u.id = ph.user_id
-    WHERE
-    	TRUE 
-    	AND ph.post_history_type_id IN (1,4)
-    	AND user_id > 0 --exclude automated processes
-    	AND user_id IS NOT NULL
-    	AND ph.creation_date >= CAST('2021-06-01' as TIMESTAMP) 
-    	AND ph.creation_date <= CAST('2021-09-30' as TIMESTAMP)
-    GROUP BY
-    	1,2,3,4,5
-)
-SELECT *
-FROM post_activity
-WHERE user_id = 16366214
-ORDER BY activity_date 
-
-post_id |user_id |user_name  |activity_date          |activity_type|
---------+--------+-----------+-----------------------+-------------+
-68226767|16366214|Tony Agosta|2021-07-02 10:18:42.410|created      |
-68441160|16366214|Tony Agosta|2021-07-19 09:16:57.660|created      |
-68469502|16366214|Tony Agosta|2021-07-21 08:29:22.773|created      |
-68469502|16366214|Tony Agosta|2021-07-26 07:31:43.513|edited       |
-68441160|16366214|Tony Agosta|2021-07-26 07:32:07.387|edited       |
-```
-
-By the way
-```
-CASE field_name
-    WHEN value1 THEN 'label1'
-    WHEN value2 THEN 'label2'
-	WHEN value3 THEN 'label3'
-END as column
-```
-is equivalent to
-```
-CASE 
-	WHEN field_name = value1 THEN 'label1'
-    WHEN field_name = value2 THEN 'label2'
-    WHEN field_name = value3 THEN 'label3'
-END as column
-```
-
-The astute reader would have noticed the aggregation pattern to reduce granularity. At this point we still don't know if the user posted a question or an answer but we can get that by chaining this CTE with one that has the post types.
-
-Yes we could have joined the post types here but then the CTE would be doing way too much work
+In the next chapter we'll begin designing all the CTEs we need for the final query

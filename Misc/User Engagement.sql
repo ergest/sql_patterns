@@ -2,98 +2,71 @@
  * User engagement score
  */
 
+
 -- number of total posts
-with date_parameters as (
-    select
-        cast('2021-06-01' as timestamp) as start_date,
-        cast('2021-09-30' as timestamp) as end_date
+WITH date_parameters AS (
+    SELECT
+        CAST('2021-06-01' as timestamp) as start_date,
+        CAST('2021-09-30' as timestamp) as end_date
 )
-, post_history as ( --rewrite this wirh row_num() to be sure there's no dupes for each history type, in fact check
-    select
-        ph.post_id as post_id,
+WITH post_activity AS (
+	SELECT
+		ph.post_id,
         ph.user_id,
-        u.display_name as user_name,
-        ph.creation_date as revision_date,
-        case 
-            when ph.post_history_type_id in (1,2,3) then 'posted'
-            when ph.post_history_type_id in (4,5,6) then 'edited'
-            when ph.post_history_type_id in (7,8,9) then 'rolledback'
-        end as activity_type,
-        row_number() over(partition by ph.post_id, ph.user_id order by ph.creation_date asc) as row_id
-    from
+        u.display_name AS user_name,
+        ph.creation_date AS activity_date,
+        CASE ph.post_history_type_id
+        	WHEN 1 THEN 'created'
+        	WHEN 4 THEN 'edited' 
+        END AS activity_type
+    FROM
         `bigquery-public-data.stackoverflow.post_history` ph
-        join `bigquery-public-data.stackoverflow.users` u on u.id = ph.user_id
-        cross join date_parameters dt
-    where
-        true
-        and user_id > 0 --anything < 0 are automated processes
-        and post_history_type_id between 1 and 9
-        and ph.creation_date >= dt.start_date
-        and ph.creation_date <= dt.end_date
+        INNER JOIN `bigquery-public-data.stackoverflow.users` u on u.id = ph.user_id
+        CROSS JOIN date_parameters dt
+    WHERE
+    	TRUE 
+    	AND ph.post_history_type_id IN (1,4)
+    	AND user_id > 0 --exclude automated processes
+    	AND user_id IS NOT NULL
+    	AND ph.creation_date >= start_date
+    	AND ph.creation_date <= end_date 
+    GROUP BY
+    	1,2,3,4,5
 )
-, post_history2 as (
-    select
-        ph.post_id as post_id,
-        ph.user_id,
-        u.display_name as user_name,
-        ph.creation_date as revision_date,
-        case 
-            when ph.post_history_type_id in (1,2,3) then 'posted'
-            when ph.post_history_type_id in (4,5,6) then 'edited'
-            when ph.post_history_type_id in (7,8,9) then 'rolledback'
-        end as activity_type,
-		count(*)
-    from
-        `bigquery-public-data.stackoverflow.post_history` ph
-        join `bigquery-public-data.stackoverflow.users` u on u.id = ph.user_id
-        cross join date_parameters dt
-    where
-        true
-        and user_id > 0 --anything < 0 are automated processes
-        and post_history_type_id between 1 and 9
-        and ph.creation_date >= dt.start_date
-        and ph.creation_date <= dt.end_date
-    group by
-        1,2,3,4,5
-)
-, posts as (
-    select
-        id as post_id,
+, post_types as (
+    SELECT
+        id AS post_id,
         p.creation_date,
-        ifnull(safe_cast(p.favorite_count as integer), 0) as favorite_count,
-        'question' as post_type,
-        p.score as post_score,
-        ph.user_id as post_creator_id,
-        ph.user_name as post_creator_name
-    from
+        ifnull(safe_cast(p.favorite_count AS INTEGER), 0) AS favorite_count,
+        'question' AS post_type,
+        p.score AS post_score,
+        ph.user_id AS post_creator_id,
+        ph.user_name AS post_creator_name
+    FROM
         `bigquery-public-data.stackoverflow.posts_questions` p
-        join post_history ph on p.id = ph.post_id
-        cross join date_parameters dt
-    where
-        true
-        and ph.row_id = 1
-        and ph.activity_type = 'posted'
-        and p.creation_date >= dt.start_date
-        and p.creation_date <= dt.end_date
-    union all
-    select
-        id as post_id,
+        INNER JOIN post_history ph on p.id = ph.post_id
+        CROSS JOIN date_parameters dt
+    WHERE
+        TRUE
+        AND p.creation_date >= dt.start_date
+        AND p.creation_date <= dt.end_date
+    UNION ALL
+    SELECT
+        id AS post_id,
         p.creation_date,
-        ifnull(safe_cast(p.favorite_count as integer), 0) as favorite_count,
-        'answer' as post_type,
-        p.score as post_score,
-        ph.user_id as post_creator_id,
-        ph.user_name as post_creator_name
-    from
+        ifnull(safe_cast(p.favorite_count AS INTEGER), 0) AS favorite_count,
+        'answer' AS post_type,
+        p.score AS post_score,
+        ph.user_id AS post_creator_id,
+        ph.user_name AS post_creator_name
+    FROM
         `bigquery-public-data.stackoverflow.posts_answers` p
-        join post_history ph on p.id = ph.post_id
-        cross join date_parameters dt
-    where
-        true
-        and ph.row_id = 1
-        and ph.activity_type = 'posted'
-        and p.creation_date >= dt.start_date
-        and p.creation_date <= dt.end_date
+        INNER JOIN post_history ph on p.id = ph.post_id
+        CROSS JOIN date_parameters dt
+    WHERE
+        TRUE
+        AND p.creation_date >= dt.start_date
+        AND p.creation_date <= dt.end_date
 )
 , votes_per_user as (
     select
