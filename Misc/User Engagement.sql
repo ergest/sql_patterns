@@ -2,6 +2,97 @@
  * User engagement score
  */
 
+WITH post_activity AS (
+	SELECT
+		ph.post_id,
+        ph.user_id,
+        u.display_name AS user_name,
+        ph.creation_date AS activity_date,
+        CASE ph.post_history_type_id
+        	WHEN 1 THEN 'created'
+        	WHEN 4 THEN 'edited' 
+        END AS activity_type
+    FROM
+        `bigquery-public-data.stackoverflow.post_history` ph
+        INNER JOIN `bigquery-public-data.stackoverflow.users` u on u.id = ph.user_id
+    WHERE
+    	TRUE 
+    	AND ph.post_history_type_id IN (1,4)
+    	AND user_id > 0 --exclude automated processes
+    	AND user_id IS NOT NULL
+    	AND ph.creation_date >= CAST('2021-06-01' as TIMESTAMP) 
+    	AND ph.creation_date <= CAST('2021-09-30' as TIMESTAMP)
+    GROUP BY
+    	1,2,3,4,5
+)
+,post_types AS (
+    SELECT
+		id AS post_id,
+        'question' AS post_type,
+    FROM
+        `bigquery-public-data.stackoverflow.posts_questions`
+    WHERE
+        TRUE
+    	AND creation_date >= CAST('2021-06-01' as TIMESTAMP) 
+    	AND creation_date <= CAST('2021-09-30' as TIMESTAMP)
+    UNION ALL
+    SELECT
+        id AS post_id,
+        'answer' AS post_type,
+    FROM
+        `bigquery-public-data.stackoverflow.posts_answers`
+    WHERE
+        TRUE
+    	AND creation_date >= CAST('2021-06-01' as TIMESTAMP) 
+    	AND creation_date <= CAST('2021-09-30' as TIMESTAMP)
+ )
+, user_post_metrics AS (
+	SELECT
+		user_id,
+		user_name,
+		CAST(DATE_TRUNC(activity_date, DAY) AS DATE) AS activity_date ,
+		SUM(CASE WHEN activity_type = 'created' AND post_type = 'question' THEN 1 ELSE 0 END) AS question_created,
+		SUM(CASE WHEN activity_type = 'created' AND post_type = 'answer'   THEN 1 ELSE 0 END) AS answer_created,
+		SUM(CASE WHEN activity_type = 'edited'  AND post_type = 'question' THEN 1 ELSE 0 END) AS question_edited,
+		SUM(CASE WHEN activity_type = 'edited'  AND post_type = 'answer'   THEN 1 ELSE 0 END) AS answer_edited	
+	FROM post_types pt
+		 JOIN post_activity pa ON pt.post_id = pa.post_id
+	GROUP BY 1,2,3
+)
+, comments_by_user AS (
+    SELECT
+        user_id,
+        CAST(DATE_TRUNC(creation_date, DAY) AS DATE) AS activity_date,
+        COUNT(*) as total_comments
+    FROM
+        `bigquery-public-data.stackoverflow.comments`
+    WHERE
+        TRUE
+    	AND creation_date >= CAST('2021-06-01' as TIMESTAMP) 
+    	AND creation_date <= CAST('2021-09-30' as TIMESTAMP)
+	GROUP BY
+        1,2
+)
+, comments_on_user_post AS (
+	SELECT
+        pa.user_id,
+        CAST(DATE_TRUNC(c.creation_date, DAY) AS DATE) AS activity_date,
+        COUNT(*) as total_comments
+    FROM
+        `bigquery-public-data.stackoverflow.comments` c
+        INNER JOIN post_activity pa ON pa.post_id = c.post_id
+    WHERE
+        TRUE
+        AND pa.activity_type = 'created'
+    	AND c.creation_date >= CAST('2021-06-01' as TIMESTAMP) 
+    	AND c.creation_date <= CAST('2021-09-30' as TIMESTAMP)
+	GROUP BY
+        1,2
+)
+SELECT *
+FROM comments_on_user_post 
+WHERE user_id = 16366214;
+
 
 -- number of total posts
 WITH date_parameters AS (
@@ -68,6 +159,9 @@ WITH post_activity AS (
         AND p.creation_date >= dt.start_date
         AND p.creation_date <= dt.end_date
 )
+
+
+
 , votes_per_user as (
     select
         p.post_creator_id,
@@ -102,18 +196,17 @@ WITH post_activity AS (
         1,2
 )
 , comments_per_user as (
-    select
+    SELECT
         c.user_id,
         cast(c.creation_date as date) as creation_date,
         count(*) as total_comments
-    from
+    FROM
         `bigquery-public-data.stackoverflow.comments` c
-        cross join date_parameters dt
-    where
-        true 
-        and c.creation_date >= dt.start_date
-        and c.creation_date <= dt.end_date
-    group by
+    WHERE
+        TRUE
+        AND c.creation_date >= dt.start_date
+        AND c.creation_date <= dt.end_date
+    GROUP BY
         1,2
 )
 , post_metrics_per_user as (

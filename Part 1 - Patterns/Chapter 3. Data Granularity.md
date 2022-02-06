@@ -137,11 +137,15 @@ So which one should you use?
  `DISTINCT` only works to remove duplicates.
  `GROUP BY` can remove duplicates and lets you use aggregate functions.
 
+#### Date Hierarchies
+Given a single timestamp, we can construct granularities for seconds, minutes, hours, days, weeks, months, quarters, years, decades. We do that by using one of the many date manipulation functions. There's way too many of them to mention here and nobody remembers the exact syntax so everyone always look it up in the documents.
+
 #### Recap
 1. Granularity is a measure of the level of detail that determines an individual row in a table or view.
 2. Granularity is usually expressed as the number of unique rows for each column or combination of columns. 
 3. If you need to reduce granularity you can use one of two methods:
 	1. Using `GROUP BY` Aggregation
 	2. Using `DISTINCT`
+4. Dates can be manipulated into many different granularities based on how you want to aggregate them
 
-In the next chapter we'll learn how to approach writing this complex query by decomposing it into simpler compoments.
+In the next chapter we'll learn how to approach writing this complex query by decomposing it into simpler components.

@@ -103,3 +103,5 @@ Sub-problem 3
 Once we get all activity types on the same granularity, it will be very easy to calculate all the metrics per user per date.
 
 In the next chapter we'll begin designing all the CTEs we need for the final query
+
+#### Recap

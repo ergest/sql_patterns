@@ -7,8 +7,12 @@
         "id": "9bde768f2f193790",
         "type": "leaf",
         "state": {
-          "type": "empty",
-          "state": {}
+          "type": "markdown",
+          "state": {
+            "file": "Part 1 - Patterns/Chapter 6. Query Performance.md",
+            "mode": "source",
+            "source": false
+          }
         }
       }
     ],
@@ -65,6 +69,7 @@
             "state": {
               "type": "backlink",
               "state": {
+                "file": "Part 1 - Patterns/Chapter 6. Query Performance.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -100,15 +105,15 @@
   },
   "active": "9bde768f2f193790",
   "lastOpenFiles": [
-    "Pasted image 20220205155007.png",
-    "Part 1 - Patterns/Chapter 5. Chaining CTEs.md",
-    "Archive/Chapter 4. Appending Rows.md",
     "Part 1 - Patterns/Chapter 6. Query Performance.md",
-    "Part 1 - Patterns/Chapter 7. Joining Considerations.md",
+    "Part 1 - Patterns/Chapter 3. Data Granularity.md",
     "Part 1 - Patterns/Chapter 4. Query Decomposition.md",
-    "Archive/Chapter 9. Filtering.md",
-    "Part 2 - SQL Design Patterns/2. Query Maintainability/0. Principles/1. Don't Repeat Yourself (DRY).md",
-    "Part 1 - Patterns/Chapter 2. Understanding the Data Model.md",
-    "Archive/Chapter 6. Aggregating Data.md"
+    "Part 2 - SQL Design Patterns/4. Query Performance/0. Principles/0. Introduction.md",
+    "Archive/Chapter 7. Type Conversion.md",
+    "Archive/Chapter 6. Aggregating Data.md",
+    "Archive/Chapter 4. Appending Rows.md",
+    "Part 1 - Patterns/Chapter 5. Chaining CTEs.md",
+    "Pasted image 20220205155007.png",
+    "Part 1 - Patterns/Chapter 7. Joining Considerations.md"
   ]
 }
