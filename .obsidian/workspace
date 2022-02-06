@@ -106,14 +106,14 @@
   "active": "9bde768f2f193790",
   "lastOpenFiles": [
     "Part 1 - Patterns/Chapter 4. Query Decomposition.md",
-    "Part 1 - Patterns/Chapter 3. Data Granularity.md",
+    "Part 2 - SQL Design Patterns/2. Query Maintainability/0. Principles/1. Don't Repeat Yourself (DRY).md",
     "Part 1 - Patterns/Chapter 2. Understanding the Data Model.md",
-    "Part 2 - SQL Design Patterns/1. Query Decomposition/0. Principles/0. Introduction.md",
+    "Archive/Chapter 6. Aggregating Data.md",
     "Archive/Chapter 2. Common Table Expressions (CTEs).md",
+    "Part 2 - SQL Design Patterns/1. Query Decomposition/0. Principles/0. Introduction.md",
+    "Part 1 - Patterns/Chapter 3. Data Granularity.md",
     "Archive/Chapter 3. Joining Data.md",
     "Part 1 - Patterns/Chapter 1. Project Introduction.md",
-    "Part 3 - Case Study/Stackoverflow User Engagement.md",
-    "Introduction/Introduction.md",
-    "Misc/Article.md"
+    "Part 3 - Case Study/Stackoverflow User Engagement.md"
   ]
 }
