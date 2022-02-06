@@ -47,3 +47,101 @@ creation_date          |post_id |post_history_type_id|user_id |total_rows|
 ```
 
 This means we have to be careful when joining with this table on `post_id, user_id, creation_date, post_history_type_id` and we'd have to deal with the duplicate issue first.
+
+#### Pattern 1 - Reducing Granularity
+We have finally reached our very first pattern. While we're not in the meat of the project yet, it's important to learn this pattern now. You use this pattern to go from a high level of granularity to a lower level of granularity. 
+
+Please note that this is a "one-way street." By reducing granularity you're reducing the level of detail and by definition removing information. This is fine for reporting because as long as you have the low granularity table around you can still get it back.
+
+You can use this pattern to deal with duplicate rows, as we have to do for the above data, but also when you want to transform the data to a lower granularity before joining.
+
+##### Method 1 - Using Aggregation
+The easiest way to reduce granularity is through aggregation grouping by only the columns you want. 
+
+Let's refer again to the previous example. 
+
+If I simply select the columns I want without aggregation, we get duplicates which as we mentioned earlier will mess up joins later. (Rows 2 and 3 are the same)
+```
+SELECT 
+	creation_date,
+	post_id,
+	post_history_type_id,
+	user_id
+FROM 
+	`bigquery-public-data.stackoverflow.post_history`
+WHERE 
+	post_id = 63272171 
+	AND user_id = 14038907
+	AND post_history_type_id = 5
+
+creation_date          |post_id |post_history_type_id|user_id |
+-----------------------+--------+--------------------+--------+
+2020-08-05 15:42:25.130|63272171|                   5|14038907|
+2020-08-05 16:31:15.220|63272171|                   5|14038907|
+2020-08-05 16:31:15.220|63272171|                   5|14038907|
+2020-08-05 16:37:23.983|63272171|                   5|14038907|
+2020-08-05 15:34:38.187|63272171|                   5|14038907|
+```
+
+By simply adding a `GROUP BY` we can easily solve this problem
+```
+SELECT 
+	creation_date,
+	post_id,
+	post_history_type_id,
+	user_id
+FROM 
+	`bigquery-public-data.stackoverflow.post_history`
+WHERE 
+	post_id = 63272171 
+	AND user_id = 14038907
+	AND post_history_type_id = 5
+GROUP BY 1,2,3,4;
+
+creation_date          |post_id |post_history_type_id|user_id |
+-----------------------+--------+--------------------+--------+
+2020-08-05 16:37:23.983|63272171|                   5|14038907|
+2020-08-05 16:31:15.220|63272171|                   5|14038907|
+2020-08-05 15:34:38.187|63272171|                   5|14038907|
+2020-08-05 15:42:25.130|63272171|                   5|14038907|
+```
+
+This is by far the most popular method that guarantees you'll have no duplicates
+
+##### Method 2 - Using Distinct
+By using the `DISTINCT`keyword in SQL and selecting the columns we want, we can directly get the unique ones without using any aggregation.
+
+```
+SELECT DISTINCT
+	creation_date,
+	post_id,
+	post_history_type_id,
+	user_id
+FROM 
+	`bigquery-public-data.stackoverflow.post_history`
+WHERE 
+	post_id = 63272171 
+	AND user_id = 14038907
+	AND post_history_type_id = 5;
+
+creation_date          |post_id |post_history_type_id|user_id |
+-----------------------+--------+--------------------+--------+
+2020-08-05 16:37:23.983|63272171|                   5|14038907|
+2020-08-05 16:31:15.220|63272171|                   5|14038907|
+2020-08-05 15:34:38.187|63272171|                   5|14038907|
+2020-08-05 15:42:25.130|63272171|                   5|14038907|
+```
+
+So which one should you use?
+
+ `DISTINCT` only works to remove duplicates.
+ `GROUP BY` can remove duplicates and lets you use aggregate functions.
+
+#### Recap
+1. Granularity is a measure of the level of detail that determines an individual row in a table or view.
+2. Granularity is usually expressed as the number of unique rows for each column or combination of columns. 
+3. If you need to reduce granularity you can use one of two methods:
+	1. Using `GROUP BY` Aggregation
+	2. Using `DISTINCT`
+
+In the next chapter we'll learn how to approach writing this complex query by decomposing it into simpler compoments.

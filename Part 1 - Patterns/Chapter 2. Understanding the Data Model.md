@@ -1,4 +1,3 @@
-#### Understanding the Data Model
 In order to succeed in any SQL endeavor one of the first things we must do is to understand the data model we're working with. This may already exist in the form of documentation but more often than not you'll have to build the model as you go. You might even learn the hard way, like I did, by making mistakes. That's ok.
 
 The SO data model is quite complex but if you search for it online you'll find the version corresponding to their internal database which doesn't match BigQuery. That's because BigQuery modifies the data in certain ways to avoid self joins. I've taken the liberty of drawing it up for you and we'll cover it now.
@@ -160,4 +159,4 @@ Ok let's recap what we've seen so far:
 2. So far we've seen that a user can create questions and answers, edit questions and answers, comment on a post, receive comments and votes on their post.
 3. We've seen that this information is in various tables and each one has different granularities with respect to the user
 
-In the next chapter we'll cover the most important concept in SQL: granularity. If you're already familiar with it, feel free to skip.
+In the next chapter we'll cover the most important concept in SQL: **granularity** and we'll talk about the very first SQL pattern on reducing granularity.
