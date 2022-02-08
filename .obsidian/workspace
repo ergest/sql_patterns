@@ -106,14 +106,14 @@
   "active": "9bde768f2f193790",
   "lastOpenFiles": [
     "Part 1 - Patterns/Chapter 6. Query Performance.md",
+    "Part 2 - SQL Design Patterns/4. Query Performance/0. Principles/2. Only Select the Columns You Need.md",
+    "Part 2 - SQL Design Patterns/5. Special Cases/Create start date, end date from time-series.md",
     "Part 1 - Patterns/Chapter 3. Data Granularity.md",
-    "Part 1 - Patterns/Chapter 4. Query Decomposition.md",
-    "Part 2 - SQL Design Patterns/4. Query Performance/0. Principles/0. Introduction.md",
-    "Archive/Chapter 7. Type Conversion.md",
     "Archive/Chapter 6. Aggregating Data.md",
     "Archive/Chapter 4. Appending Rows.md",
-    "Part 1 - Patterns/Chapter 5. Chaining CTEs.md",
-    "Pasted image 20220205155007.png",
-    "Part 1 - Patterns/Chapter 7. Joining Considerations.md"
+    "Archive/Chapter 3. Joining Data.md",
+    "Part 1 - Patterns/Chapter 7. Joining Considerations.md",
+    "Archive/Chapter 7. Type Conversion.md",
+    "Archive/Chapter 9. Filtering.md"
   ]
 }
