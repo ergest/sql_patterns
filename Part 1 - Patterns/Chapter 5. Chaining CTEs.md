@@ -166,7 +166,7 @@ WITH post_activity AS (
         TRUE
     	AND p.creation_date >= CAST('2021-06-01' as TIMESTAMP) 
     	AND p.creation_date <= CAST('2021-09-30' as TIMESTAMP)
- )
+)
 SELECT
 	user_id,
 	user_name,

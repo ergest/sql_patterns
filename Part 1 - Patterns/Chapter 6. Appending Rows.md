@@ -1,3 +1,36 @@
+In the previous section we combined the two posts tables using the `UNION ALL` operator to make a single `post_types` CTE like this:
+```
+post_types as (
+    SELECT
+        ph.user_id,
+        ph.user_name,
+        activity_date,
+        activity_type,
+        'question' AS post_type,
+    FROM
+        `bigquery-public-data.stackoverflow.posts_questions` p
+        INNER JOIN post_activity ph on p.id = ph.post_id
+    WHERE
+        TRUE
+    	AND p.creation_date >= CAST('2021-06-01' as TIMESTAMP) 
+    	AND p.creation_date <= CAST('2021-09-30' as TIMESTAMP)
+    UNION ALL
+    SELECT
+        ph.user_id,
+        ph.user_name,
+        activity_date,
+        activity_type,
+        'answer' AS post_type,
+    FROM
+        `bigquery-public-data.stackoverflow.posts_answers` p
+        INNER JOIN post_activity ph on p.id = ph.post_id
+    WHERE
+        TRUE
+    	AND p.creation_date >= CAST('2021-06-01' as TIMESTAMP) 
+    	AND p.creation_date <= CAST('2021-09-30' as TIMESTAMP)
+)
+```
+
 Just like a `JOIN` adds columns to a result set a `UNION` appends rows to it by combining two or more tables length-wise. There are two types of unions, `UNION ALL` and `UNION` (distinct) 
 
 `UNION ALL` will append two tables regardless of whether they both have the exact same row which of course will cause duplicates. `UNION` (distinct) will append the tables and remove all matching rows from the second one thus guaranteeing unique rows for the final result set. 
