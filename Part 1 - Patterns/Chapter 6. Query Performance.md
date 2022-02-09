@@ -94,3 +94,9 @@ WHERE user_id = 16366214
 However in the second query, if I were to join that CTE with another table or CTE in the query it would join with a much larger table, many more rows which would make the final query really slow.
 
 #### Only select the columns that you need
+It’s very tempting to always do `SELECT *` in your queries or CTEs, especially if you don’t know which columns you need later. While this may be ok in a traditional RDBMS, in fact many introduction courses suggest to use this to explore data, cloud warehouse platforms are different.
+
+This means that each column you select increases the amount of data you scan and how much compute resources you use. This in turn directly affects the performance of your queries and your bottom line. Platforms like BigQuery charge based o the amount of data you scan, even if you limit the rows. So a `SELECT * LIMIT 10` will still scan the entire table!
+
+Throughout this book you've seen that my code only selects the columns that I need and restrict the data inside a CTE before I use that CTE in a join. We will continue this pattern while we add the final element to our query, the votes.
+

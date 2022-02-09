@@ -9,7 +9,7 @@
         "state": {
           "type": "markdown",
           "state": {
-            "file": "Part 1 - Patterns/Chapter 6. Query Performance.md",
+            "file": "Part 1 - Patterns/Chapter 5. Chaining CTEs.md",
             "mode": "source",
             "source": false
           }
@@ -69,7 +69,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Part 1 - Patterns/Chapter 6. Query Performance.md",
+                "file": "Part 1 - Patterns/Chapter 5. Chaining CTEs.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -105,15 +105,15 @@
   },
   "active": "9bde768f2f193790",
   "lastOpenFiles": [
-    "Part 1 - Patterns/Chapter 6. Query Performance.md",
-    "Part 2 - SQL Design Patterns/4. Query Performance/0. Principles/2. Only Select the Columns You Need.md",
-    "Part 2 - SQL Design Patterns/5. Special Cases/Create start date, end date from time-series.md",
-    "Part 1 - Patterns/Chapter 3. Data Granularity.md",
-    "Archive/Chapter 6. Aggregating Data.md",
+    "Part 1 - Patterns/Chapter 5. Chaining CTEs.md",
     "Archive/Chapter 4. Appending Rows.md",
-    "Archive/Chapter 3. Joining Data.md",
-    "Part 1 - Patterns/Chapter 7. Joining Considerations.md",
-    "Archive/Chapter 7. Type Conversion.md",
-    "Archive/Chapter 9. Filtering.md"
+    "Part 1 - Patterns/Chapter 10. String Manipulation.md",
+    "SQL Design Patterns/5. Special Cases/Custom Grouping.md",
+    "Part 1 - Patterns/Chapter 11. Window Functions.md",
+    "Archive/Chapter 9. Filtering.md",
+    "Archive/Chapter 6. Aggregating Data.md",
+    "Part 2 - SQL Design Patterns/5. Special Cases/Custom Row Ranking.md",
+    "Part 2 - SQL Design Patterns/5. Special Cases/Data Reshaping.md",
+    "Part 1 - Patterns/Chapter 9. Type Conversion.md"
   ]
 }
