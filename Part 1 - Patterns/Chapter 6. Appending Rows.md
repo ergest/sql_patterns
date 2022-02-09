@@ -2,190 +2,49 @@ In the previous section we combined the two posts tables using the `UNION ALL` o
 ```
 post_types as (
     SELECT
-        ph.user_id,
-        ph.user_name,
-        activity_date,
-        activity_type,
+		id AS post_id,
         'question' AS post_type,
     FROM
-        `bigquery-public-data.stackoverflow.posts_questions` p
-        INNER JOIN post_activity ph on p.id = ph.post_id
+        `bigquery-public-data.stackoverflow.posts_questions`
     WHERE
         TRUE
-    	AND p.creation_date >= CAST('2021-06-01' as TIMESTAMP) 
-    	AND p.creation_date <= CAST('2021-09-30' as TIMESTAMP)
+    	AND creation_date >= CAST('2021-06-01' as TIMESTAMP) 
+    	AND creation_date <= CAST('2021-09-30' as TIMESTAMP)
     UNION ALL
     SELECT
-        ph.user_id,
-        ph.user_name,
-        activity_date,
-        activity_type,
+        id AS post_id,
         'answer' AS post_type,
     FROM
-        `bigquery-public-data.stackoverflow.posts_answers` p
-        INNER JOIN post_activity ph on p.id = ph.post_id
+        `bigquery-public-data.stackoverflow.posts_answers`
     WHERE
         TRUE
-    	AND p.creation_date >= CAST('2021-06-01' as TIMESTAMP) 
-    	AND p.creation_date <= CAST('2021-09-30' as TIMESTAMP)
-)
-```
+    	AND creation_date >= CAST('2021-06-01' as TIMESTAMP) 
+    	AND creation_date <= CAST('2021-09-30' as TIMESTAMP)
+ )
+ ```
 
-Just like a `JOIN` adds columns to a result set a `UNION` appends rows to it by combining two or more tables length-wise. There are two types of unions, `UNION ALL` and `UNION` (distinct) 
+Let's take a moment to see how this pattern works. Just like a `JOIN` adds columns to a result set the `UNION` operator appends rows to it by combining two or more tables length-wise. There are two types of unions, `UNION ALL` and `UNION` (distinct) 
 
-`UNION ALL` will append two tables regardless of whether they both have the exact same row which of course will cause duplicates. `UNION` (distinct) will append the tables and remove all matching rows from the second one thus guaranteeing unique rows for the final result set. 
+`UNION ALL` will append two tables without checking if they have the same exact row. This might cause duplicates but it's really fast. If you know for sure your tables don't contain duplicates, as in our case this is the preferred way to append two tables. 
 
-One of the most common use cases for `UNION` is when you have similar shape data coming from multiple divisions or business units of a company and it needs to be combined to create a single reporting table for finance. Same thing if you have 
+`UNION` (distinct) will append the tables but remove all duplicates from the final result thus guaranteeing unique rows for the final result set. This of course is slower because of the extra operations to remove duplicates. Use this only when you're not sure if the tables contain duplicates or you cannot remove duplicates beforehand.
 
-Most SQL flavors only use `UNION` keyword for the distinct version, but BigQuery forces you to use `UNION DISTINCT` as a full keyword making the query far more explicit
+Most SQL flavors only use `UNION` keyword for the distinct version, but BigQuery forces you to use `UNION DISTINCT` in order to make the query far more explicit
 
 Appending rows to a table also has two requirements:
 1. The number of the columns from all tables has to be the same
 2. The data types of the columns from all the tables has to line up 
 
-In order to `UNION` two tables they have to have the same number of columns, which makes sense. If you're stacking columns on top of each other they all need to line up.
+One of the most annoying things when appending two or more tables with a lot of columns is lining up all the columns in the right order. There's been many a time when I've had to use Excel to line up the columns. There's no shame in admitting that.
 
-Let's take a look at the schema of `posts_answers` and `posts_questions`. In BigQuery you do this by running:
-```
-select column_name, data_type
-from `bigquery-public-data.stackoverflow.INFORMATION_SCHEMA.COLUMNS`
-where table_name = 'posts_answers'
-```
+As a rule of thumb, whenever you're appending tables, it's a good idea to add a constant column to indicate the source table or some kind of type. This is helpful when appending say activity tables to create a long, time-series table and you want to identify each activity type in the final result set.
 
-and we get this for both tables
-```
-column_name             |data_type|
-------------------------+---------+
-id                      |INT64    |
-title                   |STRING   |
-body                    |STRING   |
-accepted_answer_id      |STRING   |
-answer_count            |STRING   |
-comment_count           |INT64    |
-community_owned_date    |TIMESTAMP|
-creation_date           |TIMESTAMP|
-favorite_count          |STRING   |
-last_activity_date      |TIMESTAMP|
-last_edit_date          |TIMESTAMP|
-last_editor_display_name|STRING   |
-last_editor_user_id     |INT64    |
-owner_display_name      |STRING   |
-owner_user_id           |INT64    |
-parent_id               |INT64    |
-post_type_id            |INT64    |
-score                   |INT64    |
-tags                    |STRING   |
-view_count              |STRING   |
+You'll notice in my query above I create a `post_type` column indicating where the data is coming from.
+
+#### User Activity Pattern
+You can use a `UNION` operator to create a customer journey table with activities from multiple tables that could come from multiple systems. All you need is three base columns, a unique customer identifier (`customer_id` or `email`), an activity type and a timestamp.
+
+Here's a quick example of this pattern using the same tables we're working with:
 ```
 
-This means that we could `UNION ALL` these tables together to produce a single result set for all posts. This is helpful because it lets us combine the posts in one table. 
-
-Here's what that looks like:
 ```
-select
-	id as post_id,
-	p.creation_date,
-	'question' as post_type,
-	p.score as post_score
-from
-	`bigquery-public-data.stackoverflow.posts_questions` p
-where
-	true
-	and p.creation_date >= '2021-09-01'
-	and p.creation_date <= '2021-09-02'
-union all
-select
-	id as post_id,
-	p.creation_date,
-	'answer' as post_type,
-	p.score as post_score
-from
-	`bigquery-public-data.stackoverflow.posts_answers` p
-where
-	true
-	and p.creation_date >= '2021-09-01'
-	and p.creation_date <= '2021-09-02'
-```
-
-As a rule of thumb, whenever you're appending two or more tables, it's a good idea to add a constant column to indicate the source table or some kind of type. This is helpful when appending say activity tables to create a long, time-series table and you want to identify each activity type in the final result set.
-
-In the case of this dataset, the original schema had all the posts in a single table called `posts` which the engineers at BigQuery split up by type and stored in separate tables to optimize storage so appending it together using `UNION ALL` vs `UNION DISTINCT` makes sense.
-
-However if you're not sure, just like in the case of JOINs, err on the side of using `UNION DISTINCT`. The main difference is the added computational complexity to dedupe rows which the query engine doesn't have to perform if you're just appending rows.
-
-#### Special Use Cases
-You can often use a `UNION` operator to replace the `OR` condition on a `WHERE` clause . This has two main benefits: first, it makes the query easier to read and understand and second it makes the query much faster.
-
-Replacing OR with union works great in cases when you need to check two or more columns for the same value like a start date and end date.
-
-Let's look at an example.
-
-Suppose we wanted all the questions and answers that were either created or modified on a given day. Both `posts_answers`  and `post_questions` tables have a `creation_date` and a `last_activity_date` so the easiest way to get what we need is this query:
-
-```
-with posts as (
-	 select
-        id as post_id,
-        p.creation_date,
-        p.last_activity_date,
-        'question' as post_type,
-        p.score as post_score
-    from
-        `bigquery-public-data.stackoverflow.posts_questions` p
-    union all
-    select
-        id as post_id,
-        p.creation_date,
-        p.last_activity_date,
-        'answer' as post_type,
-        p.score as post_score
-    from
-        `bigquery-public-data.stackoverflow.posts_answers` p
-)
-select *
-from posts
-where (creation_date >= '2021-09-01'
-	and creation_date < '2021-09-02')
-	or
-	(last_activity_date >= '2021-09-01'
-	and last_activity_date < '2021-09-02');
-```
-
-What's wrong with this query? Well yes it will get us the desired result but it's kind of clunky. We had to use parentheses to separate the `AND` from the `OR` so the logic doesn't get messed up. BigQuery doesn't complain, but if we had a different system the query would be much slower as it will not take advantage of indexes. 
-
-We can rewrite it using `UNION DISTINCT` . We have to use `DISTINCT` because we only want a row that satisfies both conditions to appear just once.
-
-```
-with posts as (
-	 select
-        id as post_id,
-        p.creation_date,
-        p.last_activity_date,
-        'question' as post_type,
-        p.score as post_score
-    from
-        `bigquery-public-data.stackoverflow.posts_questions` p
-    union all
-    select
-        id as post_id,
-        p.creation_date,
-        p.last_activity_date,
-        'answer' as post_type,
-        p.score as post_score
-    from
-        `bigquery-public-data.stackoverflow.posts_answers` p
-)
-select *
-from posts
-where creation_date >= '2021-09-01'
-	and creation_date < '2021-09-02'
-
-union distinct
-
-select *
-from posts
-where last_activity_date >= '2021-09-01'
-	and last_activity_date < '2021-09-02';
-```
-
-Both queries get us 18,909 rows!
