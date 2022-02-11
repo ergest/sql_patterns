@@ -104,4 +104,6 @@ Once we get all activity types on the same granularity, it will be very easy to 
 
 In the next chapter we'll begin designing all the CTEs we need for the final query
 
+#### Principles of Unix Programming
+
 #### Recap

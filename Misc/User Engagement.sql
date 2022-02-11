@@ -51,13 +51,16 @@ WITH post_activity AS (
 		user_id,
 		user_name,
 		CAST(DATE_TRUNC(activity_date, DAY) AS DATE) AS activity_date ,
-		SUM(CASE WHEN activity_type = 'created' AND post_type = 'question' THEN 1 ELSE 0 END) AS question_created,
-		SUM(CASE WHEN activity_type = 'created' AND post_type = 'answer'   THEN 1 ELSE 0 END) AS answer_created,
-		SUM(CASE WHEN activity_type = 'edited'  AND post_type = 'question' THEN 1 ELSE 0 END) AS question_edited,
-		SUM(CASE WHEN activity_type = 'edited'  AND post_type = 'answer'   THEN 1 ELSE 0 END) AS answer_edited	
+		SUM(CASE WHEN activity_type = 'created' AND post_type = 'question' THEN 1 ELSE 0 END) AS questions_created,
+		SUM(CASE WHEN activity_type = 'created' AND post_type = 'answer'   THEN 1 ELSE 0 END) AS answers_created,
+		SUM(CASE WHEN activity_type = 'edited'  AND post_type = 'question' THEN 1 ELSE 0 END) AS questions_edited,
+		SUM(CASE WHEN activity_type = 'edited'  AND post_type = 'answer'   THEN 1 ELSE 0 END) AS answers_edited,
+		SUM(CASE WHEN activity_type = 'created' THEN 1 ELSE 0 END) AS posts_created,
+		SUM(CASE WHEN activity_type = 'edited' THEN 1 ELSE 0 END)  AS posts_edited
 	FROM post_types pt
 		 JOIN post_activity pa ON pt.post_id = pa.post_id
 	GROUP BY 1,2,3
+	HAVING SUM(CASE WHEN activity_type = 'created' THEN 1 ELSE 0 END) > 0
 )
 , comments_by_user AS (
     SELECT
@@ -106,45 +109,81 @@ WITH post_activity AS (
 	GROUP BY
         1,2
 )
-SELECT *
-FROM votes_on_user_post
-WHERE user_id = 16366214;
-
-
 ------------------------------------------------
 ---- Main Query
 SELECT
-    pm.post_creator_id,
-    pm.post_creator_name,
-    SUM(pm.total_posts)     AS posts,
-    SUM(pm.total_answers) 	AS answers,
-    SUM(pm.total_questions)	AS questions,
-    COUNT(pm.creation_date) AS streak_in_days,
-    ROUND(SUM(pm.total_posts) 	  * 1.0 / COUNT(pm.creation_date), 1) AS posts_per_day,
-    ROUND(SUM(pm.total_answers)   * 1.0 / COUNT(pm.creation_date), 1) AS answers_per_day,
-    ROUND(SUM(pm.total_questions) * 1.0 / COUNT(pm.creation_date), 1) AS questions_per_day,
-    ROUND(SUM(vu.total_upvotes)   * 1.0 / COUNT(pm.creation_date), 1) AS upvotes_per_day,
-    ROUND(SUM(vu.total_downvotes) * 1.0 / COUNT(pm.creation_date), 1) AS downvotes_per_day,
-    ROUND(SUM(cp.total_comments)  * 1.0 / COUNT(pm.creation_date), 1) AS comments_on_user_posts_per_day,
-    ROUND(SUM(cu.total_comments)  * 1.0 / COUNT(pm.creation_date), 1) AS comments_by_user_per_day,
-    ROUND(SUM(pm.total_answers)   * 1.0 / SUM(pm.total_posts), 1)  AS answers_per_post_ratio,
-    ROUND(SUM(vu.total_upvotes)   * 1.0 / SUM(pm.total_posts), 1)  AS upvotes_per_post,
-    ROUND(SUM(vu.total_downvotes) * 1.0 / SUM(pm.total_posts), 1)  AS downvotes_per_post,
-    ROUND(SUM(cp.total_comments)  * 1.0 / SUM(pm.total_posts), 1)  AS comments_per_post_on_user_posts,
-    ROUND(SUM(cu.total_comments)  * 1.0 / SUM(pm.total_posts), 1)  AS comments_by_user_per_per_post
+    pm.user_id,
+    pm.user_name,
+    SUM(pm.posts_created)     	                                        AS posts_created,
+    SUM(pm.answers_created) 	                                        AS answers_created,
+    SUM(pm.questions_created)	                                        AS questions_created,
+    COUNT(pm.activity_date) 	                                        AS streak_in_days,
+    ROUND(SUM(pm.posts_created)	  	* 1.0 / COUNT(pm.activity_date), 1) AS posts_per_day,
+    ROUND(SUM(pm.answers_created)   * 1.0 / COUNT(pm.activity_date), 1) AS answers_created_per_day,
+    ROUND(SUM(pm.questions_created) * 1.0 / COUNT(pm.activity_date), 1) AS questions_created_per_day,
+    ROUND(SUM(vu.total_upvotes)   	* 1.0 / COUNT(pm.activity_date), 1) AS upvotes_per_day,
+    ROUND(SUM(vu.total_downvotes) 	* 1.0 / COUNT(pm.activity_date), 1) AS downvotes_per_day,
+    ROUND(SUM(cp.total_comments)  	* 1.0 / COUNT(pm.activity_date), 1) AS comments_on_user_posts_per_day,
+    ROUND(SUM(cu.total_comments)  	* 1.0 / COUNT(pm.activity_date), 1) AS comments_by_user_per_day,
+    ROUND(SUM(pm.answers_created)   * 1.0 / SUM(pm.posts_created), 1)  	AS answers_per_post_ratio,
+    ROUND(SUM(vu.total_upvotes)   	* 1.0 / SUM(pm.posts_created), 1)  	AS upvotes_per_post,
+    ROUND(SUM(vu.total_downvotes) 	* 1.0 / SUM(pm.posts_created), 1)  	AS downvotes_per_post,
+    ROUND(SUM(cp.total_comments)  	* 1.0 / SUM(pm.posts_created), 1)  	AS comments_per_post_on_user_posts,
+    ROUND(SUM(cu.total_comments)  	* 1.0 / SUM(pm.posts_created), 1)  	AS comments_by_user_per_per_post
 FROM
-    post_metrics_per_user pm
-    JOIN votes_per_user vu
-        ON pm.creation_date = vu.creation_date
-        AND pm.post_creator_id = vu.post_creator_id
+    user_post_metrics pm
+    JOIN votes_on_user_post vu
+        ON pm.activity_date = vu.activity_date
+        AND pm.user_id = vu.user_id
     JOIN comments_on_user_post cp 
-        ON pm.creation_date = cp.creation_date
-        AND pm.post_creator_id = cp.post_creator_id
-    JOIN comments_per_user cu
-        ON pm.creation_date = cu.creation_date
-        AND pm.post_creator_id = cu.user_id
+        ON pm.activity_date = cp.activity_date
+        AND pm.user_id = cp.user_id
+    JOIN comments_by_user cu
+        ON pm.activity_date = cu.activity_date
+        AND pm.user_id = cu.user_id
+--WHERE
+--	posts_created > 0
 GROUP BY
     1,2
 ORDER BY
-    posts desc
+    posts_created DESC;
 --*/
+
+
+SELECT
+	id,
+	display_name,
+	creation_date ,
+	reputation,
+	views
+FROM `bigquery-public-data.stackoverflow.users`
+WHERE id = 8974849;
+
+SELECT
+	id,
+	creation_date,
+	post_id,
+	post_history_type_id,
+	user_id 
+FROM
+	`bigquery-public-data.stackoverflow.post_history` ph
+WHERE
+	TRUE
+	AND ph.creation_date >= CAST('2021-06-01' as TIMESTAMP) 
+	AND ph.creation_date <= CAST('2021-09-30' as TIMESTAMP)
+	AND ph.user_id = 8974849;
+
+SELECT
+	ph.post_id,
+	ph.user_id,
+	u.display_name AS user_name,
+	ph.creation_date AS activity_date,
+	post_history_type_id
+FROM
+	`bigquery-public-data.stackoverflow.post_history` ph
+	INNER JOIN `bigquery-public-data.stackoverflow.users` u ON u.id = ph.user_id
+WHERE
+	TRUE
+	AND ph.creation_date >= CAST('2021-06-01' as TIMESTAMP) 
+	AND ph.creation_date <= CAST('2021-09-30' as TIMESTAMP)
+	AND ph.user_id = 8974849;

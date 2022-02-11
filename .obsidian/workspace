@@ -106,14 +106,14 @@
   "active": "9bde768f2f193790",
   "lastOpenFiles": [
     "Part 1 - Patterns/Chapter 7. Joining Considerations.md",
-    "Part 1 - Patterns/Chapter 6. Appending Rows.md",
     "Part 1 - Patterns/Chapter 5. Chaining CTEs.md",
+    "Part 1 - Patterns/Chapter 6. Appending Rows.md",
+    "Part 1 - Patterns/Chapter 4. Query Decomposition.md",
     "Part 1 - Patterns/Chapter 9. Query Performance.md",
     "Part 2 - Principles/5. Special Cases/9. Date Math.md",
     "Part 1 - Patterns/Chapter 14. JSON Parsing.md",
     "Part 1 - Patterns/Chapter 13. Reference Table Filtering.md",
     "SQL Design Patterns/5. Special Cases/Spine Table.md",
-    "Part 1 - Patterns/Chapter 8. Data Reshaping.md",
-    "Part 1 - Patterns/Chapter 12. Type Conversion.md"
+    "Part 1 - Patterns/Chapter 8. Data Reshaping.md"
   ]
 }
