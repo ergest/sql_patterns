@@ -1,3 +1,4 @@
+#### Chaining and Nesting CTEs
 In order to solve the first sub-problem we have to break down the query into small, single-purpose CTEs that can be tested independently. As described in the previous chapter, the first one is about combining the post activity and the post types into a single CTE aggregated at the `user_id, date` level of granularity.
 
 Since we want to apply the SRP to our CTEs, we can create one for each post activity like this:

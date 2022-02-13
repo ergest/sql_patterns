@@ -1,3 +1,4 @@
+#### Appending Rows
 In the previous section we combined the two posts tables using the `UNION ALL` operator to make a single `post_types` CTE like this:
 ```
 post_types as (
@@ -41,10 +42,16 @@ As a rule of thumb, whenever you're appending tables, it's a good idea to add a 
 
 You'll notice in my query above I create a `post_type` column indicating where the data is coming from.
 
-#### User Activity Pattern
-You can use a `UNION` operator to create a customer journey table with activities from multiple tables that could come from multiple systems. All you need is three base columns, a unique customer identifier (`customer_id` or `email`), an activity type and a timestamp.
+### String Manipulation
+Concatenating, parsing, splitting strings
+Using string manipulation to create custom groups
+	- String concatenation
+	- String parsing
+	- Substring extraction
 
-Here's a quick example of this pattern using the same tables we're working with:
-```
+### Window Functions
+Window Functions 
 
-```
+### Reference Table Filtering
+select *
+where exists ()

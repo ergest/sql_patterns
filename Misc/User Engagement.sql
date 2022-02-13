@@ -1,6 +1,4 @@
-/**
- * User engagement score
- */
+ -- Get the user name and collapse the granularity of post_history to the user_id, post_id, activity type and date
 WITH post_activity AS (
 	SELECT
 		ph.post_id,
@@ -23,6 +21,7 @@ WITH post_activity AS (
     GROUP BY
     	1,2,3,4,5
 )
+-- Get the post types we care about questions and answers only and combine them in one CTE
 ,post_types AS (
     SELECT
 		id AS post_id,
@@ -44,6 +43,7 @@ WITH post_activity AS (
     	AND creation_date >= CAST('2021-06-01' as TIMESTAMP) 
     	AND creation_date <= CAST('2021-09-30' as TIMESTAMP)
  )
+ -- Finally calculate the post metrics 
 , user_post_metrics AS (
 	SELECT
 		user_id,
@@ -107,53 +107,60 @@ WITH post_activity AS (
 	GROUP BY
         1,2
 )
+, total_metrics_per_user AS (
+	SELECT
+	    pm.user_id,
+	    pm.user_name,
+	    SUM(pm.posts_created)     	AS total_posts_created,
+	    SUM(pm.posts_edited)     	AS total_posts_edited,
+	    SUM(pm.answers_created) 	AS total_answers_created,
+	    SUM(pm.answers_edited) 		AS total_answers_edited,
+	    SUM(pm.questions_created)	AS total_questions_created,
+	    SUM(pm.questions_edited)	AS total_questions_edited,
+	    SUM(vu.total_upvotes)		AS total_upvotes,
+	    SUM(vu.total_downvotes)		AS total_downvotes,
+	    SUM(cu.total_comments)		AS total_comments_by_user,
+	    SUM(cp.total_comments)		AS total_comments_on_post,
+	    COUNT(pm.activity_date) 	AS streak_in_days
+	FROM
+	    user_post_metrics pm
+	    JOIN votes_on_user_post vu
+	        ON pm.activity_date = vu.activity_date
+	        AND pm.user_id = vu.user_id
+	    JOIN comments_on_user_post cp 
+	        ON pm.activity_date = cp.activity_date
+	        AND pm.user_id = cp.user_id
+	    JOIN comments_by_user cu
+	        ON pm.activity_date = cu.activity_date
+	        AND pm.user_id = cu.user_id
+	GROUP BY
+		1,2
+)
 ------------------------------------------------
 ---- Main Query
 SELECT
-    pm.user_id,
-    pm.user_name,
-    SUM(pm.posts_created)     	AS posts_created,
-    SUM(pm.answers_created) 	AS answers_created,
-    SUM(pm.questions_created)	AS questions_created,
-    COUNT(pm.activity_date) 	AS streak_in_days,
-    ROUND(SUM(pm.posts_created)	  * 1.0 
-        / COUNT(pm.activity_date), 1) AS posts_per_day,
-    ROUND(SUM(pm.answers_created) * 1.0
-        / COUNT(pm.activity_date), 1) AS answers_created_per_day,
-    ROUND(SUM(pm.questions_created) * 1.0
-        / COUNT(pm.activity_date), 1) AS questions_created_per_day,
-    ROUND(SUM(vu.total_upvotes)  * 1.0 
-        / COUNT(pm.activity_date), 1) AS upvotes_per_day,
-    ROUND(SUM(vu.total_downvotes) * 1.0 
-        / COUNT(pm.activity_date), 1) AS downvotes_per_day,
-    ROUND(SUM(cp.total_comments)  * 1.0 
-        / COUNT(pm.activity_date), 1) AS comments_on_user_posts_per_day,
-    ROUND(SUM(cu.total_comments)  * 1.0 
-        / COUNT(pm.activity_date), 1) AS comments_by_user_per_day,
-    ROUND(SUM(pm.answers_created) * 1.0 
-        / SUM(pm.posts_created), 1)   AS answers_per_post_ratio,
-    ROUND(SUM(vu.total_upvotes)   * 1.0 
-        / SUM(pm.posts_created), 1)   AS upvotes_per_post,
-    ROUND(SUM(vu.total_downvotes) * 1.0 
-        / SUM(pm.posts_created), 1)   AS downvotes_per_post,
-    ROUND(SUM(cp.total_comments)  * 1.0 
-        / SUM(pm.posts_created), 1)   AS comments_per_post_on_user_posts,
-    ROUND(SUM(cu.total_comments)  * 1.0 
-        / SUM(pm.posts_created), 1)   AS comments_by_user_per_per_post
+    user_id,
+    user_name,
+    total_posts_created,
+	total_answers_created,
+	total_answers_edited,
+	total_questions_created,
+	total_questions_edited,
+	total_upvotes,
+	total_comments_by_user,
+	total_comments_on_post,
+	streak_in_days,
+	total_posts_created 	* 1.0 / streak_in_days AS posts_per_day,
+	total_posts_edited 		* 1.0 / streak_in_days AS edits_per_day,
+	total_answers_created 	* 1.0 / streak_in_days AS answers_per_day,
+	total_questions_created * 1.0 / streak_in_days AS questions_per_day,
+	total_comments_by_user  * 1.0 / streak_in_days AS comments_by_user_per_day,
+	total_answers_created 	* 1.0 / total_posts_created AS answers_per_post,
+	total_upvotes 			* 1.0 / total_posts_created AS upvotes_per_post,
+	total_downvotes 		* 1.0 / total_posts_created AS downvotes_per_post,
+	total_comments_by_user	* 1.0 / total_posts_created AS comments_by_user_per_post,
+	total_comments_on_post	* 1.0 / total_posts_created AS comments_on_post_per_post
 FROM
-    user_post_metrics pm
-    JOIN votes_on_user_post vu
-        ON pm.activity_date = vu.activity_date
-        AND pm.user_id = vu.user_id
-    JOIN comments_on_user_post cp 
-        ON pm.activity_date = cp.activity_date
-        AND pm.user_id = cp.user_id
-    JOIN comments_by_user cu
-        ON pm.activity_date = cu.activity_date
-        AND pm.user_id = cu.user_id
--- WHERE
---	pm.user_id = 1144035
-GROUP BY
-	1,2
+    total_metrics_per_user
 ORDER BY 
-	posts_created DESC;
+	total_posts_created DESC;

@@ -53,3 +53,17 @@ where
 ```
 
 In this case we're combining a `SAFE_CAST()` with `ISNULL()` so that if the conversion fails for whatever reason, I always get a zero.
+
+#### Dealing with NULLs 
+
+#### Start with a LEFT JOIN
+Whenever we use `INNER JOIN` the final result is always reduced down to just the matching rows from both tables. This means that if the history table has some strange `user_id` that doesn't exist in the `users` table, they will not show up in the final result. The same happens with the `users` that have no activity in `post_history`
+
+For the purposes of our project, we only want the active users so an `INNER JOIN` is very appropriate here. If we wanted everyone, we'd have to user a `LEFT JOIN` So why am I saying you should start with a `LEFT JOIN`? Get burned too many times and you eventually learn your lesson.
+
+The mantra I keep repeating here is "real world data is messy" There are missing rows, duplicate rows, incorrect types and so on. Unless you know your data well and it's being carefully monitored for these things, you should consider them in your joins.
+
+#### Dealing with divide by zero
+
+#### Dealing with duplicate rows
+

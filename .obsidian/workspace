@@ -9,7 +9,7 @@
         "state": {
           "type": "markdown",
           "state": {
-            "file": "Part 1 - Patterns/Chapter 5. Chaining CTEs.md",
+            "file": "Part 1 - Patterns/Chapter 4. Query Decomposition.md",
             "mode": "source",
             "source": false
           }
@@ -69,7 +69,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Part 1 - Patterns/Chapter 5. Chaining CTEs.md",
+                "file": "Part 1 - Patterns/Chapter 4. Query Decomposition.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -105,15 +105,15 @@
   },
   "active": "9bde768f2f193790",
   "lastOpenFiles": [
-    "Part 1 - Patterns/Chapter 5. Chaining CTEs.md",
-    "Part 1 - Patterns/Chapter 6. Appending Rows.md",
-    "Part 1 - Patterns/Chapter 9. Query Robustness.md",
-    "Part 2 - Principles/1. Query Decomposition/Chapter 1. Principles.md",
-    "Part 2 - Principles/1. Query Decomposition/1. Patterns/Using Views.md",
-    "Part 2 - Principles/1. Query Decomposition/1. Patterns/Nesting CTEs.md",
-    "Part 2 - Principles/1. Query Decomposition/1. Patterns/Chaining CTEs.md",
-    "Part 2 - Principles/1. Query Decomposition/0. Principles/3. Keep the Elements Small.md",
-    "Part 1 - Patterns/Chapter 8. Query Performance.md",
-    "Part 1 - Patterns/Chapter 3. Data Granularity.md"
+    "Part 1 - Patterns/Chapter 4. Query Decomposition.md",
+    "Part 1 - Patterns/Chapter 3. Data Granularity.md",
+    "Part 2 - Principles/2. Query Maintainability/1. Patterns/Multi-step Calculation.md",
+    "Part 2 - Principles/2. Query Maintainability/1. Patterns/Nested Logic.md",
+    "Part 1 - Patterns/Chapter 8. Query Robustness.md",
+    "Part 2 - Principles/3. Query Robustness/0. Principles/3. Divide by Zero.md",
+    "Part 2 - Principles/3. Query Robustness/1. Patterns/Deduping Rows.md",
+    "Part 2 - Principles/2. Query Maintainability/1. Patterns/Wide Tables.md",
+    "Part 2 - Principles/1. Query Decomposition/0. Principles/1. Start with the Ground Truth.md",
+    "Part 1 - Patterns/Chapter 9. Special Cases.md"
   ]
 }
