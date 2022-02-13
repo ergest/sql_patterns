@@ -60,18 +60,17 @@ WITH post_activity AS (
         ph.user_id,
         u.display_name AS user_name,
         ph.creation_date AS activity_date,
-        CASE ph.post_history_type_id
-        	WHEN 1 THEN 'created'
-        	WHEN 4 THEN 'edited' 
+        CASE WHEN ph.post_history_type_id IN (1,2,3) THEN 'created'
+        	 WHEN ph.post_history_type_id IN (4,5,6) THEN 'edited' 
         END AS activity_type
     FROM
         `bigquery-public-data.stackoverflow.post_history` ph
         INNER JOIN `bigquery-public-data.stackoverflow.users` u on u.id = ph.user_id
     WHERE
     	TRUE 
-    	AND ph.post_history_type_id IN (1,4)
+    	AND ph.post_history_type_id BETWEEN 1 AND 6
     	AND user_id > 0 --exclude automated processes
-    	AND user_id IS NOT NULL
+    	AND user_id IS NOT NULL --exclude deleted accounts
     	AND ph.creation_date >= CAST('2021-06-01' as TIMESTAMP) 
     	AND ph.creation_date <= CAST('2021-09-30' as TIMESTAMP)
     GROUP BY
@@ -91,23 +90,6 @@ post_id |user_id |user_name  |activity_date          |activity_type|
 68441160|16366214|Tony Agosta|2021-07-26 07:32:07.387|edited       |
 ```
 
-By the way
-```
-CASE field_name
-    WHEN value1 THEN 'label1'
-    WHEN value2 THEN 'label2'
-	WHEN value3 THEN 'label3'
-END as column
-```
-is equivalent to
-```
-CASE 
-	WHEN field_name = value1 THEN 'label1'
-    WHEN field_name = value2 THEN 'label2'
-    WHEN field_name = value3 THEN 'label3'
-END as column
-```
-
 The astute reader would have noticed the aggregation pattern to reduce granularity. At this point we still don't know if the user posted a question or an answer but we can get that by chaining this CTE with one that has the post types.
 
 #### CTE Chaining
@@ -121,18 +103,17 @@ WITH post_activity AS (
         ph.user_id,
         u.display_name AS user_name,
         ph.creation_date AS activity_date,
-        CASE ph.post_history_type_id
-        	WHEN 1 THEN 'created'
-        	WHEN 4 THEN 'edited' 
+        CASE WHEN ph.post_history_type_id IN (1,2,3) THEN 'created'
+        	 WHEN ph.post_history_type_id IN (4,5,6) THEN 'edited' 
         END AS activity_type
     FROM
         `bigquery-public-data.stackoverflow.post_history` ph
         INNER JOIN `bigquery-public-data.stackoverflow.users` u on u.id = ph.user_id
     WHERE
     	TRUE 
-    	AND ph.post_history_type_id IN (1,4)
+    	AND ph.post_history_type_id BETWEEN 1 AND 6
     	AND user_id > 0 --exclude automated processes
-    	AND user_id IS NOT NULL
+    	AND user_id IS NOT NULL --exclude deleted accounts
     	AND ph.creation_date >= CAST('2021-06-01' as TIMESTAMP) 
     	AND ph.creation_date <= CAST('2021-09-30' as TIMESTAMP)
     GROUP BY

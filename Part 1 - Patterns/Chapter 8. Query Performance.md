@@ -100,3 +100,100 @@ This means that each column you select increases the amount of data you scan and
 
 Throughout this book you've seen that my code only selects the columns that I need and restrict the data inside a CTE before I use that CTE in a join. We will continue this pattern while we add the final element to our query, the votes.
 
+You can see here that despite all the columns available in the `post_questions` and `post_answers` tables we only get the `post_id` here since the column `post_type` has a static value and doesn't affect the performance. 
+```
+,post_types AS (
+    SELECT
+		id AS post_id,
+        'question' AS post_type,
+    FROM
+        `bigquery-public-data.stackoverflow.posts_questions`
+    WHERE
+        TRUE
+    	AND creation_date >= CAST('2021-06-01' as TIMESTAMP) 
+    	AND creation_date <= CAST('2021-09-30' as TIMESTAMP)
+    UNION ALL
+    SELECT
+        id AS post_id,
+        'answer' AS post_type,
+    FROM
+        `bigquery-public-data.stackoverflow.posts_answers`
+    WHERE
+        TRUE
+    	AND creation_date >= CAST('2021-06-01' as TIMESTAMP) 
+    	AND creation_date <= CAST('2021-09-30' as TIMESTAMP)
+ )
+ ```
+#### Postpone ordering until the very end
+So far we've created CTEs for all the post activity and the comments. The only piece remaining is the upvotes and downvotes. The `votes` table is only attached to a post, meaning it only tracks the votes at the post level not the user level. In order to get this at the `user_id, date` level we'll have to join it with the `posts_activity` CTE like this:
+```
+, votes_on_user_post AS (
+  	SELECT
+        pa.user_id,
+        CAST(DATE_TRUNC(v.creation_date, DAY) AS DATE) AS activity_date,
+        SUM(CASE WHEN vote_type_id = 2 THEN 1 ELSE 0 END) AS total_upvotes,
+        SUM(CASE WHEN vote_type_id = 3 THEN 1 ELSE 0 END) AS total_downvotes,
+    FROM
+        `bigquery-public-data.stackoverflow.votes` v
+        INNER JOIN post_activity pa ON pa.post_id = v.post_id
+    WHERE
+        TRUE
+        AND pa.activity_type = 'created'
+    	AND v.creation_date >= CAST('2021-06-01' as TIMESTAMP) 
+    	AND v.creation_date <= CAST('2021-09-30' as TIMESTAMP)
+	GROUP BY
+        1,2
+)
+```
+
+With this final section in place we can finally write the query that calculates all the metrics:
+```
+SELECT
+    pm.user_id,
+    pm.user_name,
+    SUM(pm.posts_created)     	AS posts_created,
+    SUM(pm.answers_created) 	AS answers_created,
+    SUM(pm.questions_created)	AS questions_created,
+    COUNT(pm.activity_date) 	AS streak_in_days,
+    ROUND(SUM(pm.posts_created)	  * 1.0 
+        / COUNT(pm.activity_date), 1) AS posts_per_day,
+    ROUND(SUM(pm.answers_created) * 1.0
+        / COUNT(pm.activity_date), 1) AS answers_created_per_day,
+    ROUND(SUM(pm.questions_created) * 1.0
+        / COUNT(pm.activity_date), 1) AS questions_created_per_day,
+    ROUND(SUM(vu.total_upvotes)  * 1.0 
+        / COUNT(pm.activity_date), 1) AS upvotes_per_day,
+    ROUND(SUM(vu.total_downvotes) * 1.0 
+        / COUNT(pm.activity_date), 1) AS downvotes_per_day,
+    ROUND(SUM(cp.total_comments)  * 1.0 
+        / COUNT(pm.activity_date), 1) AS comments_on_user_posts_per_day,
+    ROUND(SUM(cu.total_comments)  * 1.0 
+        / COUNT(pm.activity_date), 1) AS comments_by_user_per_day,
+    ROUND(SUM(pm.answers_created) * 1.0 
+        / SUM(pm.posts_created), 1)   AS answers_per_post_ratio,
+    ROUND(SUM(vu.total_upvotes)   * 1.0 
+        / SUM(pm.posts_created), 1)   AS upvotes_per_post,
+    ROUND(SUM(vu.total_downvotes) * 1.0 
+        / SUM(pm.posts_created), 1)   AS downvotes_per_post,
+    ROUND(SUM(cp.total_comments)  * 1.0 
+        / SUM(pm.posts_created), 1)   AS comments_per_post_on_user_posts,
+    ROUND(SUM(cu.total_comments)  * 1.0 
+        / SUM(pm.posts_created), 1)   AS comments_by_user_per_per_post
+FROM
+    user_post_metrics pm
+    JOIN votes_on_user_post vu
+        ON pm.activity_date = vu.activity_date
+        AND pm.user_id = vu.user_id
+    JOIN comments_on_user_post cp 
+        ON pm.activity_date = cp.activity_date
+        AND pm.user_id = cp.user_id
+    JOIN comments_by_user cu
+        ON pm.activity_date = cu.activity_date
+        AND pm.user_id = cu.user_id
+GROUP BY
+	1,2
+ORDER BY 
+	posts_created DESC;
+```
+
+You can see we're finally ordering the results by total posts created. We could have been sorting data at any point in the query but it would have been unnecessary and a performance drain. So leave sorting at the very end if absolutely necessary or better yet leave it out and let the reporting tool handle it.

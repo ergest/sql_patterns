@@ -9,7 +9,7 @@
         "state": {
           "type": "markdown",
           "state": {
-            "file": "Part 1 - Patterns/Chapter 7. Joining Considerations.md",
+            "file": "Part 1 - Patterns/Chapter 5. Chaining CTEs.md",
             "mode": "source",
             "source": false
           }
@@ -69,7 +69,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Part 1 - Patterns/Chapter 7. Joining Considerations.md",
+                "file": "Part 1 - Patterns/Chapter 5. Chaining CTEs.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -105,15 +105,15 @@
   },
   "active": "9bde768f2f193790",
   "lastOpenFiles": [
-    "Part 1 - Patterns/Chapter 7. Joining Considerations.md",
     "Part 1 - Patterns/Chapter 5. Chaining CTEs.md",
     "Part 1 - Patterns/Chapter 6. Appending Rows.md",
-    "Part 1 - Patterns/Chapter 4. Query Decomposition.md",
-    "Part 1 - Patterns/Chapter 9. Query Performance.md",
-    "Part 2 - Principles/5. Special Cases/9. Date Math.md",
-    "Part 1 - Patterns/Chapter 14. JSON Parsing.md",
-    "Part 1 - Patterns/Chapter 13. Reference Table Filtering.md",
-    "SQL Design Patterns/5. Special Cases/Spine Table.md",
-    "Part 1 - Patterns/Chapter 8. Data Reshaping.md"
+    "Part 1 - Patterns/Chapter 9. Query Robustness.md",
+    "Part 2 - Principles/1. Query Decomposition/Chapter 1. Principles.md",
+    "Part 2 - Principles/1. Query Decomposition/1. Patterns/Using Views.md",
+    "Part 2 - Principles/1. Query Decomposition/1. Patterns/Nesting CTEs.md",
+    "Part 2 - Principles/1. Query Decomposition/1. Patterns/Chaining CTEs.md",
+    "Part 2 - Principles/1. Query Decomposition/0. Principles/3. Keep the Elements Small.md",
+    "Part 1 - Patterns/Chapter 8. Query Performance.md",
+    "Part 1 - Patterns/Chapter 3. Data Granularity.md"
   ]
 }

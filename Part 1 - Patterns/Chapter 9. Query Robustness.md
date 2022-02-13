@@ -1,3 +1,4 @@
+### Type Conversion
 Type conversion is another important core principle of SQL. Tables can store many different types and the reason for this is that different types use up different storage and at the same time allow for more flexibility in calculations.
 
 SQL mainly built support for primitive types such as strings, integers and dates.

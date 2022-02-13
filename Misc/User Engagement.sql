@@ -1,25 +1,23 @@
 /**
  * User engagement score
  */
-
 WITH post_activity AS (
 	SELECT
 		ph.post_id,
         ph.user_id,
         u.display_name AS user_name,
         ph.creation_date AS activity_date,
-        CASE ph.post_history_type_id
-        	WHEN 1 THEN 'created'
-        	WHEN 4 THEN 'edited' 
+        CASE WHEN ph.post_history_type_id IN (1,2,3) THEN 'created'
+        	 WHEN ph.post_history_type_id IN (4,5,6) THEN 'edited' 
         END AS activity_type
     FROM
         `bigquery-public-data.stackoverflow.post_history` ph
         INNER JOIN `bigquery-public-data.stackoverflow.users` u on u.id = ph.user_id
     WHERE
     	TRUE 
-    	AND ph.post_history_type_id IN (1,4)
+    	AND ph.post_history_type_id BETWEEN 1 AND 6
     	AND user_id > 0 --exclude automated processes
-    	AND user_id IS NOT NULL
+    	AND user_id IS NOT NULL --exclude deleted accounts
     	AND ph.creation_date >= CAST('2021-06-01' as TIMESTAMP) 
     	AND ph.creation_date <= CAST('2021-09-30' as TIMESTAMP)
     GROUP BY
@@ -50,7 +48,7 @@ WITH post_activity AS (
 	SELECT
 		user_id,
 		user_name,
-		CAST(DATE_TRUNC(activity_date, DAY) AS DATE) AS activity_date ,
+		CAST(activity_date AS DATE) AS activity_date ,
 		SUM(CASE WHEN activity_type = 'created' AND post_type = 'question' THEN 1 ELSE 0 END) AS questions_created,
 		SUM(CASE WHEN activity_type = 'created' AND post_type = 'answer'   THEN 1 ELSE 0 END) AS answers_created,
 		SUM(CASE WHEN activity_type = 'edited'  AND post_type = 'question' THEN 1 ELSE 0 END) AS questions_edited,
@@ -65,7 +63,7 @@ WITH post_activity AS (
 , comments_by_user AS (
     SELECT
         user_id,
-        CAST(DATE_TRUNC(creation_date, DAY) AS DATE) AS activity_date,
+        CAST(creation_date AS DATE) AS activity_date,
         COUNT(*) as total_comments
     FROM
         `bigquery-public-data.stackoverflow.comments`
@@ -79,7 +77,7 @@ WITH post_activity AS (
 , comments_on_user_post AS (
 	SELECT
         pa.user_id,
-        CAST(DATE_TRUNC(c.creation_date, DAY) AS DATE) AS activity_date,
+        CAST(c.creation_date AS DATE) AS activity_date,
         COUNT(*) as total_comments
     FROM
         `bigquery-public-data.stackoverflow.comments` c
@@ -95,7 +93,7 @@ WITH post_activity AS (
 , votes_on_user_post AS (
   	SELECT
         pa.user_id,
-        CAST(DATE_TRUNC(v.creation_date, DAY) AS DATE) AS activity_date,
+        CAST(v.creation_date AS DATE) AS activity_date,
         SUM(CASE WHEN vote_type_id = 2 THEN 1 ELSE 0 END) AS total_upvotes,
         SUM(CASE WHEN vote_type_id = 3 THEN 1 ELSE 0 END) AS total_downvotes,
     FROM
@@ -114,22 +112,34 @@ WITH post_activity AS (
 SELECT
     pm.user_id,
     pm.user_name,
-    SUM(pm.posts_created)     	                                        AS posts_created,
-    SUM(pm.answers_created) 	                                        AS answers_created,
-    SUM(pm.questions_created)	                                        AS questions_created,
-    COUNT(pm.activity_date) 	                                        AS streak_in_days,
-    ROUND(SUM(pm.posts_created)	  	* 1.0 / COUNT(pm.activity_date), 1) AS posts_per_day,
-    ROUND(SUM(pm.answers_created)   * 1.0 / COUNT(pm.activity_date), 1) AS answers_created_per_day,
-    ROUND(SUM(pm.questions_created) * 1.0 / COUNT(pm.activity_date), 1) AS questions_created_per_day,
-    ROUND(SUM(vu.total_upvotes)   	* 1.0 / COUNT(pm.activity_date), 1) AS upvotes_per_day,
-    ROUND(SUM(vu.total_downvotes) 	* 1.0 / COUNT(pm.activity_date), 1) AS downvotes_per_day,
-    ROUND(SUM(cp.total_comments)  	* 1.0 / COUNT(pm.activity_date), 1) AS comments_on_user_posts_per_day,
-    ROUND(SUM(cu.total_comments)  	* 1.0 / COUNT(pm.activity_date), 1) AS comments_by_user_per_day,
-    ROUND(SUM(pm.answers_created)   * 1.0 / SUM(pm.posts_created), 1)  	AS answers_per_post_ratio,
-    ROUND(SUM(vu.total_upvotes)   	* 1.0 / SUM(pm.posts_created), 1)  	AS upvotes_per_post,
-    ROUND(SUM(vu.total_downvotes) 	* 1.0 / SUM(pm.posts_created), 1)  	AS downvotes_per_post,
-    ROUND(SUM(cp.total_comments)  	* 1.0 / SUM(pm.posts_created), 1)  	AS comments_per_post_on_user_posts,
-    ROUND(SUM(cu.total_comments)  	* 1.0 / SUM(pm.posts_created), 1)  	AS comments_by_user_per_per_post
+    SUM(pm.posts_created)     	AS posts_created,
+    SUM(pm.answers_created) 	AS answers_created,
+    SUM(pm.questions_created)	AS questions_created,
+    COUNT(pm.activity_date) 	AS streak_in_days,
+    ROUND(SUM(pm.posts_created)	  * 1.0 
+        / COUNT(pm.activity_date), 1) AS posts_per_day,
+    ROUND(SUM(pm.answers_created) * 1.0
+        / COUNT(pm.activity_date), 1) AS answers_created_per_day,
+    ROUND(SUM(pm.questions_created) * 1.0
+        / COUNT(pm.activity_date), 1) AS questions_created_per_day,
+    ROUND(SUM(vu.total_upvotes)  * 1.0 
+        / COUNT(pm.activity_date), 1) AS upvotes_per_day,
+    ROUND(SUM(vu.total_downvotes) * 1.0 
+        / COUNT(pm.activity_date), 1) AS downvotes_per_day,
+    ROUND(SUM(cp.total_comments)  * 1.0 
+        / COUNT(pm.activity_date), 1) AS comments_on_user_posts_per_day,
+    ROUND(SUM(cu.total_comments)  * 1.0 
+        / COUNT(pm.activity_date), 1) AS comments_by_user_per_day,
+    ROUND(SUM(pm.answers_created) * 1.0 
+        / SUM(pm.posts_created), 1)   AS answers_per_post_ratio,
+    ROUND(SUM(vu.total_upvotes)   * 1.0 
+        / SUM(pm.posts_created), 1)   AS upvotes_per_post,
+    ROUND(SUM(vu.total_downvotes) * 1.0 
+        / SUM(pm.posts_created), 1)   AS downvotes_per_post,
+    ROUND(SUM(cp.total_comments)  * 1.0 
+        / SUM(pm.posts_created), 1)   AS comments_per_post_on_user_posts,
+    ROUND(SUM(cu.total_comments)  * 1.0 
+        / SUM(pm.posts_created), 1)   AS comments_by_user_per_per_post
 FROM
     user_post_metrics pm
     JOIN votes_on_user_post vu
@@ -141,49 +151,9 @@ FROM
     JOIN comments_by_user cu
         ON pm.activity_date = cu.activity_date
         AND pm.user_id = cu.user_id
---WHERE
---	posts_created > 0
+-- WHERE
+--	pm.user_id = 1144035
 GROUP BY
-    1,2
-ORDER BY
-    posts_created DESC;
---*/
-
-
-SELECT
-	id,
-	display_name,
-	creation_date ,
-	reputation,
-	views
-FROM `bigquery-public-data.stackoverflow.users`
-WHERE id = 8974849;
-
-SELECT
-	id,
-	creation_date,
-	post_id,
-	post_history_type_id,
-	user_id 
-FROM
-	`bigquery-public-data.stackoverflow.post_history` ph
-WHERE
-	TRUE
-	AND ph.creation_date >= CAST('2021-06-01' as TIMESTAMP) 
-	AND ph.creation_date <= CAST('2021-09-30' as TIMESTAMP)
-	AND ph.user_id = 8974849;
-
-SELECT
-	ph.post_id,
-	ph.user_id,
-	u.display_name AS user_name,
-	ph.creation_date AS activity_date,
-	post_history_type_id
-FROM
-	`bigquery-public-data.stackoverflow.post_history` ph
-	INNER JOIN `bigquery-public-data.stackoverflow.users` u ON u.id = ph.user_id
-WHERE
-	TRUE
-	AND ph.creation_date >= CAST('2021-06-01' as TIMESTAMP) 
-	AND ph.creation_date <= CAST('2021-09-30' as TIMESTAMP)
-	AND ph.user_id = 8974849;
+	1,2
+ORDER BY 
+	posts_created DESC;

@@ -153,8 +153,7 @@ ORDER BY
 
 We only get 56 rows! What happened?
 
-Adding filters on the where clause for tables that are left joined will ALWAYS perform an `INNER JOIN` except for one single condition where the left join is preserved. If we ONLY wanted to see the `NULL` users, we can add the `IS NULL` check to the `where` clause like this:
-
+Adding filters on the where clause for tables that are left joined will ALWAYS perform an `INNER JOIN` except for one single condition where the left join is preserved. If we wanted to filter rows in the `users` table and still do a `LEFT JOIN`  we have to add the filter in the join condition like so:
 ```
 SELECT
 	ph.post_id,
@@ -163,13 +162,30 @@ SELECT
 	ph.creation_date AS activity_date
 FROM
 	`bigquery-public-data.stackoverflow.post_history` ph
-	LEFT JOIN `bigquery-public-data.stackoverflow.users` u on u.id = ph.user_id
+	LEFT JOIN `bigquery-public-data.stackoverflow.users` u ON u.id = ph.user_id
+	AND u.reputation > 50		
 WHERE
 	TRUE
 	AND ph.post_id = 4
-	AND u.reputation > 50
 ORDER BY
 	activity_date;
 ```
 
+The ONLY time when putting a condition in the `WHERE` clause does NOT turn a `LEFT JOIN` into an `INNER JOIN` is when checking for `NULL`. This is very useful when you want to see the missing data on the table that's being left joined. Here's an example
+```
+SELECT
+	ph.post_id,
+	ph.user_id,
+	u.display_name AS user_name,
+	ph.creation_date AS activity_date
+FROM
+	`bigquery-public-data.stackoverflow.post_history` ph
+	LEFT JOIN `bigquery-public-data.stackoverflow.users` u ON u.id = ph.user_id	
+WHERE
+	TRUE
+	AND ph.post_id = 4
+	AND u.id is NULL
+ORDER BY
+	activity_date;
+```
 Now we only get the 12 missing users
