@@ -1,0 +1,1 @@
+In this chapter I want to go over all the patterns we've learned so far one more time using simple examples 

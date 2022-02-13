@@ -9,7 +9,7 @@
         "state": {
           "type": "markdown",
           "state": {
-            "file": "Part 1 - Patterns/Chapter 4. Query Decomposition.md",
+            "file": "Part 1 - Patterns/Chapter 9. Finishing Our Project.md",
             "mode": "source",
             "source": false
           }
@@ -69,7 +69,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Part 1 - Patterns/Chapter 4. Query Decomposition.md",
+                "file": "Part 1 - Patterns/Chapter 9. Finishing Our Project.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -105,15 +105,15 @@
   },
   "active": "9bde768f2f193790",
   "lastOpenFiles": [
+    "Part 1 - Patterns/Chapter 9. Finishing Our Project.md",
+    "Part 1 - Patterns/Chapter 10. Recap.md",
+    "Part 1 - Patterns/Chapter 9. Special Cases.md",
+    "Part 1 - Patterns/Chapter 6. Query Maintainability.md",
     "Part 1 - Patterns/Chapter 4. Query Decomposition.md",
-    "Part 1 - Patterns/Chapter 3. Data Granularity.md",
-    "Part 2 - Principles/2. Query Maintainability/1. Patterns/Multi-step Calculation.md",
-    "Part 2 - Principles/2. Query Maintainability/1. Patterns/Nested Logic.md",
+    "Part 1 - Patterns/Chapter 7. Query Performance.md",
     "Part 1 - Patterns/Chapter 8. Query Robustness.md",
-    "Part 2 - Principles/3. Query Robustness/0. Principles/3. Divide by Zero.md",
-    "Part 2 - Principles/3. Query Robustness/1. Patterns/Deduping Rows.md",
-    "Part 2 - Principles/2. Query Maintainability/1. Patterns/Wide Tables.md",
-    "Part 2 - Principles/1. Query Decomposition/0. Principles/1. Start with the Ground Truth.md",
-    "Part 1 - Patterns/Chapter 9. Special Cases.md"
+    "Part 1 - Patterns/Chapter 2. Understanding the Data Model.md",
+    "Misc/Outline.md",
+    "Archive/Chapter 6. Aggregating Data.md"
   ]
 }
