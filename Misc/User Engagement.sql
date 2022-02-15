@@ -158,7 +158,7 @@ SELECT
 	total_answers_created 	* 1.0 / total_posts_created AS answers_per_post,
 	total_upvotes 			* 1.0 / total_posts_created AS upvotes_per_post,
 	total_downvotes 		* 1.0 / total_posts_created AS downvotes_per_post,
-	total_comments_by_user	* 1.0 / total_posts_created AS comments_by_user_per_post,
+	total_comments_by_user	* 1.0 / total_posts_created AS user_comments_per_post,
 	total_comments_on_post	* 1.0 / total_posts_created AS comments_on_post_per_post
 FROM
     total_metrics_per_user

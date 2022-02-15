@@ -9,7 +9,7 @@
         "state": {
           "type": "markdown",
           "state": {
-            "file": "Part 1 - Patterns/Chapter 9. Finishing Our Project.md",
+            "file": "Book/10. Recap.md",
             "mode": "source",
             "source": false
           }
@@ -69,7 +69,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Part 1 - Patterns/Chapter 9. Finishing Our Project.md",
+                "file": "Book/10. Recap.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -105,15 +105,15 @@
   },
   "active": "9bde768f2f193790",
   "lastOpenFiles": [
-    "Part 1 - Patterns/Chapter 9. Finishing Our Project.md",
-    "Part 1 - Patterns/Chapter 10. Recap.md",
-    "Part 1 - Patterns/Chapter 9. Special Cases.md",
-    "Part 1 - Patterns/Chapter 6. Query Maintainability.md",
-    "Part 1 - Patterns/Chapter 4. Query Decomposition.md",
-    "Part 1 - Patterns/Chapter 7. Query Performance.md",
-    "Part 1 - Patterns/Chapter 8. Query Robustness.md",
-    "Part 1 - Patterns/Chapter 2. Understanding the Data Model.md",
-    "Misc/Outline.md",
-    "Archive/Chapter 6. Aggregating Data.md"
+    "Book/10. Recap.md",
+    "Book/9. Finishing Our Project.md",
+    "Book/8. Query Robustness.md",
+    "Book/7. Query Performance.md",
+    "Book/6. Query Maintainability.md",
+    "Book/4. Query Decomposition.md",
+    "Book/3. Data Granularity.md",
+    "Book/2. Understanding the Data Model.md",
+    "Book/1. Project Introduction.md",
+    "Book/0. Introduction.md"
   ]
 }
