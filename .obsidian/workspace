@@ -9,7 +9,7 @@
         "state": {
           "type": "markdown",
           "state": {
-            "file": "Book/2. Core Concepts.md",
+            "file": "Book/9. Finishing Our Project.md",
             "mode": "source",
             "source": false
           }
@@ -69,7 +69,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Book/2. Core Concepts.md",
+                "file": "Book/9. Finishing Our Project.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -105,15 +105,15 @@
   },
   "active": "9bde768f2f193790",
   "lastOpenFiles": [
+    "Book/9. Finishing Our Project.md",
+    "Book/5. Query Maintainability.md",
+    "Book/7. Query Robustness.md",
+    "Book/6. Query Performance.md",
+    "Book/1. Project Introduction.md",
     "Book/2. Core Concepts.md",
     "Book/4. Query Decomposition.md",
-    "Book/6. Query Maintainability.md",
-    "Archive/Chapter 6. Aggregating Data.md",
-    "Book/9. Finishing Our Project.md",
-    "Book/2. Understanding the Data Model.md",
-    "Book/1. Project Introduction.md",
-    "Book/0. Introduction.md",
-    "Book/0. TItle.md",
-    "Book/10. Recap.md"
+    "Part 2 - Principles/2. Query Maintainability/1. Patterns/Multi-step Calculation.md",
+    "Part 2 - Principles/2. Query Maintainability/0. Principles/3. Create Reusable Components.md",
+    "Book/0. Introduction.md"
   ]
 }
