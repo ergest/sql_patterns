@@ -48,7 +48,7 @@ WITH post_activity AS (
     SELECT
         user_id,
         user_name,
-        CAST(activity_date AS DATE) AS activity_date ,
+        CAST(activity_date AS DATE) AS activity_date,
         SUM(CASE WHEN activity_type = 'created' AND post_type = 'question' THEN 1 ELSE 0 END) AS questions_created,
         SUM(CASE WHEN activity_type = 'created' AND post_type = 'answer'   THEN 1 ELSE 0 END) AS answers_created,
         SUM(CASE WHEN activity_type = 'edited'  AND post_type = 'question' THEN 1 ELSE 0 END) AS questions_edited,
