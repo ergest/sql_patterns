@@ -9,7 +9,7 @@
         "state": {
           "type": "markdown",
           "state": {
-            "file": "Book/6. Query Performance.md",
+            "file": "Book/7. Query Robustness.md",
             "mode": "source",
             "source": false
           }
@@ -69,7 +69,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Book/6. Query Performance.md",
+                "file": "Book/7. Query Robustness.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -105,15 +105,15 @@
   },
   "active": "9bde768f2f193790",
   "lastOpenFiles": [
+    "Book/7. Query Robustness.md",
+    "Part 2 - Principles/3. Query Robustness/0. Principles/0. Introduction.md",
+    "Part 2 - Principles/3. Query Robustness/0. Principles/1. Dealing with nulls.md",
     "Book/6. Query Performance.md",
     "Book/5. Query Maintainability.md",
-    "Book/8. Special Cases.md",
-    "Misc/Outline.md",
-    "Book/9. Finishing Our Project.md",
-    "Book/1. Project Introduction.md",
-    "Book/7. Query Robustness.md",
-    "Book/2. Core Concepts.md",
-    "Book/4. Query Decomposition.md",
-    "Part 2 - Principles/2. Query Maintainability/1. Patterns/Multi-step Calculation.md"
+    "Part 2 - Principles/3. Query Robustness/0. Principles/4. Duplicate Rows.md",
+    "Part 2 - Principles/3. Query Robustness/0. Principles/3. Divide by Zero.md",
+    "Part 2 - Principles/2. Query Maintainability/0. Principles/0. Introduction.md",
+    "Book/9. Recap.md",
+    "Book/8. Finishing Our Project.md"
   ]
 }
