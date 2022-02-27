@@ -9,7 +9,7 @@
         "state": {
           "type": "markdown",
           "state": {
-            "file": "Book/chap2.md",
+            "file": "Misc/template.md",
             "mode": "source",
             "source": false
           }
@@ -69,7 +69,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Book/chap2.md",
+                "file": "Misc/template.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -105,15 +105,15 @@
   },
   "active": "9bde768f2f193790",
   "lastOpenFiles": [
-    "Book/chap2.md",
-    "Book/0. Title.md",
-    "Book/chap8.md",
-    "Book/chap7.md",
-    "Book/chap6.md",
+    "Misc/template.md",
     "Book/chap5.md",
-    "Book/chap4.md",
-    "Book/chap3.md",
-    "Book/chap0.md",
-    "Book/chap1.md"
+    "Book/chap6.md",
+    "Part 2 - Principles/4. Query Performance/1. Patterns/Pre-Aggregation.md",
+    "Part 2 - Principles/4. Query Performance/1. Patterns/Postpone Ordering.md",
+    "Book/chap2.md",
+    "Book/chap1.md",
+    "Book/title0.md",
+    "Book/chap8.md",
+    "Book/chap7.md"
   ]
 }

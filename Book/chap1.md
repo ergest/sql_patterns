@@ -125,11 +125,11 @@ Both post types (question and answer) have a one-to-many relationship to the `po
 
 This id indicates the different types of activities a user can do on the site. We're only concerned with the first 6. You can see the rest of them [here](https://meta.stackexchange.com/questions/2677/database-schema-documentation-for-the-public-data-dump-and-sede/2678#2678) if you're curious.
 
-1 = Initial Title - initial title _(questions only)_  
-2 = Initial Body - initial post raw body text  
-3 = Initial Tags - initial list of tags _(questions only)_  
-4 = Edit Title - modified title _(questions only)_  
-5 = Edit Body - modified post body (raw markdown)  
+1 = Initial Title - initial title _(questions only)_ 
+2 = Initial Body - initial post raw body text
+3 = Initial Tags - initial list of tags _(questions only)_ 
+4 = Edit Title - modified title _(questions only)_
+5 = Edit Body - modified post body (_raw markdown_)
 6 = Edit Tags - modified list of tags _(questions only)
 
 The first 3 indicate when a post is first submitted and the next 3 when a post is edited.

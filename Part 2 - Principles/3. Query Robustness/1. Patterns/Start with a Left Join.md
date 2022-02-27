@@ -1,2 +1,0 @@
-**Rule 2: Start with a left join**
-This is one of my most used rules. If I know nothing about the underlying tables, I’ll always default to using a left outer join vs an inner join. You never know if the column you’re joining on is fully represented in both tables. An inner join will filter out the non-matching rows and they could be important.

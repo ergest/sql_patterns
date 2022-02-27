@@ -1,1 +1,0 @@
-Wide tables are the foundation of a well-designed data warehouse especially since they are supported really well in modern cloud warehouses like Snowflake, BigQuery, Redshift, DataBricks, etc.
