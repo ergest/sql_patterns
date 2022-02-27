@@ -119,7 +119,7 @@ GROUP BY
 	1,2
 ```
 
-#### Pivoting Pattern
+### Pivoting Pattern
 Here's another pattern that's very commonly used for aggregation:
 ```
 SELECT
