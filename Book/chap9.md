@@ -1,4 +1,4 @@
-## Chapter 8: Miscellaneous Patterns
+## Chapter 9: Miscellaneous Patterns
 
 ### Window Functions
 Duplicate rows are the biggest nuisance in the field of data. That's because as we saw in Chapter 2, when you join duplicate rows, your counts get multiplied. Unless you can fix the underlying data, dealing with duplicates is something you'll have to do often.

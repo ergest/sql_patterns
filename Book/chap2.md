@@ -119,7 +119,7 @@ GROUP BY
 	1,2
 ```
 
-### Pivoting Pattern
+### Pivoting Data
 Here's another pattern that's very commonly used for aggregation:
 ```
 SELECT
@@ -182,7 +182,7 @@ Joining tables is one of the most basic functions in SQL since the databases are
 
 I assume you're familiar with them if you're reading this book, so what I wanted to share with you are certain anti-patterns involving joins that always creep up and burn analysts and data scientists.
 
-#### Granularity Multiplication Antipattern
+### Granularity Multiplication Antipattern
 If any of tables has duplicates for the columns being joined on, the final result set will be multiplied by the number of duplicates.
 
 For example in our case the `users` table has a grain of one row per user:
@@ -267,7 +267,7 @@ So if the history table has 10 entries for the same user and the `users` table h
 
 This is extremely important when doing analysis because a single duplicate row will multiply all your results by a factor of n and all your numbers will be inflated.
 
-#### Accidental Inner Join Antipattern
+### Accidental Inner Join Antipattern
 Did you know that SQL will ignore a `LEFT JOIN` clause and perform an `INNER JOIN` instead if you make this one simple mistake? This is one of those SQL hidden secrets which sometimes gets asked as a trick question in interviews so strap in.
 
 When doing a `LEFT JOIN` you're intending to show all the results on the table in the `FROM` clause but if you need to limit
@@ -411,7 +411,7 @@ As a rule of thumb, whenever you're appending tables, it's a good idea to add a 
 
 You'll notice in my query above I create a `post_type` column indicating where the data is coming from.
 
-#### De-Pivoting Data Pattern
+### De-Pivoting Data Pattern
 We saw how to pivot data above, but can you reverse the process? Well, sort of. As I said before, aggregation is a "one-way street" meaning that once you aggregate, you lose important information, however it is possible to "de-pivot" data using the `UNION` operator like this:
 
 ```

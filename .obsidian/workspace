@@ -9,7 +9,7 @@
         "state": {
           "type": "markdown",
           "state": {
-            "file": "Misc/template.md",
+            "file": "book/chap2.md",
             "mode": "source",
             "source": false
           }
@@ -40,7 +40,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "",
+                "query": "pivoting",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -69,7 +69,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Misc/template.md",
+                "file": "book/chap2.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -105,15 +105,15 @@
   },
   "active": "9bde768f2f193790",
   "lastOpenFiles": [
-    "Misc/template.md",
-    "Book/chap5.md",
-    "Book/chap6.md",
+    "book/chap2.md",
+    "book/chap3.md",
+    "misc/outline.md",
+    "misc/article.md",
+    "book/chap9.md",
+    "misc/template.md",
+    "book/chap5.md",
+    "book/chap6.md",
     "Part 2 - Principles/4. Query Performance/1. Patterns/Pre-Aggregation.md",
-    "Part 2 - Principles/4. Query Performance/1. Patterns/Postpone Ordering.md",
-    "Book/chap2.md",
-    "Book/chap1.md",
-    "Book/title0.md",
-    "Book/chap8.md",
-    "Book/chap7.md"
+    "Part 2 - Principles/4. Query Performance/1. Patterns/Postpone Ordering.md"
   ]
 }
