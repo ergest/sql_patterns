@@ -1,3 +1,4 @@
+## Chapter 7: Finishing the Project
 We've now explored all the sections of the query so let's see the whole thing in one place so we can see all the patterns in action. 
 
 ```
