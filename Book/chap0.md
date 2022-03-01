@@ -23,11 +23,11 @@ I looked around for a book or course that taught these patterns but couldn’t f
 ## Who this book is for
 This book is for anyone who is familiar with SQL and wants to take their skills to the next level. We won't cover any of the basic syntax here so make sure you have that down pat. I expect you to already know how to join tables and do basic filtering and aggregation.
 
-If you find that your SQL code is often inefficient and slow, this book is for you.
+If you find that your SQL code is often inefficient and slow and you want to make it faster, this book is for you.
 
-If you find that your SQL code is long, messy and hard to understand, this book is for you
+If you find that your SQL code is long, messy and hard to understand and you want to make it cleaner, this book is for you
 
-If you find that your SQL code is brittle and breaks easily when data changes, this book is for you.
+If you find that your SQL code breaks easily when data changes and you want to make it more resilient, this book is for you.
 
 ## What you'll learn in this book
 I'm a huge fan of project-based learning. You can learn anything if you can come up with an interesting project to use it thing in. I used a project when I taught myself data science.
@@ -45,17 +45,15 @@ Using this dataset we're going to build a table which calculates reputation metr
 As we go through the project, we'll cover each pattern when it arises. That will help you understand why we're using the pattern at that exact moment. Each chapter will cover a select group of patterns while building on the previous chapters.
 
 ## How this book is organized
-This book is split into 8 chapters:
-
 In **Chapter 1** we introduce the project we'll be working on throughout the book. We'll make sure you have access to the dataset and can run the queries. We also get a basic understanding of the dataset by looking at the ER diagram
 
 In **Chapter 2** we cover *Core Concepts and patterns*. These patterns act as our basic building blocks that will serve us throughout the book. I explain each one using the StackOverflow dataset since we'll be using every one in our final query.
 
 The remaining patterns are grouped into four categories and each has its own chapter.
 
-In **Chapter 3** we cover *Query Decomposition* patterns. We start off by learning how to decompose large queries into smaller pieces to make it easy to solve just about any complex problem. This is important to learn first because all the other patterns flow from these.
+In **Chapter 3** we cover *Query Decomposition* patterns. We start off by learning how to decompose large queries into smaller pieces to make it easy to solve just about any complex problem. They are important to learn first because all the other patterns flow from them.
 
-In **Chapter 4** we cover *Query Maintainability* patterns. These patterns teach you how to decompose a query and organize your code in ways that make it efficient. This will ensure our code is  easier to read, understand and maintain in the future.
+In **Chapter 4** we cover *Query Maintainability* patterns. These patterns teach you how to decompose a query and organize your code in ways that make it efficient. This will ensure your code is  easier to read, understand and maintain in the future.
 
 In **Chapter 5** we cover *Query Performance* patterns. They teach you ways to make your code more faster without sacrificing clarity. It’s a delicate balance because performant code can sometimes look really messy.
 
@@ -63,7 +61,7 @@ In **Chapter 6** we cover *Query Robustness* patterns. They teach you ways to ma
 
 The project is interwoven throughout the book. I make sure that each chapter covers some section of the final query.
 
-In **Chapter 7** we wrap up our project and you get to see the entire query. By now you should be able to understand the entire query and know exactly how it was designed. I recap the entire project so that you get another chance to review all the patterns. The goal here is to allow you to see all the patterns together and give you ideas on how to apply them in your day-to-day work.
+In **Chapter 7** we wrap up our project and you get to see the entire query. By now you should be able to understand it and know exactly how it was designed. I recap the entire project so that you get another chance to review all the patterns. The goal here is to allow you to see all the patterns together and give you ideas on how to apply them in your day-to-day work.
 
 In **Chapter 8** we cover a few special case patterns. We dive deeper into window functions and string manipulation, such as regular expressions and JSON parsing. Even though this is not related to our project, I wanted to make sure I enrich your vocabulary of patterns beyond what's in the project.
 
