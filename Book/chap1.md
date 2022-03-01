@@ -1,4 +1,4 @@
-## Chapter 1: Introducing The Project
+# Chapter 1: Introducing The Project
 As discussed in the introduction, in this chapter we're going to get into the details of the project that will help you learn the SQL Patterns in context. 
 
 Many books start by teaching you the basic concepts first and by the time you get to use them, you've already forgotten them. By taking a project based approach, we circumvent that problem entirely and you get the learn these patterns simply by following along.
@@ -39,7 +39,7 @@ In many marketing campaigns it is very useful to segment your customers based on
 
 Because we have one row per user, it means we have to transform all user related data at the `user_id, date`  granularity. We'll talk about how to do that in the next few chapters.
 
-### Understanding the Data Model
+## Understanding the Data Model
 In order to succeed in any SQL endeavor one of the first things we must do is to understand the data model we're working with. This may already exist in the form of documentation but more often than not you'll have to build the model as you go. You might even learn the hard way, like I did, by making mistakes. That's ok.
 
 The SO data model is quite complex but if you search for it online you'll find the version corresponding to their internal database which doesn't match BigQuery. That's because BigQuery modifies the data in certain ways to avoid self joins. I've taken the liberty of drawing it up for you and we'll cover it now.

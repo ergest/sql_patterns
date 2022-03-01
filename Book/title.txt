@@ -1,0 +1,6 @@
+---
+title: "Minimum Viable SQL Patterns"
+subtitle: "Hands-On Design Patterns and Best Practices with SQL"
+author: "Ergest Xheblati"
+date: "2022-02-20"
+...

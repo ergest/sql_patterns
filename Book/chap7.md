@@ -1,4 +1,4 @@
-## Chapter 7: Finishing the Project
+# Chapter 7: Finishing the Project
 We've now explored all the sections of the query so let's see the whole thing in one place so we can see all the patterns in action. 
 
 ```
@@ -25,7 +25,7 @@ WITH post_activity AS (
     GROUP BY
         1,2,3,4,5
 )
--- Get the post types we care about questions and answers only and combine them
+-- Get the post types we care about questions and answers only and combine them in one CTE
 ,post_types AS (
     SELECT
         id AS post_id,
@@ -47,27 +47,26 @@ WITH post_activity AS (
         AND creation_date >= CAST('2021-06-01' as TIMESTAMP) 
         AND creation_date <= CAST('2021-09-30' as TIMESTAMP)
  )
- -- Finally calculate the post metrics at the user, date granularity
+ -- Finally calculate the post metrics 
 , user_post_metrics AS (
     SELECT
         user_id,
         user_name,
-        CAST(activity_date AS DATE) AS activity_date ,
-        SUM(CASE WHEN activity_type = 'created' 
-			AND post_type = 'question' THEN 1 ELSE 0 END) AS questions_created,
-        SUM(CASE WHEN activity_type = 'created' 
-			AND post_type = 'answer'   THEN 1 ELSE 0 END) AS answers_created,
-        SUM(CASE WHEN activity_type = 'edited'  
-			AND post_type = 'question' THEN 1 ELSE 0 END) AS questions_edited,
-        SUM(CASE WHEN activity_type = 'edited'  
-			AND post_type = 'answer'   THEN 1 ELSE 0 END) AS answers_edited,
+        CAST(activity_date AS DATE) AS activity_date,
+        SUM(CASE WHEN activity_type = 'created'
+            AND post_type = 'question' THEN 1 ELSE 0 END) AS questions_created,
+        SUM(CASE WHEN activity_type = 'created'
+            AND post_type = 'answer' THEN 1 ELSE 0 END) AS answers_created,
+        SUM(CASE WHEN activity_type = 'edited'
+            AND post_type = 'question' THEN 1 ELSE 0 END) AS questions_edited,
+        SUM(CASE WHEN activity_type = 'edited'
+            AND post_type = 'answer' THEN 1 ELSE 0 END) AS answers_edited,
         SUM(CASE WHEN activity_type = 'created' THEN 1 ELSE 0 END) AS posts_created,
         SUM(CASE WHEN activity_type = 'edited' THEN 1 ELSE 0 END)  AS posts_edited
     FROM post_types pt
          JOIN post_activity pa ON pt.post_id = pa.post_id
     GROUP BY 1,2,3
 )
--- Calculate the comments metics at the user, date granularity
 , comments_by_user AS (
     SELECT
         user_id,
@@ -98,7 +97,6 @@ WITH post_activity AS (
     GROUP BY
         1,2
 )
--- Calculate the votes metrics at the user, date granularity
 , votes_on_user_post AS (
       SELECT
         pa.user_id,
@@ -116,22 +114,21 @@ WITH post_activity AS (
     GROUP BY
         1,2
 )
--- Combine all the above metrics in one CTE
 , total_metrics_per_user AS (
     SELECT
         pm.user_id,
         pm.user_name,
-        SUM(pm.posts_created)            AS total_posts_created, 
-        SUM(pm.posts_edited)             AS total_posts_edited,
-        SUM(pm.answers_created)          AS total_answers_created,
-        SUM(pm.answers_edited)           AS total_answers_edited,
-        SUM(pm.questions_created)        AS total_questions_created,
-        SUM(pm.questions_edited)         AS total_questions_edited,
-        SUM(vu.total_upvotes)            AS total_upvotes,
-        SUM(vu.total_downvotes)          AS total_downvotes,
-        SUM(cu.total_comments)           AS total_comments_by_user,
-        SUM(cp.total_comments)           AS total_comments_on_post,
-        COUNT(DISTINCT pm.activity_date) AS streak_in_days      
+        CAST(SUM(pm.posts_created) AS NUMERIC)     AS total_posts_created, 
+        CAST(SUM(pm.posts_edited) AS NUMERIC)      AS total_posts_edited,
+        CAST(SUM(pm.answers_created) AS NUMERIC)   AS total_answers_created,
+        CAST(SUM(pm.answers_edited) AS NUMERIC)    AS total_answers_edited,
+        CAST(SUM(pm.questions_created) AS NUMERIC) AS total_questions_created,
+        CAST(SUM(pm.questions_edited) AS NUMERIC)  AS total_questions_edited,
+        CAST(SUM(vu.total_upvotes) AS NUMERIC)     AS total_upvotes,
+        CAST(SUM(vu.total_downvotes) AS NUMERIC)   AS total_downvotes,
+        CAST(SUM(cu.total_comments) AS NUMERIC)    AS total_comments_by_user,
+        CAST(SUM(cp.total_comments) AS NUMERIC)    AS total_comments_on_post,
+        CAST(COUNT(DISTINCT pm.activity_date) AS NUMERIC) AS streak_in_days      
     FROM
         user_post_metrics pm
         JOIN votes_on_user_post vu
@@ -147,7 +144,7 @@ WITH post_activity AS (
         1,2
 )
 ------------------------------------------------
----- Main Query - Calculate all derived metrics
+---- Main Query
 SELECT
     user_id,
     user_name,
@@ -160,17 +157,28 @@ SELECT
     total_comments_by_user,
     total_comments_on_post,
     streak_in_days,
-    ROUND(CAST(IFNULL(SAFE_DIVIDE(total_posts_created, streak_in_days), 0) AS NUMERIC), 1)          AS posts_per_day,
-    ROUND(CAST(IFNULL(SAFE_DIVIDE(total_posts_edited, streak_in_days), 0) AS NUMERIC), 1)           AS edits_per_day,
-    ROUND(CAST(IFNULL(SAFE_DIVIDE(total_answers_created, streak_in_days), 0) AS NUMERIC), 1)        AS answers_per_day,
-    ROUND(CAST(IFNULL(SAFE_DIVIDE(total_questions_created, streak_in_days), 0) AS NUMERIC), 1)      AS questions_per_day,
-    ROUND(CAST(IFNULL(SAFE_DIVIDE(total_comments_by_user, streak_in_days), 0) AS NUMERIC), 1)       AS comments_by_user_per_day,
-    ROUND(CAST(IFNULL(SAFE_DIVIDE(total_answers_created, total_posts_created), 0) AS NUMERIC), 1)   AS answers_per_post,
-    ROUND(CAST(IFNULL(SAFE_DIVIDE(total_questions_created, total_posts_created), 0) AS NUMERIC), 1) AS questions_per_post,
-    ROUND(CAST(IFNULL(SAFE_DIVIDE(total_upvotes, total_posts_created), 0) AS NUMERIC), 1)           AS upvotes_per_post,
-    ROUND(CAST(IFNULL(SAFE_DIVIDE(total_downvotes, total_posts_created), 0) AS NUMERIC), 1)         AS downvotes_per_post,
-    ROUND(CAST(IFNULL(SAFE_DIVIDE(total_comments_by_user, total_posts_created), 0) AS NUMERIC), 1)  AS user_comments_per_post,
-    ROUND(CAST(IFNULL(SAFE_DIVIDE(total_comments_on_post, total_posts_created), 0) AS NUMERIC), 1)  AS comments_on_post_per_post
+    ROUND(IFNULL(SAFE_DIVIDE(
+            total_posts_created, streak_in_days), 0), 1) AS posts_per_day,
+    ROUND(IFNULL(SAFE_DIVIDE(
+            total_posts_edited, streak_in_days), 0), 1) AS edits_per_day,
+    ROUND(IFNULL(SAFE_DIVIDE(
+            total_answers_created, streak_in_days), 0), 1) AS answers_per_day,
+    ROUND(IFNULL(SAFE_DIVIDE(
+            total_questions_created, streak_in_days), 0), 1) AS questions_per_day,
+    ROUND(IFNULL(SAFE_DIVIDE(
+            total_comments_by_user, streak_in_days), 0), 1) AS comments_by_user_per_day,
+    ROUND(IFNULL(SAFE_DIVIDE(
+            total_answers_created, total_posts_created), 0), 1) AS answers_per_post,
+    ROUND(IFNULL(SAFE_DIVIDE(
+            total_questions_created, total_posts_created), 0), 1) AS questions_per_post,
+    ROUND(IFNULL(SAFE_DIVIDE(
+            total_upvotes, total_posts_created), 0), 1) AS upvotes_per_post,
+    ROUND(IFNULL(SAFE_DIVIDE(
+            total_downvotes, total_posts_created), 0), 1) AS downvotes_per_post,
+    ROUND(IFNULL(SAFE_DIVIDE(
+            total_comments_by_user, total_posts_created), 0), 1)  AS user_comments_per_post,
+    ROUND(IFNULL(SAFE_DIVIDE(
+    total_comments_on_post, total_posts_created), 0), 1)  AS comments_on_post_per_post
 FROM
     total_metrics_per_user
 ORDER BY 

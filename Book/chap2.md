@@ -1,5 +1,5 @@
-## Chapter 2: Core Concepts
-### Granularity
+# Chapter 2: Core Concepts
+## Granularity
 Granularity (also known as the grain) is a measure of the level of detail that determines an individual row in a table or view. This is extremely important when it comes to joins or aggregating data. A low granularity table means a very low level of detail, like one row per transaction.
 
 Granularity is usually expressed as the number of unique rows for each column or combination of columns. 
@@ -267,7 +267,7 @@ So if the history table has 10 entries for the same user and the `users` table h
 
 This is extremely important when doing analysis because a single duplicate row will multiply all your results by a factor of n and all your numbers will be inflated.
 
-### Accidental Inner Join Antipattern
+### Accidental Inner Join
 Did you know that SQL will ignore a `LEFT JOIN` clause and perform an `INNER JOIN` instead if you make this one simple mistake? This is one of those SQL hidden secrets which sometimes gets asked as a trick question in interviews so strap in.
 
 When doing a `LEFT JOIN` you're intending to show all the results on the table in the `FROM` clause but if you need to limit

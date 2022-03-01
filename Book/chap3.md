@@ -1,5 +1,5 @@
-## Chapter 4: Query Decomposition
-### Introduction to CTEs
+# Chapter 4: Query Decomposition
+## Introduction to CTEs
 “The only way to write complex software that won't fall on its face is to build it out of simple modules connected by well-defined interfaces, so that most problems are local and you can have some hope of fixing or optimizing a part without breaking the whole”
 -Eric S. Raymond
 
