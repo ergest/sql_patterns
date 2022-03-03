@@ -2,5 +2,6 @@
   "obsidian-pandoc",
   "obsidian-kanban",
   "table-editor-obsidian",
-  "obsidian-git"
+  "obsidian-git",
+  "obsidian-excel-to-markdown-table"
 ]

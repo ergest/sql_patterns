@@ -1,15 +1,23 @@
 # Chapter 1: Introducing The Project
-As discussed in the introduction, in this chapter we're going to get into the details of the project that will help you learn the SQL Patterns in context. 
+In this chapter we're going to get into the details of the project that will help you learn the SQL Patterns. As you saw in the introduction, we're using a real-world, public dataset from StackOverflow.
 
-Many books start by teaching you the basic concepts first and by the time you get to use them, you've already forgotten them. By taking a project based approach, we circumvent that problem entirely and you get the learn these patterns simply by following along.
+StackOverflow is a popular website where users can post technical questions about any technical topic and others can post answers to these questions. They can also vote on the answers or comment on them.
 
-So what is this project?
+Based on the quality of the answers, users gain reputation and badges which they can use  as social proof both on the SO site and on other websites.
 
-As you saw in the introduction, we're using a real-world, public dataset from StackOverflow (SO). In case you're not familiar, SO is a popular website where users can ask technical questions about any topic (programming, SQL, databases, data analysis, stats, etc.) and other users can answer these questions.
+Using this dataset we're going to build a table that calculates reputation metrics for every user. This type of table is sometimes called a "feature table" and can be used in other applications in data science and analytics. 
 
-Based on the quality of the answers, as determined by the community upvotes and downvotes, the users who give them can gain reputation and badges which they can use  as social proof both on the SO site and on other websites.
+Since the query to build it is complex, it's the perfect tool to illustrate some of the patterns described in this book.
 
-Using this dataset we're going to build a "user reputation" table which calculates reputation metrics per user. This type of table can be very useful if you want to do customer engagement analysis or if you want to identify your best customers. It also happens to be quite perfect to demonstrate most of the patterns described in this book.
+| user_id  | user_name     | total_posts_created | total_answers_created | total_answers_edited | total_questions_created | total_upvotes | total_comments_by_user | total_questions_edited | streak_in_days |
+|----------|---------------|---------------------|-----------------------|----------------------|-------------------------|---------------|------------------------|------------------------|----------------|
+| 1144035  | Gordon Linoff | 3508                | 3508                  | 654                  | 0                       | 2759          | 3169                   | 863                    | 117            |
+| 3732271  | akrun         | 2470                | 2470                  | 1580                 | 0                       | 3937          | 2850                   | 57                     | 121            |
+| 3962914  | Ronak Shah    | 2138                | 2138                  | 243                  | 0                       | 2358          | 1681                   | 583                    | 119            |
+| 15239951 | Corralien     | 1079                | 1079                  | 607                  | 0                       | 1073          | 1361                   | 152                    | 117            |
+| 10035985 | Andrej Kesely | 1078                | 1078                  | 156                  | 0                       | 1292          | 625                    | 185                    | 116            |
+| 1491895  | Barmar        | 1063                | 1063                  | 294                  | 0                       | 1205          | 7676                   | 1050                   | 104            |
+
 
 The schema of what it would look something like this:
 ```
@@ -32,6 +40,7 @@ downvotes_per_post
 comments_per_post_on_user_posts
 comments_by_user_per_per_post
 ```
+
 
 Why is this useful?
 
