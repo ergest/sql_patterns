@@ -4,7 +4,7 @@
     "type": "split",
     "children": [
       {
-        "id": "9bde768f2f193790",
+        "id": "5e5654e78e6e118c",
         "type": "leaf",
         "state": {
           "type": "markdown",
@@ -103,7 +103,7 @@
     "direction": "horizontal",
     "width": 300
   },
-  "active": "9bde768f2f193790",
+  "active": "5e5654e78e6e118c",
   "lastOpenFiles": [
     "book/chap1.md",
     "book/chap0.md",
