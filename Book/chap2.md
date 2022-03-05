@@ -15,14 +15,14 @@ To find a table's granularity you either read the documentation, or if that does
 How do you check? It's easy.
 
 For the `post_history` table we can run the following query:
-```
+```sql
 SELECT 
 	creation_date,
 	post_id,
 	post_history_type_id,
 	user_id,
 	COUNT(*) AS total_rows
-FROM `bigquery-public-data.stackoverflow.post_history`
+FROM bigquery-public-data.stackoverflow.post_history
 GROUP BY 1,2,3,4
 HAVING COUNT(*) > 1;
 ```
@@ -54,14 +54,14 @@ That's why it's very common in data warehouses to store data at the lowest possi
 Let's refer again to the previous example. 
 
 If I simply select the columns I want without aggregation, we get duplicates which as we mentioned earlier will mess up joins later. (Rows 2 and 3 are the same)
-```
+```sql
 SELECT 
 	creation_date,
 	post_id,
 	post_history_type_id,
 	user_id
 FROM 
-	`bigquery-public-data.stackoverflow.post_history`
+	bigquery-public-data.stackoverflow.post_history
 WHERE 
 	post_id = 63272171 
 	AND user_id = 14038907
@@ -77,14 +77,14 @@ creation_date          |post_id |post_history_type_id|user_id |
 ```
 
 By simply adding a `GROUP BY` we can easily solve this problem
-```
+```sql
 SELECT 
 	creation_date,
 	post_id,
 	post_history_type_id,
 	user_id
 FROM 
-	`bigquery-public-data.stackoverflow.post_history`
+	bigquery-public-data.stackoverflow.post_history
 WHERE 
 	post_id = 63272171 
 	AND user_id = 14038907
@@ -104,7 +104,7 @@ Notice that for the purposes of removing duplicates we don't need to use an aggr
 Of course using aggregate functions is the most common way to aggregate data. Summing up or counting multiple rows are still the workhorse of aggregation. We'll use that a lot in our project.
 
 Here's a traditional application of it:
-```
+```sql
 SELECT
 	user_id,
 	CAST(creation_date AS DATE) AS activity_date,
@@ -121,14 +121,14 @@ GROUP BY
 
 ### Pivoting Data
 Here's another pattern that's very commonly used for aggregation:
-```
+```sql
 SELECT
 	post_id,
 	CAST(v.creation_date AS DATE) AS activity_date,
 	SUM(CASE WHEN vote_type_id = 2 THEN 1 ELSE 0 END) AS total_upvotes,
 	SUM(CASE WHEN vote_type_id = 3 THEN 1 ELSE 0 END) AS total_downvotes,
 FROM
-	`bigquery-public-data.stackoverflow.votes` v
+	bigquery-public-data.stackoverflow.votes v
 WHERE
 	TRUE
 	AND v.creation_date >= CAST('2021-06-01' as TIMESTAMP) 
@@ -186,7 +186,7 @@ I assume you're familiar with them if you're reading this book, so what I wanted
 If any of tables has duplicates for the columns being joined on, the final result set will be multiplied by the number of duplicates.
 
 For example in our case the `users` table has a grain of one row per user:
-```
+```sql
 SELECT
 	id,
 	display_name,
@@ -203,7 +203,7 @@ id     |display_name|creation_date          |reputation|views|
 ```
 
 Whereas the `post_history` table has multiple rows for the same user:
-```
+```sql
 SELECT
 	id,
 	creation_date,
@@ -211,7 +211,7 @@ SELECT
 	post_history_type_id,
 	user_id 
 FROM
-	`bigquery-public-data.stackoverflow.post_history` ph
+	bigquery-public-data.stackoverflow.post_history` ph
 WHERE
 	TRUE
 	AND ph.creation_date >= CAST('2021-06-01' as TIMESTAMP) 

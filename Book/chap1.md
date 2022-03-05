@@ -45,7 +45,7 @@ Writing accurate and efficient SQL begins with understanding the data model we'r
 The original StackOverflow (SO) data model is different from the one loaded in BigQuery. When the engineers loaded it, they modified the mode somewhat. For example the SO model contains a single `Posts` table for all the different post types whereas BigQuery split each one into a separate table.
 
 Here's a look at the Entity-Relationship (ER) diagram
-![[StackOverflow BQ ER Diagram 1.jpeg]]
+![[StackOverflow BQ ER Diagram.jpeg]]
 **Figure 1.1 - StackOverflow ER diagram**
 
 There are 8 tables that represent the various post types. You can get this result by using the `INFORMATION_SCHEMA` views in BigQuery like this:
@@ -103,14 +103,13 @@ WHERE table_name = 'posts_answers'
 
 Both tables have an `id` column that identifies a single post, `creation_date` that identifies the timestamp when the post was created and a few other attributes like `score` for the upvotes and downvotes. 
 
-Note the `parent_id` column which signifies a hierarchical structure. The `parent_id` is a one-to-many relationship that links up an answer to the corresponding question. A single question can have multiple answers but an answer belongs to one and only one question. This is relation 1 in the **Figure 1.1** above 
+Note the `parent_id` column which signifies a hierarchical structure. The `parent_id` is a one-to-many relationship that links up an answer to the corresponding question. A single question can have multiple answers but an answer belongs to one and only one question. This is relation 1 in the **Figure 1.1** above.
 
-Both tables are connected to `post_history` via 
+Both post types (question and answer) have a one-to-many relationship to the `post_history`. These are relations 3 and 4 in the diagram above.
 
-As you can see there's no `user_id` in the table because posts and users have a many-to-many relationship. They're connected via the `post_history` table.
 ```sql
 SELECT column_name, data_type
-FROM `bigquery-public-data.stackoverflow.INFORMATION_SCHEMA.COLUMNS`
+FROM bigquery-public-data.stackoverflow.INFORMATION_SCHEMA.COLUMNS
 WHERE table_name = 'post_history'
 
 |column_name         |data_type|
@@ -125,12 +124,10 @@ WHERE table_name = 'post_history'
 |comment             |STRING   |
 ```
 
-Both post types (question and answer) have a one-to-many relationship to the `post_history`. A single post can have many types of activities identified by the `post_history_type_id` column. 
-
-This id indicates the different types of activities a user can do on the site. We're only concerned with the first 6. You can see the rest of them [here](https://meta.stackexchange.com/questions/2677/database-schema-documentation-for-the-public-data-dump-and-sede/2678#2678) if you're curious.
+A single post can have many types of activities identified by the `post_history_type_id` column. This id indicates the different types of activities a user can perform on the site. We're only concerned with the first 6. You can see the rest of them [here](https://meta.stackexchange.com/questions/2677/database-schema-documentation-for-the-public-data-dump-and-sede/2678#2678) if you're curious.
 
 1. Initial Title - initial title _(questions only)_
-2. Initial Body - initial post raw body text
+2. Initial Body - initial post _(raw body text)_
 3. Initial Tags - initial list of tags _(questions only)_ 
 4. Edit Title - modified title _(questions only)_
 5. Edit Body - modified post body _(raw markdown)_
@@ -138,13 +135,15 @@ This id indicates the different types of activities a user can do on the site. W
 
 The first 3 indicate when a post is first submitted and the next 3 when a post is edited.
 
-This table also connects to the `users` table. A single user can perform multiple activities on a post. This is known as a bridge table between the users and posts which have a many-to-many relationship which cannot be modeled otherwise.
+The `post_history` table also connects to the `users` table via the `user_id` in a one-to-many relationship shown in the diagram as number 6.  A single user can perform multiple activities on a post.
+
+In database lingo this is known as a bridge table because it connects two tables (user and posts) that have a many-to-many relationship which cannot be modeled otherwise.
 
 The `users` table has one row per user and contains user attributes such as name, reputation, etc. We'll use some of these attributes in our final table.
 
 ```sql
 SELECT column_name, data_type
-FROM `bigquery-public-data.stackoverflow.INFORMATION_SCHEMA.COLUMNS`
+FROM bigquery-public-data.stackoverflow.INFORMATION_SCHEMA.COLUMNS
 WHERE table_name = 'users'
 
 |column_name      |data_type|
@@ -164,11 +163,11 @@ WHERE table_name = 'users'
 |website_url      |STRING   |
 ```
 
-Next we take a look at the `comments` table. It has a zero-to-many relationship with posts and with users, which means that both a user or a post could have 0 comments. The connection to the posts indicates comments on a post and the connection to the user indicates comments by a user.
+Next we take a look at the `comments` table. It has a zero-to-many relationship with posts and with users shown in the diagram as number 5 and number 7, since both a user or a post could have 0 or many comments.
 
 ```sql
 SELECT column_name, data_type
-FROM `bigquery-public-data.stackoverflow.INFORMATION_SCHEMA.COLUMNS`
+FROM bigquery-public-data.stackoverflow.INFORMATION_SCHEMA.COLUMNS
 WHERE table_name = 'comments'
 
 |column_name      |data_type|
@@ -182,11 +181,11 @@ WHERE table_name = 'comments'
 |score            |INT64    |
 ```
 
-Finally the `votes` table represents the upvotes and downvotes on a post. Once we connect a post to a user, we can compute This is exactly what we need to compute the total vote count on a user's post which will indicate how good the question or the answer is. This table has a granularity of one row per vote per post per date.
+Finally the `votes` table represents the upvotes and downvotes on a post. We'll need this to compute the total vote count on a user's post which will indicate how good the question or the answer is. This table has a granularity of one row per vote per post per date.
 
 ```sql
 SELECT column_name, data_type
-FROM `bigquery-public-data.stackoverflow.INFORMATION_SCHEMA.COLUMNS`
+FROM bigquery-public-data.stackoverflow.INFORMATION_SCHEMA.COLUMNS
 WHERE table_name = 'votes'
 
 |column_name  |data_type|
@@ -197,4 +196,6 @@ WHERE table_name = 'votes'
 |vote_type_id |INT64    |
 ```
 
-Note that the `votes` table is connected to a post, so in order for us to get upvotes and downvotes on a user's post, we'll need to join it with the `users` table.
+The `votes` table is connected to a post in a 0-to-many relationship shows in the diagram as number 2. In order for us to get upvotes and downvotes on a user's post, we'll need to join it with the `users` table.
+
+Alright, now that we've familiarized ourselves with the source data model, it's time to dive into the patterns!
