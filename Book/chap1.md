@@ -198,4 +198,4 @@ WHERE table_name = 'votes'
 
 The `votes` table is connected to a post in a 0-to-many relationship shows in the diagram as number 2. In order for us to get upvotes and downvotes on a user's post, we'll need to join it with the `users` table.
 
-Alright, now that we've familiarized ourselves with the source data model, it's time to dive into the patterns!
+Alright, now that we've familiarized ourselves with the source data model, next let's look at some core concepts.
