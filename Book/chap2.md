@@ -46,10 +46,14 @@ creation_date          |post_id |post_history_type_id|user_id |total_rows|
 
 This means we have to be careful when joining with this table on `post_id, user_id, creation_date, post_history_type_id` and we'd have to deal with the duplicate issue first. Let's see a couple of methods for doing that.
 
-### Aggregating Data
-When you aggregate data you're moving from a level of low granularity to a level of higher granularity. Please note that this is a "one-way street." By aggregating data you're reducing the level of detail and by definition removing information. But if you store data at this aggregated level, you lose the details.
+## Granularity Reduction
+Now that you understand the concept of granularity, let's extend that further. High granularity (or higher grain) means high level of detail. A simple example would be a process that's logging information every second vs every minute. The first one has a higher level of detail than the second one because it's happening more often.
 
-That's why it's very common in data warehouses to store data at the lowest possible grain you have it and then aggregate it up to whatever level is needed for reporting. You can also use aggregating to deal with duplicate rows, and we have some so let's do it.
+The same concept applies to transactions happening on an e-commerce website. Storing each transaction gives us the highest level of detail, but if you just wanted to know how much revenue you got on a given day, you have to reduce that level of granularity to a single row.
+
+That's where aggregation comes into play. In SQL aggregating data, like counting the number of rows or summing up revenue are operations that reduce granularity. Keep in mind that by doing so you are also removing information. If I aggregate all sales by day and just report that number, I lose all specific information about the sales (e.g marketing information)
+
+That's why it's very common in data warehouses to store data at the lowest possible grain and then aggregate it up to whatever level is needed for reporting. That way you can always look up the details when you need to.
 
 Let's refer again to the previous example. 
 
@@ -70,8 +74,8 @@ WHERE
 creation_date          |post_id |post_history_type_id|user_id |
 -----------------------+--------+--------------------+--------+
 2020-08-05 15:42:25.130|63272171|                   5|14038907|
-2020-08-05 16:31:15.220|63272171|                   5|14038907|
-2020-08-05 16:31:15.220|63272171|                   5|14038907|
+2020-08-05 16:31:15.220|63272171|                   5|14038907| --duplicate
+2020-08-05 16:31:15.220|63272171|                   5|14038907| --duplicate
 2020-08-05 16:37:23.983|63272171|                   5|14038907|
 2020-08-05 15:34:38.187|63272171|                   5|14038907|
 ```
@@ -94,7 +98,7 @@ GROUP BY 1,2,3,4;
 creation_date          |post_id |post_history_type_id|user_id |
 -----------------------+--------+--------------------+--------+
 2020-08-05 16:37:23.983|63272171|                   5|14038907|
-2020-08-05 16:31:15.220|63272171|                   5|14038907|
+2020-08-05 16:31:15.220|63272171|                   5|14038907| --duplicate removed
 2020-08-05 15:34:38.187|63272171|                   5|14038907|
 2020-08-05 15:42:25.130|63272171|                   5|14038907|
 ```
@@ -110,7 +114,7 @@ SELECT
 	CAST(creation_date AS DATE) AS activity_date,
 	COUNT(*) as total_comments
 FROM
-	`bigquery-public-data.stackoverflow.comments`
+	bigquery-public-data.stackoverflow.comments
 WHERE
 	TRUE
 	AND creation_date >= CAST('2021-06-01' as TIMESTAMP) 
@@ -119,7 +123,7 @@ GROUP BY
 	1,2
 ```
 
-### Pivoting Data
+## Pivoting Data
 Here's another pattern that's very commonly used for aggregation:
 ```sql
 SELECT
@@ -177,12 +181,12 @@ You'll notice that I manipulate the timestamp column `creation_date` into just a
 
 Given a single timestamp, we can construct granularities for seconds, minutes, hours, days, weeks, months, quarters, years, decades. We do that by using one of the many date manipulation functions like `CAST()`,  `DATE_TRUNC()`, `DATE_PART()`, etc. There's way too many of them to mention here and nobody remembers the exact syntax so you just look it up in the documentation.
 
-### Joining Data
+## Joining Data
 Joining tables is one of the most basic functions in SQL since the databases are designed to minimize redundancy of information and the only to do that is to spread information out into multiple tables. This is called normalization. Joins then allow us to get all the information back in a single piece by combining these tables together.
 
 I assume you're familiar with them if you're reading this book, so what I wanted to share with you are certain anti-patterns involving joins that always creep up and burn analysts and data scientists.
 
-### Granularity Multiplication Antipattern
+## Granularity Multiplication 
 If any of tables has duplicates for the columns being joined on, the final result set will be multiplied by the number of duplicates.
 
 For example in our case the `users` table has a grain of one row per user:
@@ -193,7 +197,7 @@ SELECT
 	creation_date ,
 	reputation,
 	views
-FROM `bigquery-public-data.stackoverflow.users`
+FROM bigquery-public-data.stackoverflow.users
 WHERE id = 8974849;
 
 
@@ -211,7 +215,7 @@ SELECT
 	post_history_type_id,
 	user_id 
 FROM
-	bigquery-public-data.stackoverflow.post_history` ph
+	bigquery-public-data.stackoverflow.post_history ph
 WHERE
 	TRUE
 	AND ph.creation_date >= CAST('2021-06-01' as TIMESTAMP) 
@@ -231,7 +235,7 @@ id       |creation_date          |post_id |post_history_type_id|user_id|
 ```
 
 If we join them on `user_id` the granularity of the final result will be multiplied to have as many rows per user:
-```
+```sql
 SELECT
 	ph.post_id,
 	ph.user_id,
@@ -239,8 +243,8 @@ SELECT
 	ph.creation_date AS activity_date,
 	post_history_type_id
 FROM
-	`bigquery-public-data.stackoverflow.post_history` ph
-	INNER JOIN `bigquery-public-data.stackoverflow.users` u ON u.id = ph.user_id
+	bigquery-public-data.stackoverflow.post_history ph
+	INNER JOIN bigquery-public-data.stackoverflow.users u ON u.id = ph.user_id
 WHERE
 	TRUE
 	AND ph.creation_date >= CAST('2021-06-01' as TIMESTAMP) 
@@ -267,21 +271,21 @@ So if the history table has 10 entries for the same user and the `users` table h
 
 This is extremely important when doing analysis because a single duplicate row will multiply all your results by a factor of n and all your numbers will be inflated.
 
-### Accidental Inner Join
+## Accidental Inner Join
 Did you know that SQL will ignore a `LEFT JOIN` clause and perform an `INNER JOIN` instead if you make this one simple mistake? This is one of those SQL hidden secrets which sometimes gets asked as a trick question in interviews so strap in.
 
 When doing a `LEFT JOIN` you're intending to show all the results on the table in the `FROM` clause but if you need to limit
 
 Let's take a look at the example query from above:
-```
+```sql
 SELECT
 	ph.post_id,
 	ph.user_id,
 	u.display_name AS user_name,
 	ph.creation_date AS activity_date
 FROM
-	`bigquery-public-data.stackoverflow.post_history` ph
-	INNER JOIN `bigquery-public-data.stackoverflow.users` u ON u.id = ph.user_id
+	bigquery-public-data.stackoverflow.post_history ph
+	INNER JOIN bigquery-public-data.stackoverflow.users u ON u.id = ph.user_id
 WHERE
 	TRUE
 	AND ph.post_id = 4
@@ -290,15 +294,15 @@ ORDER BY
 ```
 
 This query will produce 58 rows. Now let's change the `INNER JOIN` to a `LEFT JOIN`and rerun the query:
-```
+```sql
 SELECT
 	ph.post_id,
 	ph.user_id,
 	u.display_name AS user_name,
 	ph.creation_date AS activity_date
 FROM
-	`bigquery-public-data.stackoverflow.post_history` ph
-	LEFT JOIN `bigquery-public-data.stackoverflow.users` u ON u.id = ph.user_id
+	bigquery-public-data.stackoverflow.post_history ph
+	LEFT JOIN bigquery-public-data.stackoverflow.users u ON u.id = ph.user_id
 WHERE
 	TRUE
 	AND ph.post_id = 4
@@ -309,15 +313,15 @@ ORDER BY
 Now we get 72 rows!! If you scan the results, you'll notice several where both the `user_name` and the `user_id` are `NULL` which means they're unknown. These could be people who made changes to that post and then deleted their accounts. Notice how the `INNER JOIN` was filtering them out? That's what I mean by data reduction which we discussed previously.
 
 Suppose we only want to see users with a reputation of higher than 50. That's seems pretty straightforward just add the condition to the where clause
-```
+```sql
 SELECT
 	ph.post_id,
 	ph.user_id,
 	u.display_name AS user_name,
 	ph.creation_date AS activity_date
 FROM
-	`bigquery-public-data.stackoverflow.post_history` ph
-	LEFT JOIN `bigquery-public-data.stackoverflow.users` u ON u.id = ph.user_id
+	bigquery-public-data.stackoverflow.post_history ph
+	LEFT JOIN bigquery-public-data.stackoverflow.users u ON u.id = ph.user_id
 WHERE
 	TRUE
 	AND ph.post_id = 4
@@ -329,15 +333,15 @@ ORDER BY
 We only get 56 rows! What happened?
 
 Adding filters on the where clause for tables that are left joined will ALWAYS perform an `INNER JOIN` except for one single condition where the left join is preserved. If we wanted to filter rows in the `users` table and still do a `LEFT JOIN`  we have to add the filter in the join condition like so:
-```
+```sql
 SELECT
 	ph.post_id,
 	ph.user_id,
 	u.display_name AS user_name,
 	ph.creation_date AS activity_date
 FROM
-	`bigquery-public-data.stackoverflow.post_history` ph
-	LEFT JOIN `bigquery-public-data.stackoverflow.users` u ON u.id = ph.user_id
+	bigquery-public-data.stackoverflow.post_history ph
+	LEFT JOIN bigquery-public-data.stackoverflow.users u ON u.id = ph.user_id
 	AND u.reputation > 50		
 WHERE
 	TRUE
@@ -347,15 +351,15 @@ ORDER BY
 ```
 
 The ONLY time when putting a condition in the `WHERE` clause does NOT turn a `LEFT JOIN` into an `INNER JOIN` is when checking for `NULL`. This is very useful when you want to see the missing data on the table that's being left joined. Here's an example
-```
+```sql
 SELECT
 	ph.post_id,
 	ph.user_id,
 	u.display_name AS user_name,
 	ph.creation_date AS activity_date
 FROM
-	`bigquery-public-data.stackoverflow.post_history` ph
-	LEFT JOIN `bigquery-public-data.stackoverflow.users` u ON u.id = ph.user_id	
+	bigquery-public-data.stackoverflow.post_history ph
+	LEFT JOIN bigquery-public-data.stackoverflow.users u ON u.id = ph.user_id	
 WHERE
 	TRUE
 	AND ph.post_id = 4
@@ -365,16 +369,16 @@ ORDER BY
 ```
 Now we only get the 12 missing users
 
-### Appending Data
+## Appending Data
 You can combine the rows from multiple tables in order to make a longer table by simply appending the rows from one table by using the `UNION` operator.
 
 For example we can combine two of the posts tables like this:
-```
+```sql
 SELECT
 	id AS post_id,
 	'question' AS post_type,
 FROM
-	`bigquery-public-data.stackoverflow.posts_questions`
+	bigquery-public-data.stackoverflow.posts_questions
 WHERE
 	TRUE
 	AND creation_date >= CAST('2021-06-01' as TIMESTAMP) 
@@ -386,7 +390,7 @@ SELECT
 	id AS post_id,
 	'answer' AS post_type,
 FROM
-	`bigquery-public-data.stackoverflow.posts_answers`
+	bigquery-public-data.stackoverflow.posts_answers
 WHERE
 	TRUE
 	AND creation_date >= CAST('2021-06-01' as TIMESTAMP) 
@@ -411,10 +415,10 @@ As a rule of thumb, whenever you're appending tables, it's a good idea to add a 
 
 You'll notice in my query above I create a `post_type` column indicating where the data is coming from.
 
-### De-Pivoting Data Pattern
+## De-Pivoting Data Pattern
 We saw how to pivot data above, but can you reverse the process? Well, sort of. As I said before, aggregation is a "one-way street" meaning that once you aggregate, you lose important information, however it is possible to "de-pivot" data using the `UNION` operator like this:
 
-```
+```sql
 WITH votes_pivot AS (
 	SELECT
 		post_id,
@@ -422,7 +426,7 @@ WITH votes_pivot AS (
 		SUM(CASE WHEN vote_type_id = 2 THEN 1 ELSE 0 END) AS total_upvotes,
 		SUM(CASE WHEN vote_type_id = 3 THEN 1 ELSE 0 END) AS total_downvotes,
 	FROM
-		`bigquery-public-data.stackoverflow.votes` v
+		bigquery-public-data.stackoverflow.votes v
 	WHERE
 		TRUE
 		AND v.creation_date >= CAST('2021-06-01' as TIMESTAMP) 
