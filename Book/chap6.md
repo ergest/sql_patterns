@@ -78,7 +78,7 @@ Here's a few examples: Suppose that all dates had extra dashes like this:
 2021-12--04
 ```
 Since this is a regular pattern, we can extract the meaningful numbers and force the formatting like this:
-```
+```sql
 WITH dates AS (
     SELECT '2021-12--01' AS dt
     UNION ALL 
@@ -118,7 +118,7 @@ dt         |
 12/05/2021 |
 ```
 Obviously we can't force the same format for all the dates here so we'll have to split this up and apply the force formatting pattern separately as long as we can detect the right patterns:
-```
+```sql
 WITH dates AS (
     SELECT '2021-12--01' AS dt
     UNION ALL 
@@ -156,7 +156,7 @@ WHERE col2 = NULL;
 You get `NULL` when you try to perform any type of calculation with `NULL` like adding or subtracting, multiplying or dividing because adding anything to an unknown value is still unknown. SQL deals with NULLs by using the `IS` keyword. `IS NULL` literally means is unknown. `IFNULL()` then means if this is unknown.
 
 So in order to protect against unexpected NULLs it's often a good idea for your production queries to wrap `IFNUL()` around all the fields.
-```
+```sql
 WITH dates AS (
     SELECT '2021-12--01' AS dt
     UNION ALL 

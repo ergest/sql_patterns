@@ -103,7 +103,7 @@ Once we get all activity types on the same granularity, we will join them on `us
 We saw how we can define multiple CTEs above and we also saw how each CTE can use a previous CTE which allows us to chain them together to solve out complex query.
 
 To solve the first sub-problem we have to define a CTE that gets the post activity for each `user_id`, `post_id`, `activity_type`, `date` combination. We then need to restrict this activity to only creation and editing because we don't care about the other kinds. That makes for a perfect small, self-contained CTE which can also be used later when we need to join in votes to users. 
-```
+```sql
 WITH post_activity AS (
     SELECT
         ph.post_id,
@@ -114,8 +114,9 @@ WITH post_activity AS (
              WHEN ph.post_history_type_id IN (4,5,6) THEN 'edited' 
         END AS activity_type
     FROM
-        `bigquery-public-data.stackoverflow.post_history` ph
-        INNER JOIN `bigquery-public-data.stackoverflow.users` u on u.id = ph.user_id
+        bigquery-public-data.stackoverflow.post_history ph
+        INNER JOIN bigquery-public-data.stackoverflow.users u 
+			ON u.id = ph.user_id
     WHERE
         TRUE 
         AND ph.post_history_type_id BETWEEN 1 AND 6

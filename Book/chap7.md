@@ -1,7 +1,7 @@
 # Chapter 7: Finishing the Project
 We've now explored all the sections of the query so let's see the whole thing in one place so we can see all the patterns in action. 
 
-```
+```sql
  -- Get the user name and collapse the granularity of post_history to the user_id, post_id, activity type and date
 WITH post_activity AS (
     SELECT
@@ -13,8 +13,8 @@ WITH post_activity AS (
              WHEN ph.post_history_type_id IN (4,5,6) THEN 'edited' 
         END AS activity_type
     FROM
-        `bigquery-public-data.stackoverflow.post_history` ph
-        INNER JOIN `bigquery-public-data.stackoverflow.users` u on u.id = ph.user_id
+        bigquery-public-data.stackoverflow.post_history ph
+        INNER JOIN bigquery-public-data.stackoverflow.users u on u.id = ph.user_id
     WHERE
         TRUE 
         AND ph.post_history_type_id BETWEEN 1 AND 6
@@ -31,7 +31,7 @@ WITH post_activity AS (
         id AS post_id,
         'question' AS post_type,
     FROM
-        `bigquery-public-data.stackoverflow.posts_questions`
+        bigquery-public-data.stackoverflow.posts_questions
     WHERE
         TRUE
         AND creation_date >= CAST('2021-06-01' as TIMESTAMP) 
@@ -41,7 +41,7 @@ WITH post_activity AS (
         id AS post_id,
         'answer' AS post_type,
     FROM
-        `bigquery-public-data.stackoverflow.posts_answers`
+        bigquery-public-data.stackoverflow.posts_answers
     WHERE
         TRUE
         AND creation_date >= CAST('2021-06-01' as TIMESTAMP) 
@@ -73,7 +73,7 @@ WITH post_activity AS (
         CAST(creation_date AS DATE) AS activity_date,
         COUNT(*) as total_comments
     FROM
-        `bigquery-public-data.stackoverflow.comments`
+        bigquery-public-data.stackoverflow.comments
     WHERE
         TRUE
         AND creation_date >= CAST('2021-06-01' as TIMESTAMP) 
@@ -87,7 +87,7 @@ WITH post_activity AS (
         CAST(c.creation_date AS DATE) AS activity_date,
         COUNT(*) as total_comments
     FROM
-        `bigquery-public-data.stackoverflow.comments` c
+        bigquery-public-data.stackoverflow.comments c
         INNER JOIN post_activity pa ON pa.post_id = c.post_id
     WHERE
         TRUE
@@ -104,7 +104,7 @@ WITH post_activity AS (
         SUM(CASE WHEN vote_type_id = 2 THEN 1 ELSE 0 END) AS total_upvotes,
         SUM(CASE WHEN vote_type_id = 3 THEN 1 ELSE 0 END) AS total_downvotes,
     FROM
-        `bigquery-public-data.stackoverflow.votes` v
+        bigquery-public-data.stackoverflow.votes v
         INNER JOIN post_activity pa ON pa.post_id = v.post_id
     WHERE
         TRUE

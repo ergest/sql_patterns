@@ -1,10 +1,16 @@
 # Chapter 2: Core Concepts
 ## Granularity
-Granularity (also known as the grain) is a measure of the level of detail that determines an individual row in a table or view. This is extremely important when it comes to joins or aggregating data. A low granularity table means a very low level of detail, like one row per transaction.
+Granularity (also known as the grain) is a measure of the level of detail that determines an individual row in a table or view. This is extremely important when it comes to joins or aggregating data. 
+
+Granularity comes in two flavors: *fine grain* and *coarse grain*.
+
+A finely grained table means a high level of detail, like one row per transaction. 
+
+A coarse grained table means a low level of detail like count of all transactions in a day.
 
 Granularity is usually expressed as the number of unique rows for each column or combination of columns. 
 
-For example the `users` table has one row per user. That is the lowest grain on it. The `post_history` table, on the other hand, contains a log of all the changes that a user performs on a post on a given date and time. Therefore the granularity is one row per user, per post, per timestamp.
+For example the `users` table has one row per user. That is the finest grain on it. The `post_history` table, on the other hand, contains a log of all the changes that a user performs on a post on a given date and time. Therefore the granularity is one row per user, per post, per timestamp.
 
 The `comments` table contains a log of all the comments on a post by a user on a given date so its granularity is also one row per user, per post, per date.
 
@@ -46,155 +52,113 @@ creation_date          |post_id |post_history_type_id|user_id |total_rows|
 
 This means we have to be careful when joining with this table on `post_id, user_id, creation_date, post_history_type_id` and we'd have to deal with the duplicate issue first. Let's see a couple of methods for doing that.
 
-## Granularity Reduction
-Now that you understand the concept of granularity, let's extend that further. High granularity (or higher grain) means high level of detail. A simple example would be a process that's logging information every second vs every minute. The first one has a higher level of detail than the second one because it's happening more often.
+## Granularity Manipulation
+Now that you have a grasp of the concept of granularity the next thing to learn is how to manipulate it. What I mean by manipulation is specifically going from a fine grain to a coarser grain.
 
-The same concept applies to transactions happening on an e-commerce website. Storing each transaction gives us the highest level of detail, but if you just wanted to know how much revenue you got on a given day, you have to reduce that level of granularity to a single row.
+For example an e-commerce website might store each transaction it performs as a single row on a table. This gives us a very fine-grained table (i.e. a very high level of detail) If we wanted to know how much revenue you got on a given day, you have to reduce that level of detail to a single row. 
 
-That's where aggregation comes into play. In SQL aggregating data, like counting the number of rows or summing up revenue are operations that reduce granularity. Keep in mind that by doing so you are also removing information. If I aggregate all sales by day and just report that number, I lose all specific information about the sales (e.g marketing information)
+This is done via aggregation.
 
-That's why it's very common in data warehouses to store data at the lowest possible grain and then aggregate it up to whatever level is needed for reporting. That way you can always look up the details when you need to.
+### Aggregation
+Aggregation is a way of reducing the level of detail by grouping (aka rolling up) data to a coarser grain. You do that by reducing the number of columns in the output and applying `GROUP BY` to the remaining columns. The more columns you remove, the coarser the grain gets. 
 
-Let's refer again to the previous example. 
+I call this "collapsing the granularity"
 
-If I simply select the columns I want without aggregation, we get duplicates which as we mentioned earlier will mess up joins later. (Rows 2 and 3 are the same)
-```sql
-SELECT 
-	creation_date,
-	post_id,
-	post_history_type_id,
-	user_id
-FROM 
-	bigquery-public-data.stackoverflow.post_history
-WHERE 
-	post_id = 63272171 
-	AND user_id = 14038907
-	AND post_history_type_id = 5
+This is a very common pattern of storing data in a data warehouse. You keep the table at the finest possible grain (i.e. one transaction per row) and then aggregate it up to whatever level is needed for reporting. This way you can always look up the details when you need to.
 
-creation_date          |post_id |post_history_type_id|user_id |
------------------------+--------+--------------------+--------+
-2020-08-05 15:42:25.130|63272171|                   5|14038907|
-2020-08-05 16:31:15.220|63272171|                   5|14038907| --duplicate
-2020-08-05 16:31:15.220|63272171|                   5|14038907| --duplicate
-2020-08-05 16:37:23.983|63272171|                   5|14038907|
-2020-08-05 15:34:38.187|63272171|                   5|14038907|
-```
+Let's look at an example.
 
-By simply adding a `GROUP BY` we can easily solve this problem
-```sql
-SELECT 
-	creation_date,
-	post_id,
-	post_history_type_id,
-	user_id
-FROM 
-	bigquery-public-data.stackoverflow.post_history
-WHERE 
-	post_id = 63272171 
-	AND user_id = 14038907
-	AND post_history_type_id = 5
-GROUP BY 1,2,3,4;
-
-creation_date          |post_id |post_history_type_id|user_id |
------------------------+--------+--------------------+--------+
-2020-08-05 16:37:23.983|63272171|                   5|14038907|
-2020-08-05 16:31:15.220|63272171|                   5|14038907| --duplicate removed
-2020-08-05 15:34:38.187|63272171|                   5|14038907|
-2020-08-05 15:42:25.130|63272171|                   5|14038907|
-```
-
-Notice that for the purposes of removing duplicates we don't need to use an aggregate function like `COUNT()` or `MAX()`, `MIN()` You can achieve the same effect by using `DISTINCT`
-
-Of course using aggregate functions is the most common way to aggregate data. Summing up or counting multiple rows are still the workhorse of aggregation. We'll use that a lot in our project.
-
-Here's a traditional application of it:
+The `post_history` table has too many rows for each `post_history_type_id` and we only need the ones representing post creation and editing. To do this, we can "collapse" them into custom categories via a `CASE` statement as shown below:
 ```sql
 SELECT
-	user_id,
-	CAST(creation_date AS DATE) AS activity_date,
-	COUNT(*) as total_comments
+    ph.post_id,
+    ph.user_id,
+    ph.creation_date AS activity_date,
+    CASE WHEN ph.post_history_type_id IN (1,2,3) THEN 'created'
+         WHEN ph.post_history_type_id IN (4,5,6) THEN 'edited' 
+    END AS activity_type
 FROM
-	bigquery-public-data.stackoverflow.comments
+    bigquery-public-data.stackoverflow.post_history ph
 WHERE
-	TRUE
-	AND creation_date >= CAST('2021-06-01' as TIMESTAMP) 
-	AND creation_date <= CAST('2021-09-30' as TIMESTAMP)
+    TRUE 
+    AND ph.post_history_type_id BETWEEN 1 AND 6
+    AND ph.user_id > 0 --exclude automated processes
+    AND ph.user_id IS NOT NULL --exclude deleted accounts
+    AND ph.creation_date >= CAST('2021-06-01' as TIMESTAMP) 
+    AND ph.creation_date <= CAST('2021-09-30' as TIMESTAMP)
 GROUP BY
-	1,2
+    1,2,3,4
+
+post_id |user_id |activity_date          |activity_type|
+--------+--------+-----------------------+-------------+
+69379700|  215552|2021-09-29 11:57:26.383|edited       |
+69379176| 1444609|2021-09-29 12:04:32.393|edited       |
+69367143| 4013057|2021-09-28 15:04:48.593|edited       |
+69356228|17021954|2021-09-28 02:07:56.040|edited       |
+69343754| 2083587|2021-09-27 11:10:33.463|edited       |
+69380254|15604484|2021-09-29 12:36:16.067|edited       |
+69360868| 1256452|2021-09-28 15:25:28.367|edited       |
+69332758|13616388|2021-09-28 18:06:56.540|edited       |
+69371970|11082758|2021-09-29 04:55:54.090|edited       |
+52390490|11082758|2021-09-29 08:27:01.830|edited       |
+58675073|    1288|2021-09-29 09:21:18.763|edited       |
 ```
 
-## Pivoting Data
-Here's another pattern that's very commonly used for aggregation:
+Notice that didn't use an aggregation function like `COUNT()` or `SUM()` and that's perfectly ok since we don't need it. The above query is one of the building blocks we'll explain and use later in **Chapter 3**
+
+### Date Granularity
+The timestamp column `creation_date` is a rich field with both the date and time information (hour, minute, second, microsecond). Timestamp fields are special when it comes to aggregation because they have many levels of granularities built in.
+
+Given a single timestamp, we can construct granularities for seconds, minutes, hours, days, weeks, months, quarters, years, decades, etc. We do that by using one of the many date manipulation functions like `CAST()`,  `DATE_TRUNC()`, `DATE_PART()`, etc. 
+
+For example if I wanted to remove the time information, I could reduce all activities on a given date to a single row like this:
 ```sql
 SELECT
-	post_id,
-	CAST(v.creation_date AS DATE) AS activity_date,
-	SUM(CASE WHEN vote_type_id = 2 THEN 1 ELSE 0 END) AS total_upvotes,
-	SUM(CASE WHEN vote_type_id = 3 THEN 1 ELSE 0 END) AS total_downvotes,
+    ph.post_id,
+    ph.user_id,
+    CAST(ph.creation_date AS DATE) AS activity_date,
+    CASE WHEN ph.post_history_type_id IN (1,2,3) THEN 'created'
+         WHEN ph.post_history_type_id IN (4,5,6) THEN 'edited' 
+    END AS activity_type,
+    COUNT(*) AS total
 FROM
-	bigquery-public-data.stackoverflow.votes v
+    bigquery-public-data.stackoverflow.post_history ph
 WHERE
-	TRUE
-	AND v.creation_date >= CAST('2021-06-01' as TIMESTAMP) 
-	AND v.creation_date <= CAST('2021-09-30' as TIMESTAMP)
+    TRUE 
+    AND ph.post_history_type_id BETWEEN 1 AND 6
+    AND ph.user_id > 0 --exclude automated processes
+    AND ph.user_id IS NOT NULL --exclude deleted accounts
+    AND ph.creation_date >= CAST('2021-06-01' as TIMESTAMP) 
+    AND ph.creation_date <= CAST('2021-09-30' as TIMESTAMP)
 GROUP BY
-	1,2
+    1,2,3,4
+
+post_id |user_id |activity_date|activity_type|total|
+--------+--------+-------------+-------------+-----+
+67793604|14095105|   2021-06-01|created      |    1|
+67796121|13522177|   2021-06-01|created      |    3|
+67792166| 8198146|   2021-06-01|created      |    1|
+67788959| 6764290|   2021-06-01|created      |    3|
+67785958| 1127428|   2021-06-01|edited       |    2|
+67783508| 1127428|   2021-06-01|edited       |    2|
+67788742|15742980|   2021-06-01|created      |    3|
+67788742|15742980|   2021-06-01|edited       |    5|
+67787140| 9935877|   2021-06-01|created      |    3|
 ```
-
-This pattern is commonly known as **Pivoting** because we take data that looks like this
-```
-id       |creation_date          |post_id |vote_type_id|
----------+-----------------------+--------+------------+
-239119706|2021-09-23 20:00:00.000|69301792|           2|
-239123009|2021-09-23 20:00:00.000|69301792|           3|
-239200936|2021-09-24 20:00:00.000|69301792|           2|
-239087730|2021-09-22 20:00:00.000|69301792|           3|
-239199214|2021-09-24 20:00:00.000|69301792|           2|
-239118872|2021-09-23 20:00:00.000|69301792|           3|
-239135887|2021-09-23 20:00:00.000|69301792|           2|
-239127938|2021-09-23 20:00:00.000|69301792|           2|
-239147153|2021-09-23 20:00:00.000|69301792|           3|
-239153591|2021-09-23 20:00:00.000|69301792|           2|
-239168079|2021-09-23 20:00:00.000|69301792|           2|
-239121664|2021-09-23 20:00:00.000|69301792|           3|
-239117803|2021-09-23 20:00:00.000|69301792|           2|
-239117878|2021-09-23 20:00:00.000|69301792|           3|
-239116194|2021-09-23 20:00:00.000|69301792|           2|
-239130104|2021-09-23 20:00:00.000|69301792|           2|
-239157135|2021-09-23 20:00:00.000|69301792|           2|
-239142497|2021-09-23 20:00:00.000|69301792|           3|
-239157729|2021-09-23 20:00:00.000|69301792|           2|
-239129111|2021-09-23 20:00:00.000|69301792|           3|
-```
-and turn it into this
-```
-post_id |activity_date|total_upvotes|total_downvotes|
---------+-------------+-------------+---------------+
-69301792|   2021-09-24|           10|              7|
-69301792|   2021-09-25|            2|              0|
-69301792|   2021-09-23|            0|              1|
-```
-
-by "pivoting" on the vote type 
-
-You'll notice that I manipulate the timestamp column `creation_date` into just a date field without the time information. Date fields are special when it comes to aggregation because they have many layers of granularities built in.
-
-Given a single timestamp, we can construct granularities for seconds, minutes, hours, days, weeks, months, quarters, years, decades. We do that by using one of the many date manipulation functions like `CAST()`,  `DATE_TRUNC()`, `DATE_PART()`, etc. There's way too many of them to mention here and nobody remembers the exact syntax so you just look it up in the documentation.
-
-## Joining Data
-Joining tables is one of the most basic functions in SQL since the databases are designed to minimize redundancy of information and the only to do that is to spread information out into multiple tables. This is called normalization. Joins then allow us to get all the information back in a single piece by combining these tables together.
-
-I assume you're familiar with them if you're reading this book, so what I wanted to share with you are certain anti-patterns involving joins that always creep up and burn analysts and data scientists.
 
 ## Granularity Multiplication 
-If any of tables has duplicates for the columns being joined on, the final result set will be multiplied by the number of duplicates.
+Joining tables is one of the most basic functions in SQL. Databases are designed to minimize redundancy of information and they do that by a process known as normalization. Joins then allow us to get all the information back in a single piece by combining these tables together.
 
-For example in our case the `users` table has a grain of one row per user:
+Granularity multiplication will happen if the tables you're joining have different levels of detail for the columns being joined on. This will cause the resulting number of rows to multiply.
+
+Let's look at an example:
+
+The `users` table has a grain of one row per user:
 ```sql
 SELECT
 	id,
 	display_name,
-	creation_date ,
+	creation_date,
 	reputation,
 	views
 FROM bigquery-public-data.stackoverflow.users
@@ -271,151 +235,61 @@ So if the history table has 10 entries for the same user and the `users` table h
 
 This is extremely important when doing analysis because a single duplicate row will multiply all your results by a factor of n and all your numbers will be inflated.
 
-## Accidental Inner Join
-Did you know that SQL will ignore a `LEFT JOIN` clause and perform an `INNER JOIN` instead if you make this one simple mistake? This is one of those SQL hidden secrets which sometimes gets asked as a trick question in interviews so strap in.
-
-When doing a `LEFT JOIN` you're intending to show all the results on the table in the `FROM` clause but if you need to limit
-
-Let's take a look at the example query from above:
+## Pivoting Data
+Here's another pattern that's very commonly used for aggregation:
 ```sql
 SELECT
-	ph.post_id,
-	ph.user_id,
-	u.display_name AS user_name,
-	ph.creation_date AS activity_date
+	post_id,
+	CAST(v.creation_date AS DATE) AS activity_date,
+	SUM(CASE WHEN vote_type_id = 2 THEN 1 ELSE 0 END) AS total_upvotes,
+	SUM(CASE WHEN vote_type_id = 3 THEN 1 ELSE 0 END) AS total_downvotes,
 FROM
-	bigquery-public-data.stackoverflow.post_history ph
-	INNER JOIN bigquery-public-data.stackoverflow.users u ON u.id = ph.user_id
+	bigquery-public-data.stackoverflow.votes v
 WHERE
 	TRUE
-	AND ph.post_id = 4
-ORDER BY
-	activity_date;
+	AND v.creation_date >= CAST('2021-06-01' as TIMESTAMP) 
+	AND v.creation_date <= CAST('2021-09-30' as TIMESTAMP)
+GROUP BY
+	1,2
 ```
 
-This query will produce 58 rows. Now let's change the `INNER JOIN` to a `LEFT JOIN`and rerun the query:
-```sql
-SELECT
-	ph.post_id,
-	ph.user_id,
-	u.display_name AS user_name,
-	ph.creation_date AS activity_date
-FROM
-	bigquery-public-data.stackoverflow.post_history ph
-	LEFT JOIN bigquery-public-data.stackoverflow.users u ON u.id = ph.user_id
-WHERE
-	TRUE
-	AND ph.post_id = 4
-ORDER BY
-	activity_date;
+This pattern is commonly known as **Pivoting** because we take data that looks like this
+```
+id       |creation_date|post_id |vote_type_id|
+---------+-------------+--------+------------+
+239119706|2021-09-23   |69301792|           2|
+239123009|2021-09-23   |69301792|           3|
+239200936|2021-09-24   |69301792|           2|
+239087730|2021-09-22   |69301792|           3|
+239199214|2021-09-24   |69301792|           2|
+239118872|2021-09-23   |69301792|           3|
+239135887|2021-09-23   |69301792|           2|
+239127938|2021-09-23   |69301792|           2|
+239147153|2021-09-23   |69301792|           3|
+239153591|2021-09-23   |69301792|           2|
+239168079|2021-09-23   |69301792|           2|
+239121664|2021-09-23   |69301792|           3|
+239117803|2021-09-23   |69301792|           2|
+239117878|2021-09-23   |69301792|           3|
+239116194|2021-09-23   |69301792|           2|
+239130104|2021-09-23   |69301792|           2|
+239157135|2021-09-23   |69301792|           2|
+239142497|2021-09-23   |69301792|           3|
+239157729|2021-09-23   |69301792|           2|
+239129111|2021-09-23   |69301792|           3|
+```
+and turn it into this
+```
+post_id |activity_date|total_upvotes|total_downvotes|
+--------+-------------+-------------+---------------+
+69301792|   2021-09-24|           10|              7|
+69301792|   2021-09-25|            2|              0|
+69301792|   2021-09-23|            0|              1|
 ```
 
-Now we get 72 rows!! If you scan the results, you'll notice several where both the `user_name` and the `user_id` are `NULL` which means they're unknown. These could be people who made changes to that post and then deleted their accounts. Notice how the `INNER JOIN` was filtering them out? That's what I mean by data reduction which we discussed previously.
+by "pivoting" on the vote type 
 
-Suppose we only want to see users with a reputation of higher than 50. That's seems pretty straightforward just add the condition to the where clause
-```sql
-SELECT
-	ph.post_id,
-	ph.user_id,
-	u.display_name AS user_name,
-	ph.creation_date AS activity_date
-FROM
-	bigquery-public-data.stackoverflow.post_history ph
-	LEFT JOIN bigquery-public-data.stackoverflow.users u ON u.id = ph.user_id
-WHERE
-	TRUE
-	AND ph.post_id = 4
-	AND u.reputation > 50
-ORDER BY
-	activity_date;
-```
-
-We only get 56 rows! What happened?
-
-Adding filters on the where clause for tables that are left joined will ALWAYS perform an `INNER JOIN` except for one single condition where the left join is preserved. If we wanted to filter rows in the `users` table and still do a `LEFT JOIN`  we have to add the filter in the join condition like so:
-```sql
-SELECT
-	ph.post_id,
-	ph.user_id,
-	u.display_name AS user_name,
-	ph.creation_date AS activity_date
-FROM
-	bigquery-public-data.stackoverflow.post_history ph
-	LEFT JOIN bigquery-public-data.stackoverflow.users u ON u.id = ph.user_id
-	AND u.reputation > 50		
-WHERE
-	TRUE
-	AND ph.post_id = 4
-ORDER BY
-	activity_date;
-```
-
-The ONLY time when putting a condition in the `WHERE` clause does NOT turn a `LEFT JOIN` into an `INNER JOIN` is when checking for `NULL`. This is very useful when you want to see the missing data on the table that's being left joined. Here's an example
-```sql
-SELECT
-	ph.post_id,
-	ph.user_id,
-	u.display_name AS user_name,
-	ph.creation_date AS activity_date
-FROM
-	bigquery-public-data.stackoverflow.post_history ph
-	LEFT JOIN bigquery-public-data.stackoverflow.users u ON u.id = ph.user_id	
-WHERE
-	TRUE
-	AND ph.post_id = 4
-	AND u.id is NULL
-ORDER BY
-	activity_date;
-```
-Now we only get the 12 missing users
-
-## Appending Data
-You can combine the rows from multiple tables in order to make a longer table by simply appending the rows from one table by using the `UNION` operator.
-
-For example we can combine two of the posts tables like this:
-```sql
-SELECT
-	id AS post_id,
-	'question' AS post_type,
-FROM
-	bigquery-public-data.stackoverflow.posts_questions
-WHERE
-	TRUE
-	AND creation_date >= CAST('2021-06-01' as TIMESTAMP) 
-	AND creation_date <= CAST('2021-09-30' as TIMESTAMP)
-
-UNION ALL
-
-SELECT
-	id AS post_id,
-	'answer' AS post_type,
-FROM
-	bigquery-public-data.stackoverflow.posts_answers
-WHERE
-	TRUE
-	AND creation_date >= CAST('2021-06-01' as TIMESTAMP) 
-	AND creation_date <= CAST('2021-09-30' as TIMESTAMP)
- ```
-
-There are two types of unions, `UNION ALL` and `UNION` (distinct) 
-
-`UNION ALL` will append two tables without checking if they have the same exact row. This might cause duplicates but it's really fast. If you know for sure your tables don't contain duplicates, this is the preferred way to append them. 
-
-`UNION` (distinct) will append the tables but remove all duplicates from the final result thus guaranteeing unique rows for the final result set. This of course is slower because of the extra operations to remove duplicates. Use this only when you're not sure if the tables contain duplicates or you cannot remove duplicates beforehand.
-
-Most SQL flavors only use `UNION` keyword for the distinct version, but BigQuery forces you to use `UNION DISTINCT` in order to make the query far more explicit
-
-Appending rows to a table also has two requirements:
-1. The number of the columns from all tables has to be the same
-2. The data types of the columns from all the tables has to line up 
-
-One of the most annoying things when appending two or more tables with a lot of columns is lining up all the columns in the right order. There's been many a time when I've had to use Excel to line up the columns. There's no shame in admitting that.
-
-As a rule of thumb, whenever you're appending tables, it's a good idea to add a constant column to indicate the source table or some kind of type. This is helpful when appending say activity tables to create a long, time-series table and you want to identify each activity type in the final result set.
-
-You'll notice in my query above I create a `post_type` column indicating where the data is coming from.
-
-## De-Pivoting Data Pattern
+## De-Pivoting Data
 We saw how to pivot data above, but can you reverse the process? Well, sort of. As I said before, aggregation is a "one-way street" meaning that once you aggregate, you lose important information, however it is possible to "de-pivot" data using the `UNION` operator like this:
 
 ```sql
