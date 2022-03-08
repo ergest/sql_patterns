@@ -1,19 +1,12 @@
 # Chapter 4: Query Decomposition
-## Introduction to CTEs
-“The only way to write complex software that won't fall on its face is to build it out of simple modules connected by well-defined interfaces, so that most problems are local and you can have some hope of fixing or optimizing a part without breaking the whole”
--Eric S. Raymond
+In this chapter we're going to learn some of the most important patterns in SQL. These patterns will help you solve very complex queries by systematically decomposing them into simpler queries that can be tested independently. Before we go that far, first we need to talk about CTEs
 
-One of the core principles of software engineering is that the only way you can build a complex system is by building simple, self-contained modules and connecting them together. This is known as the **Modularity Principle**
+## Common Table Expressions (CTEs)
+CTEs or Common Table Expressions are temporary views whose scope is limited to the current query. They are not stored in the database; they only exist while the query is running and are only accessible in that query. They act like subqueries but are easier to understand and use.
 
-Similarly. every complex query can and should be broken down into small, simple modules. These modules should have a single purpose or responsibility which allows them to be written, tested and debugged independently.
+CTEs allow you to break down complex queries into simpler, smaller self-contained modules. By connecting them together we can solve just about any complex query
 
-When I first started writing queries professionally, I wanted to show off my smarts. I wanted to get the entire query written in one fell swoop, one single, perfect, beautiful query that gave the correct answer. Reality, however, had other plans.
-
-You see real world data is messy. From inconsistent field types, missing or duplicate rows, unexpected values, etc. I learned pretty quickly that complex queries, no matter how simple they might seem, needed to be broken down into smaller modules. 
-
-Initially I did this with temporary tables. This way I could test each query individually as I wrote it. Then, when I combined them together to solve the big complex query I knew that the results would be accurate.  This also had the added benefit of making my code easier to read and maintain by others.
-
-Later I learned how to use CTEs (Common Table Expressions) for the same purpose. CTEs or Common Table Expressions are temporary views whose scope is limited to the current query. They are not stored in the database; they only exist while the query is running and are only accessible in that query.
+The same thing applies to complex queries. Every complex query can and should be broken down into smaller, simpler modules known as CTEs. These CTEs should have a single purpose or responsibility so you can write, test and debug them independently.
 
 _Side Note: Even though CTEs have been part of the definition of the SQL standard since 1999, it has taken many years for database vendors to implement them. Some versions of older databases (like MySQL before 8.0, PostgreSQL before 8.4, SQL Server before 2005) do not have support for CTEs. All the modern cloud vendors have support for CTEs
 
@@ -76,7 +69,7 @@ When CTEs are used it lets us read a query top to bottom and easily understand w
 
 Just because we can chain CTEs, it doesn't mean we can do that infinitely. There are practical limitations on levels of chaining because after a while the query will end up becoming computationally complex. This depends on the database system you're using.
 
-### Query Decomposition
+## Query Decomposition
 In order to understand how to break down a large, complex query into CTEs we need to think about what we want to achieve and map out a solution. We're looking to build a table at the `user_id, date` level starting from tables with user activity and date.
 
 We know that a user can perform any of the following activities on any given date:

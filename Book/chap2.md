@@ -1,4 +1,6 @@
 # Chapter 2: Core Concepts
+In this chapter we're going to cover some of the core concepts of querying data and building tables for analysis and data science. We'll start with the most important but underrated concept in SQL, granularity.
+
 ## Granularity
 Granularity (also known as the grain) is a measure of the level of detail that determines an individual row in a table or view. This is extremely important when it comes to joins or aggregating data. 
 
@@ -52,6 +54,10 @@ creation_date          |post_id |post_history_type_id|user_id |total_rows|
 
 This means we have to be careful when joining with this table on `post_id, user_id, creation_date, post_history_type_id` and we'd have to deal with the duplicate issue first. Let's see a couple of methods for doing that.
 
+**What does this mean for our project?**
+
+Our final table will have a grain of one row per user. Only the `users` table has that same granularity. In order to build it we'll have to manipulate the granularity of the source tables so that's what we focus on next.
+
 ## Granularity Manipulation
 Now that you have a grasp of the concept of granularity the next thing to learn is how to manipulate it. What I mean by manipulation is specifically going from a fine grain to a coarser grain.
 
@@ -62,7 +68,7 @@ This is done via aggregation.
 ### Aggregation
 Aggregation is a way of reducing the level of detail by grouping (aka rolling up) data to a coarser grain. You do that by reducing the number of columns in the output and applying `GROUP BY` to the remaining columns. The more columns you remove, the coarser the grain gets. 
 
-I call this "collapsing the granularity"
+I call this *collapsing the granularity.*
 
 This is a very common pattern of storing data in a data warehouse. You keep the table at the finest possible grain (i.e. one transaction per row) and then aggregate it up to whatever level is needed for reporting. This way you can always look up the details when you need to.
 
@@ -86,25 +92,23 @@ WHERE
     AND ph.user_id IS NOT NULL --exclude deleted accounts
     AND ph.creation_date >= CAST('2021-06-01' as TIMESTAMP) 
     AND ph.creation_date <= CAST('2021-09-30' as TIMESTAMP)
+	AND ph.post_id = 69301792
 GROUP BY
     1,2,3,4
 
 post_id |user_id |activity_date          |activity_type|
 --------+--------+-----------------------+-------------+
-69379700|  215552|2021-09-29 11:57:26.383|edited       |
-69379176| 1444609|2021-09-29 12:04:32.393|edited       |
-69367143| 4013057|2021-09-28 15:04:48.593|edited       |
-69356228|17021954|2021-09-28 02:07:56.040|edited       |
-69343754| 2083587|2021-09-27 11:10:33.463|edited       |
-69380254|15604484|2021-09-29 12:36:16.067|edited       |
-69360868| 1256452|2021-09-28 15:25:28.367|edited       |
-69332758|13616388|2021-09-28 18:06:56.540|edited       |
-69371970|11082758|2021-09-29 04:55:54.090|edited       |
-52390490|11082758|2021-09-29 08:27:01.830|edited       |
-58675073|    1288|2021-09-29 09:21:18.763|edited       |
+69301792|  331024|2021-09-23 21:11:44.957|edited       |
+69301792|   63550|2021-09-24 10:38:36.220|edited       |
+69301792|  331024|2021-09-23 10:17:11.763|created      |
+69301792|  331024|2021-09-23 18:48:31.387|edited       |
+69301792|14251221|2021-09-23 22:38:04.863|edited       |
+69301792|  331024|2021-09-23 20:13:05.727|edited       |
 ```
 
-Notice that didn't use an aggregation function like `COUNT()` or `SUM()` and that's perfectly ok since we don't need it. The above query is one of the building blocks we'll explain and use later in **Chapter 3**
+Notice that didn't use an aggregation function like `COUNT()` or `SUM()` and that's perfectly ok since we don't need it. 
+
+You can see now how we're going to manipulate the granularity to get one row per user. We need the date in order o calculate all the date related metrics.
 
 ### Date Granularity
 The timestamp column `creation_date` is a rich field with both the date and time information (hour, minute, second, microsecond). Timestamp fields are special when it comes to aggregation because they have many levels of granularities built in.
@@ -130,21 +134,70 @@ WHERE
     AND ph.user_id IS NOT NULL --exclude deleted accounts
     AND ph.creation_date >= CAST('2021-06-01' as TIMESTAMP) 
     AND ph.creation_date <= CAST('2021-09-30' as TIMESTAMP)
+	AND ph.post_id = 69301792
 GROUP BY
     1,2,3,4
 
 post_id |user_id |activity_date|activity_type|total|
 --------+--------+-------------+-------------+-----+
-67793604|14095105|   2021-06-01|created      |    1|
-67796121|13522177|   2021-06-01|created      |    3|
-67792166| 8198146|   2021-06-01|created      |    1|
-67788959| 6764290|   2021-06-01|created      |    3|
-67785958| 1127428|   2021-06-01|edited       |    2|
-67783508| 1127428|   2021-06-01|edited       |    2|
-67788742|15742980|   2021-06-01|created      |    3|
-67788742|15742980|   2021-06-01|edited       |    5|
-67787140| 9935877|   2021-06-01|created      |    3|
+69301792|  331024|   2021-09-24|edited       |    3|
+69301792|14251221|   2021-09-24|edited       |    1|
+69301792|  331024|   2021-09-23|created      |    3|
+69301792|   63550|   2021-09-24|edited       |    2|
+69301792|  331024|   2021-09-23|edited       |    1|
 ```
+
+In our case we only need to aggregate up to the day level, so we remove the time components by using `CAST(AS DATE)` 
+
+### Pivoting Data
+Pivoting is another form of granularity manipulation where you change the shape of aggregated data by "pivoting" rows into columns. Let's look at the above example and try to pivot the activity type into separate columns for `created` and `edited` 
+
+Note that the counts here don't make sense since we already know that there are 3 different `post_history_type_id` for creation and editing. This is simply shown for demonstration purposes.
+
+This is the query:
+```sql
+SELECT
+    ph.post_id,
+    ph.user_id,
+    CAST(ph.creation_date AS DATE) AS activity_date,
+    SUM(CASE WHEN ph.post_history_type_id IN (1,2,3) THEN 1 ELSE 0 END) AS created,
+    SUM(CASE WHEN ph.post_history_type_id IN (4,5,6) THEN 1 ELSE 0 END) AS edited
+FROM
+    bigquery-public-data.stackoverflow.post_history ph
+WHERE
+    TRUE 
+    AND ph.post_history_type_id BETWEEN 1 AND 6
+    AND ph.user_id > 0 --exclude automated processes
+    AND ph.user_id IS NOT NULL --exclude deleted accounts
+    AND ph.creation_date >= CAST('2021-06-01' as TIMESTAMP) 
+    AND ph.creation_date <= CAST('2021-09-30' as TIMESTAMP)
+    AND ph.post_id = 69301792
+GROUP BY
+    1,2,3
+```
+
+It will take this type of output
+```sql
+post_id |user_id |activity_date|activity_type|total|
+--------+--------+-------------+-------------+-----+
+69301792|  331024|   2021-09-24|edited       |    3|
+69301792|14251221|   2021-09-24|edited       |    1|
+69301792|  331024|   2021-09-23|created      |    3|
+69301792|   63550|   2021-09-24|edited       |    2|
+69301792|  331024|   2021-09-23|edited       |    1|
+```
+
+and turn it into this
+```sql
+post_id |user_id |activity_date|created|edited|
+--------+--------+-------------+-------+------+
+69301792|   63550|   2021-09-24|      0|     2|
+69301792|  331024|   2021-09-24|      0|     3|
+69301792|  331024|   2021-09-23|      3|     1|
+69301792|14251221|   2021-09-24|      0|     1|
+```
+
+Pivoting is how we're going to calculate all the metrics for users, so this is an important concept to learn.
 
 ## Granularity Multiplication 
 Joining tables is one of the most basic functions in SQL. Databases are designed to minimize redundancy of information and they do that by a process known as normalization. Joins then allow us to get all the information back in a single piece by combining these tables together.
@@ -231,110 +284,6 @@ post_id |user_id|user_name|activity_date          |post_history_type_id|
 
 Notice how the `user_name` repeats for each row.
 
-So if the history table has 10 entries for the same user and the `users` table has 1, the final result will contain 10 x 1 entries for the same user. If for some reason the `users` contained 2 entries for the same user (messy real world data), we'd see 10 x 2 = 20 entries for that user in the final result.
+So if the history table has 10 entries for the same user and the `users` table has 1, the final result will contain 10 x 1 entries for the same user. If for some reason the `users` contained 2 entries for the same user (messy real world data), we'd see 10 x 2 = 20 entries for that user in the final result and each row would repeat twice.
 
-This is extremely important when doing analysis because a single duplicate row will multiply all your results by a factor of n and all your numbers will be inflated.
-
-## Pivoting Data
-Here's another pattern that's very commonly used for aggregation:
-```sql
-SELECT
-	post_id,
-	CAST(v.creation_date AS DATE) AS activity_date,
-	SUM(CASE WHEN vote_type_id = 2 THEN 1 ELSE 0 END) AS total_upvotes,
-	SUM(CASE WHEN vote_type_id = 3 THEN 1 ELSE 0 END) AS total_downvotes,
-FROM
-	bigquery-public-data.stackoverflow.votes v
-WHERE
-	TRUE
-	AND v.creation_date >= CAST('2021-06-01' as TIMESTAMP) 
-	AND v.creation_date <= CAST('2021-09-30' as TIMESTAMP)
-GROUP BY
-	1,2
-```
-
-This pattern is commonly known as **Pivoting** because we take data that looks like this
-```
-id       |creation_date|post_id |vote_type_id|
----------+-------------+--------+------------+
-239119706|2021-09-23   |69301792|           2|
-239123009|2021-09-23   |69301792|           3|
-239200936|2021-09-24   |69301792|           2|
-239087730|2021-09-22   |69301792|           3|
-239199214|2021-09-24   |69301792|           2|
-239118872|2021-09-23   |69301792|           3|
-239135887|2021-09-23   |69301792|           2|
-239127938|2021-09-23   |69301792|           2|
-239147153|2021-09-23   |69301792|           3|
-239153591|2021-09-23   |69301792|           2|
-239168079|2021-09-23   |69301792|           2|
-239121664|2021-09-23   |69301792|           3|
-239117803|2021-09-23   |69301792|           2|
-239117878|2021-09-23   |69301792|           3|
-239116194|2021-09-23   |69301792|           2|
-239130104|2021-09-23   |69301792|           2|
-239157135|2021-09-23   |69301792|           2|
-239142497|2021-09-23   |69301792|           3|
-239157729|2021-09-23   |69301792|           2|
-239129111|2021-09-23   |69301792|           3|
-```
-and turn it into this
-```
-post_id |activity_date|total_upvotes|total_downvotes|
---------+-------------+-------------+---------------+
-69301792|   2021-09-24|           10|              7|
-69301792|   2021-09-25|            2|              0|
-69301792|   2021-09-23|            0|              1|
-```
-
-by "pivoting" on the vote type 
-
-## De-Pivoting Data
-We saw how to pivot data above, but can you reverse the process? Well, sort of. As I said before, aggregation is a "one-way street" meaning that once you aggregate, you lose important information, however it is possible to "de-pivot" data using the `UNION` operator like this:
-
-```sql
-WITH votes_pivot AS (
-	SELECT
-		post_id,
-		CAST(v.creation_date AS DATE) AS activity_date,
-		SUM(CASE WHEN vote_type_id = 2 THEN 1 ELSE 0 END) AS total_upvotes,
-		SUM(CASE WHEN vote_type_id = 3 THEN 1 ELSE 0 END) AS total_downvotes,
-	FROM
-		bigquery-public-data.stackoverflow.votes v
-	WHERE
-		TRUE
-		AND v.creation_date >= CAST('2021-06-01' as TIMESTAMP) 
-		AND v.creation_date <= CAST('2021-09-30' as TIMESTAMP)
-		AND post_id = 69301792
-	GROUP BY
-		1,2
-)
-SELECT 
-	activity_date,
-	2 AS vote_type_id,
-	total_upvotes AS votes
-FROM
-	votes_pivot
-
-UNION ALL 
-
-SELECT 
-	activity_date,
-	3 AS vote_type_id,
-	total_downvotes AS votes
-FROM 
-	votes_pivot
-ORDER BY
-	activity_date;
-
-activity_date|vote_type_id|votes|
--------------+------------+-----+
-   2021-09-23|           2|    0|
-   2021-09-23|           3|    1|
-   2021-09-24|           3|    7|
-   2021-09-24|           2|   10|
-   2021-09-25|           3|    0|
-   2021-09-25|           2|    2|
-```
-
-The above query uses a CTE (Common Table Expression) which will be covered in the next chapter in more detail. You can see how we've "de-pivoted" the data but not quite recovered the original 20 rows.
+Now that we have covered the basic concepts, it's time to dive into the patterns.
