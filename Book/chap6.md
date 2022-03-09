@@ -19,7 +19,7 @@ Strings can be considered "universal" data types because anything can be stored 
 Once data is loaded in a table as strings, we can convert it to a more appropriate type and handle the errors. The standard function for converting data in SQL is `CAST()` Some other database implementations like SQL Server also use a custom function called `CONVERT()`. We can use `CAST()` to both convert between types (like string to date) or within the same type (like a timestamp to date)
 
 Here's an example of how type conversion works:
-```
+```sql
 SELECT CAST('2021-12-01' as DATE);
 
 dt        |
@@ -28,7 +28,7 @@ dt        |
 ```
 
 Suppose that for whatever reason the date was bad:
-```
+```sql
 SELECT CAST('2021-12-01' as DATE);
 
 Error: Could not cast literal "2021-13-01" to type DATE at [1:13]
@@ -36,7 +36,7 @@ Error: Could not cast literal "2021-13-01" to type DATE at [1:13]
 Obviously there's no 13th month so BigQuery throws an error.
 
 Same thing happens if the formatting was bad:
-```
+```sql
 SELECT CAST('2021-12--01' as DATE);
 
 Message: Could not cast literal "2021-12--01" to type DATE at [1:13]
@@ -51,7 +51,7 @@ One of the easiest ways to deal with these issues is to simply ignore the malfor
 To deal with this problem many databases introduce "safe" casting functions like `SAFE_CAST()` in BigQuery or `TRY_CAST()` in SQL Server. These functions will not fail when the formatting is unexpected but rather return `NULL` which then allows us to use `IFNULL()` or `COALESCE()` to replace `NULL` with a sensible value.
 
 Here's how that works:
-```
+```sql
 SELECT SAFE_CAST('2021-12--01' as DATE) AS dt;
 
     dt|
@@ -59,7 +59,7 @@ SELECT SAFE_CAST('2021-12--01' as DATE) AS dt;
  NULL |
 ```
 Now we can apply any of the functions that deal with `NULL` and replace it or just leave it. 
-```
+```sql
 SELECT IFNULL(SAFE_CAST('2021-' as INTEGER), 0) AS num;
 
 num|
@@ -194,11 +194,11 @@ For the purposes of our project, we only want the active users so an `INNER JOIN
 
 The mantra I keep repeating here is "real world data is messy" There are missing rows, duplicate rows, incorrect types and so on. Unless you know your data well and it's being carefully monitored for these things, you should consider them in your joins.
 
-### Dealing with divide by zero
+### Dealing with division by zero
 Whenever you need to calculate ratios you always have to worry about division by zero. Going back to our principle of defensive programming, it makes sense to explicitly handle cases where the denominator can be zero.
 
 The easiest way to handle this is by excluding zero values in the where clause as we do in our query
-```
+```sql
 SELECT
     ROUND(CAST(total_comments_on_post /
 		total_posts_created AS NUMERIC), 1)  AS comments_on_post_per_post
@@ -209,8 +209,9 @@ WHERE
 ORDER BY 
     total_questions_created DESC;
 ```
+
 This will work fine in most cases but what if you're calculating multiple ratios and you don't want to restrict the data for each one? One way to handle this is by using a `CASE` statement like this:
-```
+```sql
 SELECT
     CASE
         WHEN total_posts_created > 0
@@ -229,7 +230,8 @@ ORDER BY
     total_questions_created DESC;
 ```
 This looks good and is pretty clean but not as elegant. BigQuery offers another way we can do this more cleanly. Just like the `SAFE_CAST()` function, it has a `SAFE_DIVIDE()` function which returns `NULL` in the case of divide-by-zero error. Then you can simply deal with the `NULL` value using `IFNULL()`
-```
+
+```sql
 SELECT
 	ROUND(CAST(IFNULL(SAFE_DIVIDE(total_posts_created, 
 		streak_in_days), 0) AS NUMERIC), 1) AS posts_per_day,
@@ -251,7 +253,7 @@ Here are some issues you'll undoubtedly run into with strings.
 3. Non-ASCII characters
 
 Many databases are case sensitive so if the same string is stored with different cases it will not match when doing a join. Let's see an example:
-```
+```sql
 SELECT 'string' = 'String' AS test;
 
 test |
@@ -260,7 +262,7 @@ false|
 ```
 
 As you can see, a different case causes the test to show as `FALSE` The only way to deal with this problem when joining on strings or matching patterns on a string is to convert all fields to upper or lower case.
-```
+```sql
 SELECT lower('string') = lower('String') AS test;
 
 test|
@@ -269,7 +271,7 @@ true|
 ```
 
 Space padding is the other common issue you deal with strings.
-```
+```sql
 SELECT 'string' = ' string' AS test;
 
 test |
@@ -278,7 +280,7 @@ false|
 ```
 
 You deal with this by using the `TRIM()` function which removes all the leading and trailing spaces.
-```
+```sql
 SELECT trim('string') = trim(' string') AS test;
 
 test|

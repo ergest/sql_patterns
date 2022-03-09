@@ -9,7 +9,7 @@
         "state": {
           "type": "markdown",
           "state": {
-            "file": "book/chap3.md",
+            "file": "book/chap4.md",
             "mode": "source",
             "source": false
           }
@@ -69,7 +69,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "book/chap3.md",
+                "file": "book/chap4.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -105,15 +105,15 @@
   },
   "active": "5e5654e78e6e118c",
   "lastOpenFiles": [
+    "book/chap4.md",
     "book/chap3.md",
-    "book/chap2.md",
-    "book/title.md",
-    "book/chap1.md",
-    "book/chap7.md",
     "book/chap6.md",
     "book/chap5.md",
-    "book/chap4.md",
-    "book/chap0.md",
-    "misc/Article.md"
+    "book/chap7.md",
+    "book/chap2.md",
+    "book/chap8.md",
+    "book/title.md",
+    "book/chap1.md",
+    "book/chap0.md"
   ]
 }

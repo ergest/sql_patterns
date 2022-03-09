@@ -10,14 +10,14 @@ In order to calculate user level metrics from this table we'll need to split up 
 
 Here's a snippet that explains the approach: (this won't run by itself btw because of the CTE reference)
 
-```
+```sql
 , comments_by_user AS (
     SELECT
         user_id,
         CAST(DATE_TRUNC(creation_date, DAY) AS DATE) AS activity_date,
         COUNT(*) as total_comments
     FROM
-        `bigquery-public-data.stackoverflow.comments`
+        bigquery-public-data.stackoverflow.comments
     WHERE
         TRUE
     	AND creation_date >= CAST('2021-06-01' as TIMESTAMP) 
@@ -31,7 +31,7 @@ Here's a snippet that explains the approach: (this won't run by itself btw becau
         CAST(DATE_TRUNC(c.creation_date, DAY) AS DATE) AS activity_date,
         COUNT(*) as total_comments_on_post
     FROM
-        `bigquery-public-data.stackoverflow.comments` c
+        bigquery-public-data.stackoverflow.comments c
         INNER JOIN post_activity pa ON pa.post_id = c.post_id
     WHERE
         TRUE
@@ -57,14 +57,14 @@ This condition filters data to only 3 months from the entire history and demonst
 By reducing the number of rows you're accessing upfront in a CTE, you ensure that the final result is smaller and the query runs faster.
 
 For example the following two queries are technically equivalent in that you'll get the same exact result
-```
+```sql
 WITH comments_by_user AS (
     SELECT
         user_id,
         CAST(DATE_TRUNC(creation_date, DAY) AS DATE) AS activity_date,
         COUNT(*) as total_comments
     FROM
-        `bigquery-public-data.stackoverflow.comments`
+        bigquery-public-data.stackoverflow.comments
     WHERE
         TRUE
     	AND creation_date >= CAST('2021-06-01' as TIMESTAMP) 
@@ -77,14 +77,14 @@ FROM comments_by_user
 WHERE user_id = 16366214
 ```
 
-```
+```sql
 WITH comments_by_user AS (
     SELECT
         user_id,
         CAST(DATE_TRUNC(creation_date, DAY) AS DATE) AS activity_date,
         COUNT(*) as total_comments
     FROM
-        `bigquery-public-data.stackoverflow.comments
+        bigquery-public-data.stackoverflow.comments
 	GROUP BY
         1,2
 )
@@ -103,13 +103,13 @@ This means that each column you select increases the amount of data you scan and
 Throughout this book you've seen that my code only selects the columns that I need and restrict the data inside a CTE before I use that CTE in a join. We will continue this pattern while we add the final element to our query, the votes.
 
 You can see here that despite all the columns available in the `post_questions` and `post_answers` tables we only get the `post_id` here since the column `post_type` has a static value and doesn't affect the performance. 
-```
+```sql
 ,post_types AS (
     SELECT
 		id AS post_id,
         'question' AS post_type,
     FROM
-        `bigquery-public-data.stackoverflow.posts_questions`
+        bigquery-public-data.stackoverflow.posts_questions
     WHERE
         TRUE
     	AND creation_date >= CAST('2021-06-01' as TIMESTAMP) 
@@ -119,7 +119,7 @@ You can see here that despite all the columns available in the `post_questions` 
         id AS post_id,
         'answer' AS post_type,
     FROM
-        `bigquery-public-data.stackoverflow.posts_answers`
+        bigquery-public-data.stackoverflow.posts_answers
     WHERE
         TRUE
     	AND creation_date >= CAST('2021-06-01' as TIMESTAMP) 
@@ -128,7 +128,7 @@ You can see here that despite all the columns available in the `post_questions` 
  ```
 ### Premature Ordering Antipattern
 So far we've created CTEs for all the post activity and the comments. The only piece remaining is the upvotes and downvotes. The `votes` table is only attached to a post, meaning it only tracks the votes at the post level not the user level. In order to get this at the `user_id, date` level we'll have to join it with the `posts_activity` CTE like this:
-```
+```sql
 , votes_on_user_post AS (
   	SELECT
         pa.user_id,
@@ -136,7 +136,7 @@ So far we've created CTEs for all the post activity and the comments. The only p
         SUM(CASE WHEN vote_type_id = 2 THEN 1 ELSE 0 END) AS total_upvotes,
         SUM(CASE WHEN vote_type_id = 3 THEN 1 ELSE 0 END) AS total_downvotes,
     FROM
-        `bigquery-public-data.stackoverflow.votes` v
+        bigquery-public-data.stackoverflow.votes v
         INNER JOIN post_activity pa ON pa.post_id = v.post_id
     WHERE
         TRUE
@@ -150,35 +150,7 @@ So far we've created CTEs for all the post activity and the comments. The only p
 
 With this final section in place we can finally write the query that calculates all the metrics:
 ```
-SELECT
-    user_id,
-    user_name,
-    total_posts_created, 
-    total_answers_created,
-    total_answers_edited,
-    total_questions_created,
-    total_questions_edited,
-    total_upvotes,
-    total_comments_by_user,
-    total_comments_on_post,
-    streak_in_days,
-    ROUND(IFNULL(SAFE_DIVIDE(total_posts_created, 
-							 streak_in_days), 0), 1)          AS posts_per_day,
-    ROUND(CAST(IFNULL(SAFE_DIVIDE(total_posts_edited, streak_in_days), 0) AS NUMERIC), 1)           AS edits_per_day,
-    ROUND(CAST(IFNULL(SAFE_DIVIDE(total_answers_created, streak_in_days), 0) AS NUMERIC), 1)        AS answers_per_day,
-    ROUND(CAST(IFNULL(SAFE_DIVIDE(total_questions_created, streak_in_days), 0) AS NUMERIC), 1)      AS questions_per_day,
-    ROUND(CAST(IFNULL(SAFE_DIVIDE(total_comments_by_user, streak_in_days), 0) AS NUMERIC), 1)       AS comments_by_user_per_day,
-    ROUND(CAST(IFNULL(SAFE_DIVIDE(total_answers_created, 
-	total_posts_created), 0) AS NUMERIC), 1)   AS answers_per_post,
-    ROUND(CAST(IFNULL(SAFE_DIVIDE(total_questions_created, total_posts_created), 0) AS NUMERIC), 1) AS questions_per_post,
-    ROUND(CAST(IFNULL(SAFE_DIVIDE(total_upvotes, total_posts_created), 0) AS NUMERIC), 1)           AS upvotes_per_post,
-    ROUND(CAST(IFNULL(SAFE_DIVIDE(total_downvotes, total_posts_created), 0) AS NUMERIC), 1)         AS downvotes_per_post,
-    ROUND(CAST(IFNULL(SAFE_DIVIDE(total_comments_by_user, total_posts_created), 0) AS NUMERIC), 1)  AS user_comments_per_post,
-    ROUND(CAST(IFNULL(SAFE_DIVIDE(total_comments_on_post, total_posts_created), 0) AS NUMERIC), 1)  AS comments_on_post_per_post
-FROM
-    total_metrics_per_user
-ORDER BY 
-    total_questions_created DESC;
+
 ```
 
 You can see we're finally ordering the results by total posts created. We could have been sorting data at any point in the query but it would have been unnecessary and a performance drain. So leave sorting at the very end if absolutely necessary or better yet leave it out and let the reporting tool handle it.

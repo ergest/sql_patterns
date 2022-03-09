@@ -1,5 +1,15 @@
 # Chapter 5: Query Maintainability
-### DRY Pattern (Don't Repeat Yourself )
+In this chapter we're going to extend the pattern of decomposition into the realm of query maintainability. Breaking down large queries into small pieces doesn't only make them easier to read, write and understand, it also makes them easier to maintain.
+
+## CTE Chaining
+Notice how we were able to take a fairly complex problem and break it down into smaller, easier to write, test and understand queries. Each of the queries was in a separate CTE and those CTEs were then joined in a chain.
+
+This pattern of chaining CTEs is the only way you can save yourself a lot of toil and grief when debugging your queries. If your database doesn't support CTEs, that's a shame. They make code so much cleaner.
+
+One final thing I'll add here is that you cannot chain CTEs indefinitely. There's a limit imposed by the system because after a while even these queries start to get too complex. In these cases the solution is usually to materialize portions of the query into intermediary tables.
+
+
+## DRY Pattern (Don't Repeat Yourself )
 In the previous section we saw how we can decompose a large complex query into multiple smaller components which can be chained together to give us the final result. We said that an added benefit to doing this is that it makes the query more readable. In that same vein, the DRY principle ensures that your query is clean from unnecessary repetition.
 
 The DRY principle states that if you find yourself copy-pasting the same chunk of code in multiple locations, it's probably a good idea to put that code in a single CTE and reference that CTE where it's needed.
