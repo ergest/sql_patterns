@@ -1,11 +1,11 @@
-## Chapter 5: Query Maintainability
+# Chapter 5: Query Maintainability
 ### DRY Pattern (Don't Repeat Yourself )
 In the previous section we saw how we can decompose a large complex query into multiple smaller components which can be chained together to give us the final result. We said that an added benefit to doing this is that it makes the query more readable. In that same vein, the DRY principle ensures that your query is clean from unnecessary repetition.
 
 The DRY principle states that if you find yourself copy-pasting the same chunk of code in multiple locations, it's probably a good idea to put that code in a single CTE and reference that CTE where it's needed.
 
 To illustrate I'll rewrite the query from the previous chapter so that it still produces the same result but it clearly shows repeating code
-```
+```sql
 WITH post_activity AS (
     SELECT
         ph.post_id,
@@ -68,7 +68,7 @@ The DRY principle says we should try and remove as much repeating code as possib
 
 ### Appending Rows Pattern
 In the previous section we combined the two posts tables using the `UNION ALL` operator to make a single `post_types` CTE like this:
-```
+```sql
 post_types as (
     SELECT
 		id AS post_id,

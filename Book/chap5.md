@@ -1,4 +1,4 @@
-## Chapter 6: Query Performance
+# Chapter 6: Query Performance
 
 The query performance principle states that your queries should as fast as possible while still accurate. 
 

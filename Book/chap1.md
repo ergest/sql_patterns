@@ -1,4 +1,4 @@
-# Chapter 1: Introducing The Project
+# Chapter 1: Introducing the Project
 In this chapter we're going to get into the details of the project that will help you learn the SQL Patterns. As you saw in the introduction, we're using a real-world, public dataset from StackOverflow.
 
 StackOverflow is a popular website where users can post technical questions about any technical topic and others can post answers to these questions. They can also vote on the answers or comment on them.

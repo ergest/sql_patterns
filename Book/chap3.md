@@ -4,9 +4,7 @@ In this chapter we're going to learn some of the most important patterns in SQL.
 ## Common Table Expressions (CTEs)
 CTEs or Common Table Expressions are temporary views whose scope is limited to the current query. They are not stored in the database; they only exist while the query is running and are only accessible in that query. They act like subqueries but are easier to understand and use.
 
-CTEs allow you to break down complex queries into simpler, smaller self-contained modules. By connecting them together we can solve just about any complex query
-
-The same thing applies to complex queries. Every complex query can and should be broken down into smaller, simpler modules known as CTEs. These CTEs should have a single purpose or responsibility so you can write, test and debug them independently.
+CTEs allow you to break down complex queries into simpler, smaller self-contained modules. By connecting them together we can solve just about any complex query. One of the key requirements is that these CTEs should not try to do too much. They should have a single purpose or responsibility so you can write, test and debug them independently.
 
 _Side Note: Even though CTEs have been part of the definition of the SQL standard since 1999, it has taken many years for database vendors to implement them. Some versions of older databases (like MySQL before 8.0, PostgreSQL before 8.4, SQL Server before 2005) do not have support for CTEs. All the modern cloud vendors have support for CTEs
 
@@ -24,7 +22,7 @@ FROM <cte_name>
 ```
 
 We can define multiple CTEs similarly using the `WITH` keyword like this:
-```
+```sql
 -- Define CTE 1
 WITH <cte1_name> AS (
 	SELECT col1
@@ -44,8 +42,8 @@ JOIN <cte2_name> AS cte2 ON cte1.col1 = cte2.col1
 ```
 Notice that you only use the `WITH` keyword once then you separate them using a comma in front of the name of the each one.
 
-We can refer to a previous CTE in a new CTE thus chaining them together like this:
-```
+We can refer to a previous CTE in a new CTE so you chain them together like this:
+```sql
 -- Define CTE 1
 WITH <cte1_name> AS (
 	SELECT col1
@@ -63,14 +61,14 @@ SELECT *
 FROM <cte2_name>
 ```
 
-This pattern allows for a lot of flexibility with multi-step calculations. We'll see that later. 
+We'll talk about chaining in a little bit.
 
-When CTEs are used it lets us read a query top to bottom and easily understand what's going on. When sub-queries are used, it's a lot harder to trace the logic and figure out which column is defined where and what scope it has because you have to read the innermost subquery first.
-
-Just because we can chain CTEs, it doesn't mean we can do that infinitely. There are practical limitations on levels of chaining because after a while the query will end up becoming computationally complex. This depends on the database system you're using.
+When you use CTEs you can read a query top to bottom and easily understand what's going on. When you use sub-queries it's a lot harder to trace the logic and figure out which column is defined where and what scope it has. You have to read the innermost subquery first and then remember each of the definitions.
 
 ## Query Decomposition
-In order to understand how to break down a large, complex query into CTEs we need to think about what we want to achieve and map out a solution. We're looking to build a table at the `user_id, date` level starting from tables with user activity and date.
+Getting our user data from the current form to the final form of one row per user is not something that can be done in a single step. Well you probably could hack something together that works but that will not be very easy to maintain. It's a complex query.
+
+In order to solve it, we need to decompose (break down) our complex query into smaller, easier to write pieces. Here's how to think about it:
 
 We know that a user can perform any of the following activities on any given date:
 1. Post a question
@@ -80,6 +78,8 @@ We know that a user can perform any of the following activities on any given dat
 5. Comment on a post
 6. Receive a comment on their post
 7. Receive a vote (upvote or downvote) on their post
+
+We have separate tables for these activities, so our first step is to get each activity 
 
 We can break this down into several subproblems and map out a solution like this:
 
@@ -92,8 +92,10 @@ We will apply the same granularity reduction pattern to comments and votes so th
 Sub-problem 3
 Once we get all activity types on the same granularity, we will join them on `user_id` and `date` in order to calculate all the final metrics per user.
 
-### Chaining CTEs Pattern
+### Chaining CTEs
 We saw how we can define multiple CTEs above and we also saw how each CTE can use a previous CTE which allows us to chain them together to solve out complex query.
+
+There is however a limit on how many CTEs, it doesn't mean we can do that infinitely. There are practical limitations on levels of chaining because after a while the query will end up becoming computationally complex. This depends on the database system you're using.
 
 To solve the first sub-problem we have to define a CTE that gets the post activity for each `user_id`, `post_id`, `activity_type`, `date` combination. We then need to restrict this activity to only creation and editing because we don't care about the other kinds. That makes for a perfect small, self-contained CTE which can also be used later when we need to join in votes to users. 
 ```sql

@@ -1,4 +1,4 @@
-## Chapter 7: Query Robustness
+# Chapter 7: Query Robustness
 
 ### Defensive Programming Patterns
 From NULLs, to missing data, duplicate rows and random values, real world data is messy. A well-written query is robust enough to handle many of these cases without crashing or giving inaccurate results.
