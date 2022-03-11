@@ -1,6 +1,7 @@
 # Chapter 5: Query Maintainability
 In this chapter we're going to extend the pattern of decomposition into the realm of query maintainability. Breaking down large queries into small pieces doesn't only make them easier to read, write and understand, it also makes them easier to maintain.
 
+## Single Responsability Principle
 ## CTE Chaining
 Notice how we were able to take a fairly complex problem and break it down into smaller, easier to write, test and understand queries. Each of the queries was in a separate CTE and those CTEs were then joined in a chain.
 
