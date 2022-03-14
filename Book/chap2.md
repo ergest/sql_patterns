@@ -54,7 +54,7 @@ creation_date          |post_id |post_history_type_id|user_id |total_rows|
 
 This means we have to be careful when joining with this table on `post_id, user_id, creation_date, post_history_type_id` and we'd have to deal with the duplicate issue first. Let's see a couple of methods for doing that.
 
-**What does this mean for our project?**
+What does this mean for our project?
 
 Our final table will have a grain of one row per user. Only the `users` table has that same granularity. In order to build it we'll have to manipulate the granularity of the source tables so that's what we focus on next.
 

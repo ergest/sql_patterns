@@ -201,7 +201,7 @@ Table 3.2
 ```
 
 The final result should look like this:
-```
+```sql
 user_id |date      |question_created|answer_created|question_edited|answer_edited|
 --------+----------+----------------+--------------+---------------+-------------+
 16366214|2021-07-25|               0|             1|              2|            0|

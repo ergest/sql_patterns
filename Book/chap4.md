@@ -1,21 +1,104 @@
 # Chapter 5: Query Maintainability
 In this chapter we're going to extend the pattern of decomposition into the realm of query maintainability. Breaking down large queries into small pieces doesn't only make them easier to read, write and understand, it also makes them easier to maintain.
 
-## Single Responsability Principle
-## CTE Chaining
-Notice how we were able to take a fairly complex problem and break it down into smaller, easier to write, test and understand queries. Each of the queries was in a separate CTE and those CTEs were then joined in a chain.
+## The Reusability Principle
+We start off with a very important principle that rarely gets talked about in SQL. When you're designing a query and breaking it up into CTEs, there is one principle to keep in mind. The CTEs should be constructed in such a way that they can be reused if needed later. This principle makes code easier to maintain and compact.
 
-This pattern of chaining CTEs is the only way you can save yourself a lot of toil and grief when debugging your queries. If your database doesn't support CTEs, that's a shame. They make code so much cleaner.
+Let's take a look at the example from the previous chapter:
+```sql
+WITH post_activity AS (
+    SELECT
+        ph.post_id,
+        ph.user_id,
+        u.display_name AS user_name,
+        ph.creation_date AS activity_date,
+        CASE WHEN ph.post_history_type_id IN (1,2,3) THEN 'created'
+             WHEN ph.post_history_type_id IN (4,5,6) THEN 'edited' 
+        END AS activity_type
+    FROM
+        bigquery-public-data.stackoverflow.post_history ph
+        INNER JOIN bigquery-public-data.stackoverflow.users u 
+			ON u.id = ph.user_id
+    WHERE
+        TRUE
+        AND ph.post_history_type_id BETWEEN 1 AND 6
+        AND user_id > 0 --exclude automated processes
+        AND user_id IS NOT NULL --exclude deleted accounts
+        AND ph.creation_date >= CAST('2021-06-01' as TIMESTAMP) 
+        AND ph.creation_date <= CAST('2021-09-30' as TIMESTAMP)
+    GROUP BY
+        1,2,3,4,5
+)
+```
 
-One final thing I'll add here is that you cannot chain CTEs indefinitely. There's a limit imposed by the system because after a while even these queries start to get too complex. In these cases the solution is usually to materialize portions of the query into intermediary tables.
+This CTE performs several operations like aggregation, to decrease granularity of the underlying data, and filtering. Its main purpose is to get a mapping between `user_id` and `post_id` at the right level of granularity so it can be used later.
 
+What's great about this CTE is that we can use it both for generating user metrics as shown here: 
+```sql
+--code snippet will not actually run
+SELECT
+    user_id,
+    CAST(pa.activity_date AS DATE) AS activity_date,
+    SUM(CASE WHEN activity_type = 'created'
+        AND post_type = 'question' THEN 1 ELSE 0 END) AS question_created,
+    SUM(CASE WHEN activity_type = 'created'
+        AND post_type = 'answer'   THEN 1 ELSE 0 END) AS answer_created,
+    SUM(CASE WHEN activity_type = 'edited'
+        AND post_type = 'question' THEN 1 ELSE 0 END) AS question_edited,
+    SUM(CASE WHEN activity_type = 'edited'
+        AND post_type = 'answer'   THEN 1 ELSE 0 END) AS answer_edited  
+FROM post_activity pa
+     JOIN post_types pt ON pt.post_id = pa.post_id
+WHERE user_id = 16366214
+GROUP BY 1,2
+```
 
-## DRY Pattern (Don't Repeat Yourself )
-In the previous section we saw how we can decompose a large complex query into multiple smaller components which can be chained together to give us the final result. We said that an added benefit to doing this is that it makes the query more readable. In that same vein, the DRY principle ensures that your query is clean from unnecessary repetition.
+and to join with comments and votes to user level data via the `post_id`
+```sql
+--code snippet will not actually run
+, comments_on_user_post AS (
+    SELECT
+        pa.user_id,
+        CAST(c.creation_date AS DATE) AS activity_date,
+        COUNT(*) as total_comments
+    FROM
+        bigquery-public-data.stackoverflow.comments c
+        INNER JOIN post_activity pa ON pa.post_id = c.post_id
+    WHERE
+        TRUE
+        AND pa.activity_type = 'created'
+        AND c.creation_date >= CAST('2021-06-01' as TIMESTAMP) 
+        AND c.creation_date <= CAST('2021-09-30' as TIMESTAMP)
+    GROUP BY
+        1,2
+)
+, votes_on_user_post AS (
+      SELECT
+        pa.user_id,
+        CAST(v.creation_date AS DATE) AS activity_date,
+        SUM(CASE WHEN vote_type_id = 2 THEN 1 ELSE 0 END) AS total_upvotes,
+        SUM(CASE WHEN vote_type_id = 3 THEN 1 ELSE 0 END) AS total_downvotes,
+    FROM
+        bigquery-public-data.stackoverflow.votes v
+        INNER JOIN post_activity pa ON pa.post_id = v.post_id
+    WHERE
+        TRUE
+        AND pa.activity_type = 'created'
+        AND v.creation_date >= CAST('2021-06-01' as TIMESTAMP) 
+        AND v.creation_date <= CAST('2021-09-30' as TIMESTAMP)
+    GROUP BY
+        1,2
+)
+```
 
-The DRY principle states that if you find yourself copy-pasting the same chunk of code in multiple locations, it's probably a good idea to put that code in a single CTE and reference that CTE where it's needed.
+This is at the heart of well-designed CTE. Notice here that we're being very careful about granularity multiplication! If we simply joined with `post_activity` on post_id without specifying the `activity_type` we'd get at least two times the number of rows. Since a post can only be created once, we're pretty safe in getting a single row by filtering.
 
-To illustrate I'll rewrite the query from the previous chapter so that it still produces the same result but it clearly shows repeating code
+## The DRY Principle
+In the previous section we saw how we can decompose a large complex query into multiple smaller components. The main benefit for doing this is that it makes the queries more readable. In that same vein, the DRY (Don't Repeat Yourself) principle ensures that your query is clean from unnecessary repetition.
+
+The DRY principle states that if you find yourself copy-pasting the same chunk of code in multiple locations, you should put that code in a CTE and reference that CTE where it's needed.
+
+To illustrate let's rewrite the query from the previous chapter so that it still produces the same result but it clearly shows repeating code
 ```sql
 WITH post_activity AS (
     SELECT
@@ -71,63 +154,35 @@ WITH post_activity AS (
         AND creation_date >= CAST('2021-06-01' as TIMESTAMP) 
         AND creation_date <= CAST('2021-09-30' as TIMESTAMP)
 )
+SELECT
+    user_id,
+    CAST(activity_date AS DATE) AS activity_date,
+    SUM(CASE WHEN activity_type = 'created'
+        AND post_type = 'question' THEN 1 ELSE 0 END) AS question_created,
+    SUM(CASE WHEN activity_type = 'created'
+        AND post_type = 'answer'   THEN 1 ELSE 0 END) AS answer_created,
+    SUM(CASE WHEN activity_type = 'edited'
+        AND post_type = 'question' THEN 1 ELSE 0 END) AS question_edited,
+    SUM(CASE WHEN activity_type = 'edited'
+        AND post_type = 'answer'   THEN 1 ELSE 0 END) AS answer_edited 
+FROM
+    (SELECT * FROM questions
+     UNION ALL
+     SELECT * FROM answers) AS p
+WHERE 
+    user_id = 16366214
+GROUP BY 1,2;
 ```
 
-This is definitely another valid solution to our query, if we then calculate the aggregates later on and combine them. The CTEs are small and single purpose, abiding by the modularity principle, however you'll see that most of the code repeats. 
+This query will get you the same results as table 3.1 in the previous chapter but as you can see the `eustions` and `answers` CTEs both have almost identical code. Imagine if you had to do this for all question types. You'd be copying and pasting a lot of code. Also, the subquery that handles the UNION is not ideal. I'm not a fan of subqueries
 
-The DRY principle says we should try and remove as much repeating code as possible, and since in our case the question and answer table have the same exact schema, that's a perfect candidate for appending rows.
+### Creating Views
+One of the benefits of building reusable CTEs is that if you find yourself copying and pasting the same CTE in multiple places, you can turn it into a view and store it in the database.
 
-### Appending Rows Pattern
-In the previous section we combined the two posts tables using the `UNION ALL` operator to make a single `post_types` CTE like this:
-```sql
-post_types as (
-    SELECT
-		id AS post_id,
-        'question' AS post_type,
-    FROM
-        `bigquery-public-data.stackoverflow.posts_questions`
-    WHERE
-        TRUE
-    	AND creation_date >= CAST('2021-06-01' as TIMESTAMP) 
-    	AND creation_date <= CAST('2021-09-30' as TIMESTAMP)
-    UNION ALL
-    SELECT
-        id AS post_id,
-        'answer' AS post_type,
-    FROM
-        `bigquery-public-data.stackoverflow.posts_answers`
-    WHERE
-        TRUE
-    	AND creation_date >= CAST('2021-06-01' as TIMESTAMP) 
-    	AND creation_date <= CAST('2021-09-30' as TIMESTAMP)
- )
- ```
-
-Let's take a moment to see how this pattern works. Just like a `JOIN` adds columns to a result set the `UNION` operator appends rows to it by combining two or more tables length-wise. There are two types of unions, `UNION ALL` and `UNION` (distinct) 
-
-`UNION ALL` will append two tables without checking if they have the same exact row. This might cause duplicates but it's really fast. If you know for sure your tables don't contain duplicates, as in our case this is the preferred way to append two tables. 
-
-`UNION` (distinct) will append the tables but remove all duplicates from the final result thus guaranteeing unique rows for the final result set. This of course is slower because of the extra operations to remove duplicates. Use this only when you're not sure if the tables contain duplicates or you cannot remove duplicates beforehand.
-
-Most SQL flavors only use `UNION` keyword for the distinct version, but BigQuery forces you to use `UNION DISTINCT` in order to make the query far more explicit
-
-Appending rows to a table also has two requirements:
-1. The number of the columns from all tables has to be the same
-2. The data types of the columns from all the tables has to line up 
-
-One of the most annoying things when appending two or more tables with a lot of columns is lining up all the columns in the right order. There's been many a time when I've had to use Excel to line up the columns. There's no shame in admitting that.
-
-As a rule of thumb, whenever you're appending tables, it's a good idea to add a constant column to indicate the source table or some kind of type. This is helpful when appending say activity tables to create a long, time-series table and you want to identify each activity type in the final result set.
-
-You'll notice in my query above I create a `post_type` column indicating where the data is coming from.
-
-### Creating Views Pattern
-There are many cases where a piece of code can be useful outside of the query you're writing because it encapsulates something in a neat little package. In cases like these it makes a lot of sense to make a view with that snippet of code. This view can also be materialized so that querying it is fast and efficient.
-
-You won't know what that piece of code could be ahead of time but if you find yourself copying and pasting something in multiple files, that's a great opportunity to create a view. This goes back to the DRY principle but in this case applied across multiple files.
+Views are great for encapsulating business logic that applies to many queries. They're also used in security applications
 
 Creating a view is easy:
-```
+```sql
 CREATE OR REPLACE VIEW <view_name> AS
 	SELECT col1
 	FROM table1
@@ -135,11 +190,38 @@ CREATE OR REPLACE VIEW <view_name> AS
 ```
 
 Once created you can run:
-```
+```sql
 SELECT col1
 FROM <view_name>
 ```
 This view is now stored in the database but it doesn't take up any space (unless it's materialized) It only stores the query which is executed each time you select from the view or join the view in a query. 
 
+What could be made into a view in our specific query?
+
+I think the `post_types` CTE would be a good candidate. That way whenever you have to combine all the post types you don't have to use that CTE everywhere.
+```sql
+CREATE OR REPLACE VIEW v_post_types AS
+    SELECT
+        id AS post_id,
+        'question' AS post_type,
+    FROM
+        bigquery-public-data.stackoverflow.posts_questions
+    WHERE
+        TRUE
+        AND creation_date >= CAST('2021-06-01' as TIMESTAMP) 
+        AND creation_date <= CAST('2021-09-30' as TIMESTAMP)
+    UNION ALL
+    SELECT
+        id AS post_id,
+        'answer' AS post_type,
+    FROM
+        bigquery-public-data.stackoverflow.posts_answers
+    WHERE
+        TRUE
+        AND creation_date >= CAST('2021-06-01' as TIMESTAMP) 
+        AND creation_date <= CAST('2021-09-30' as TIMESTAMP);
+ ```
+
 *Note: In BigQuery views are considered like CTEs so they count towards the maximum level of nesting. That is if you call a view from inside a CTE, that's two levels of nesting and if you then join that CTE in another CTE that's three levels of nesting. BigQuery has a hard limitation on how deep nesting can go beyond which you can no longer run your query. At that point, perhaps the view is best materialized into a table.
 
+So far we've talked about how to optimize queries so they're easy to read, write, understand and maintain. In the next chapter we tackle patterns regarding query performance.

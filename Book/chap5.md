@@ -1,59 +1,27 @@
 # Chapter 6: Query Performance
+In this chapter we're going to talk about query performance, aka how to make your queries run faster. Why do we care about making queries run faster? Faster queries get you results faster, of course, but they also consume fewer resources, making them cheaper on modern data warehouses.
 
-The query performance principle states that your queries should as fast as possible while still accurate. 
+This chapter isn't only about speed. You can make your queries run really fast with a few clever hacks, but that might make your code unreadable and unmaintainable. We need to strike a balance between the performance, accuracy and maintainability.
 
-It’s not just about speed. Yes it’s important to have reports that execute in seconds, but these days performance is directly tied to cost, whether through compute resources spent to run the query or the overall amount of data scanned so performance considerations are directly tied to your bottom line.
+## Reducing Data
+The most important pattern that improves query performance is reducing data as much as possible before you join it.
 
-As we continue building up our complex query, we now need to solve the second sub-problem, dealing with comments. If you recall from the ER diagram chapter, the `comments` table contains a log of all the comments on a post by a user on a given date so its granularity is also one row per user, per post, per date.
+What does that mean?
 
-In order to calculate user level metrics from this table we'll need to split up the work into a couple of CTEs, one to get comments by a user on a given date and the other to get comments on a user's post on a given date.
+So far we've learned that decomposing (aka breaking down) a query via CTEs is the best way to tackle complex queries. But what kinds of operations should your perform in the CTE? We've already seen aggregation and calculation of metrics that can be used later. One of the best uses for CTEs is filtering.
 
-Here's a snippet that explains the approach: (this won't run by itself btw because of the CTE reference)
-
+You might have noticed this little snipped in every CTE:
 ```sql
-, comments_by_user AS (
-    SELECT
-        user_id,
-        CAST(DATE_TRUNC(creation_date, DAY) AS DATE) AS activity_date,
-        COUNT(*) as total_comments
-    FROM
-        bigquery-public-data.stackoverflow.comments
-    WHERE
-        TRUE
-    	AND creation_date >= CAST('2021-06-01' as TIMESTAMP) 
-    	AND creation_date <= CAST('2021-09-30' as TIMESTAMP)
-	GROUP BY
-        1,2
-)
-, comments_on_user_post AS (
-	SELECT
-        pa.user_id,
-        CAST(DATE_TRUNC(c.creation_date, DAY) AS DATE) AS activity_date,
-        COUNT(*) as total_comments_on_post
-    FROM
-        bigquery-public-data.stackoverflow.comments c
-        INNER JOIN post_activity pa ON pa.post_id = c.post_id
-    WHERE
-        TRUE
-        AND pa.activity_type = 'created'
-    	AND c.creation_date >= CAST('2021-06-01' as TIMESTAMP) 
-    	AND c.creation_date <= CAST('2021-09-30' as TIMESTAMP)
-	GROUP BY
-        1,2
-)
+WHERE
+	TRUE
+	AND creation_date >= CAST('2021-06-01' as TIMESTAMP) 
+	AND creation_date <= CAST('2021-09-30' as TIMESTAMP)
 ```
 
-Throughout the book we've been using a pattern for improving query performance that I'll highlight now, but you'll soon notice in all the other pieces of code.
+What we're doing here is filtering each table to just those 90 days in order to reduce the number of rows we have to deal with. We do this both to keep costs down and make the query faster. This is what I mean by reducing the dataset before joining.
 
-In every CTE, I'm adding the condition
-```
-AND c.creation_date >= CAST('2021-06-01' as TIMESTAMP) 
-AND c.creation_date <= CAST('2021-09-30' as TIMESTAMP)
-```
+In this case we actually only want to work with 90 days worth of data. if we needed all historical data, we couldn't reduce it beforehand and we'd have to work with the full table. Keep this principle in mind though. You never know when it might come up.
 
-This condition filters data to only 3 months from the entire history and demonstrates one of the core principles of query performance:
-
-### Reducing Data Pattern
 By reducing the number of rows you're accessing upfront in a CTE, you ensure that the final result is smaller and the query runs faster.
 
 For example the following two queries are technically equivalent in that you'll get the same exact result
