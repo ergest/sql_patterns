@@ -1,5 +1,11 @@
 # Chapter 7: Query Robustness
-In this chapter we're going to talk about
+In this chapter we're going to talk about how to make your queries robust to most data problems you'll encounter. Robustness means that your query will not break if the underlying data changes in unpredictable ways.
+
+What are some of the ways that data can change?
+
+1. New columns are added that have NULL value for past data
+2. Existing columns that didn't have NULLs before now contain NULLs
+3. Columns that contained numbers stored as strings no longer
 
 ### Defensive Programming Patterns
 From NULLs, to missing data, duplicate rows and random values, real world data is messy. A well-written query is robust enough to handle many of these cases without crashing or giving inaccurate results.

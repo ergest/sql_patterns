@@ -92,7 +92,7 @@ post_id |creation_date          |tags                           |
 68103046|2021-06-23 11:40:56.087|php|mysql|sql|stored-procedures|
 ```
 
-This should be pretty simple to understand. We're searching for the sub-string `|sql|` anywhere in the `tags` column. The `INSTR()` searches for a sub-string within a string and returns the position of the character where it's found. Since we don't care about that, we only care that it's found our condition is `> 0`
+This should be pretty simple to understand. We're searching for the sub-string `|sql|` anywhere in the `tags` column. The `INSTR()` searches for a sub-string within a string and returns the position of the character where it's found. Since we don't care about that, we only care that it's found our condition is > 0.
 
 This is a very typical example of using functions in the `WHERE` clause. This particular query might be fast but in general this pattern is not advised. So what can you do instead?
 
@@ -141,6 +141,7 @@ By selecting only the columns you need you ensure that your query is as efficien
 
 Here's an example you've seen before. In the `post_activity` CTE we select only the `id` column which is the only one we need to join with `post_activity` on. The `post_type` is a static value which is negligible when it comes to performance.
 ```sql
+-- code snippet will not run
 ,post_types AS (
     SELECT
 		id AS post_id,
@@ -169,8 +170,9 @@ As a rule of thumb you should leave ordering until the very end, if it is at all
 
 If you know that your data will be used by a business intelligence tool like Looker or Tableau then you should leave the ordering up to the tool itself so the user can sort data any way they see fit.
 
-For example, the following is unnecessary and slows down performance
+For example, the following is unnecessary and slows down performance because the query is inside a CTE. You don't need to sort your data yet.
 ```sql
+-- code snippet will not run
 , votes_on_user_post AS (
   	SELECT
         pa.user_id,
@@ -191,5 +193,80 @@ For example, the following is unnecessary and slows down performance
 	    v.creation_date
 )
 ```
+
+## Bounded Time Windows
+Many analytical queries need to go back a certain number of days/weeks/months in order to calculate trend-based metrics. These are known as "lookback windows." You specify a period of time to look back (e.g. 30 days ago, 90 days ago, a week ago, etc) and you aggregate data to today's date.
+
+If you don't specify a bounded or sliding time window, your query performance will get worse over time as more data is considered.
+
+What makes this problem hard to detect is that initially your query could be very fast at first. Since there isn't a lot of data in the table performance doesn't suffer. As data gets added to the table however your query will start to get slower.
+
+Let's take the above example to illustrate. In this query I'm specifying a fixed time window, from Jun 1st to Sep 30th. No matter how big the table gets, my query performance will remain the same.
+```sql
+-- code snippet will not run
+SELECT
+	pa.user_id,
+	CAST(DATE_TRUNC(v.creation_date, DAY) AS DATE) AS activity_date,
+	SUM(CASE WHEN vote_type_id = 2 THEN 1 ELSE 0 END) AS total_upvotes,
+	SUM(CASE WHEN vote_type_id = 3 THEN 1 ELSE 0 END) AS total_downvotes,
+FROM
+	bigquery-public-data.stackoverflow.votes v
+	INNER JOIN post_activity pa ON pa.post_id = v.post_id
+WHERE
+	TRUE
+	AND pa.activity_type = 'created'
+	AND v.creation_date >= CAST('2021-06-01' as TIMESTAMP) 
+	AND v.creation_date <= CAST('2021-09-30' as TIMESTAMP)
+GROUP BY
+	1,2
+ORDER BY
+	v.creation_date
+```
+
+A more common pattern is the sliding time window where the period under consideration is always fixed but it's dynamically based on when it's being run.
+```sql
+-- code snippet will not run
+SELECT
+	pa.user_id,
+	CAST(DATE_TRUNC(v.creation_date, DAY) AS DATE) AS activity_date,
+	SUM(CASE WHEN vote_type_id = 2 THEN 1 ELSE 0 END) AS total_upvotes,
+	SUM(CASE WHEN vote_type_id = 3 THEN 1 ELSE 0 END) AS total_downvotes,
+FROM
+	bigquery-public-data.stackoverflow.votes v
+	INNER JOIN post_activity pa ON pa.post_id = v.post_id
+WHERE
+	TRUE
+	AND pa.activity_type = 'created'
+	AND v.creation_date >= DATE_ADD(CURRENT_DATE(), INTERVAL -90 DAY)
+GROUP BY
+	1,2
+ORDER BY
+	v.creation_date
+```
+
+As you can see, the query is always looking at the last 90 days worth of data but the specific days it's looking into are not fixed. If you run it today, the results will be different from yesterday.
+
+Let's now change this slightly and see what happens:
+```sql
+-- code snippet will not run
+SELECT
+	pa.user_id,
+	CAST(DATE_TRUNC(v.creation_date, DAY) AS DATE) AS activity_date,
+	SUM(CASE WHEN vote_type_id = 2 THEN 1 ELSE 0 END) AS total_upvotes,
+	SUM(CASE WHEN vote_type_id = 3 THEN 1 ELSE 0 END) AS total_downvotes,
+FROM
+	bigquery-public-data.stackoverflow.votes v
+	INNER JOIN post_activity pa ON pa.post_id = v.post_id
+WHERE
+	TRUE
+	AND pa.activity_type = 'created'
+	AND v.creation_date >= CAST('2021-12-15' as TIMESTAMP) 
+GROUP BY
+	1,2
+ORDER BY
+	v.creation_date
+```
+
+This query is also looking at the last 90 days worth of data but unlike the query above, the lower boundary is fixed. This query's performance will get worse over time.
 
 That wraps up query performance. There's a lot more to learn about improving query performance but that's not the purpose of this book. In the next chapter we'll cover how to make your queries robust against unexpected changes in the underlying data.
