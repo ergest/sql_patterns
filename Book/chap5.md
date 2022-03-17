@@ -1,9 +1,9 @@
 # Chapter 6: Query Performance
-In this chapter we're going to talk about query performance, aka how to make your queries run faster. Why do we care about making queries run faster? Faster queries get you results faster, of course, but they also consume fewer resources, making them cheaper on modern data warehouses.
+In this chapter we're going to talk about query performance, aka how to make your queries run faster. Why do we care about making queries run faster? Faster queries get you results faster, while consuming fewer resources, making them cheaper on modern data warehouses.
 
 This chapter isn't only about speed. You can make your queries run really fast with a few clever hacks, but that might make your code unreadable and unmaintainable. We need to strike a balance between the performance, accuracy and maintainability.
 
-## Reducing Data
+## Reducing Rows
 The most important pattern that improves query performance is reducing data as much as possible before you join it.
 
 What does that mean?
@@ -18,59 +18,128 @@ WHERE
 	AND creation_date <= CAST('2021-09-30' as TIMESTAMP)
 ```
 
-What we're doing here is filtering each table to just those 90 days in order to reduce the number of rows we have to deal with. We do this both to keep costs down and make the query faster. This is what I mean by reducing the dataset before joining.
+What we're doing here is filtering each table to only 90 days so we can both to keep costs down and make the query faster. This is what I mean by reducing the dataset before joining.
 
-In this case we actually only want to work with 90 days worth of data. if we needed all historical data, we couldn't reduce it beforehand and we'd have to work with the full table. Keep this principle in mind though. You never know when it might come up.
+In this case we actually only want to work with 90 days worth of data. if we needed all historical data, we couldn't reduce it beforehand and we'd have to work with the full table. 
 
-By reducing the number of rows you're accessing upfront in a CTE, you ensure that the final result is smaller and the query runs faster.
+Let's look at some implications of this pattern.
 
-For example the following two queries are technically equivalent in that you'll get the same exact result
+### Don't use functions in WHERE
+In case you didn't know, you can put anything in the where clause. You already know about filtering on dates, numbers and strings of course but you can also filter calculations, functions, `CASE` statements, etc.
+
+Here's a rule of thumb when it comes to making queries faster. Always try to make the `wHERE` clause simple. Compare a column to another column or to a fixed value and avoid using functions.
+
+When you use compare a column to a fixed value or to another column, the query optimizer can filter down to the relevant rows much faster. When you use a function or a complicated formula, the optimizer needs to scan the entire table to do the filtering. This is negligible for small tables but when dealing with millions of rows query performance will suffer.
+
+Let's see some examples:
+
+The `tags` column in both questions and answers is a collection of strings separated by `|` character as you see here:
 ```sql
-WITH comments_by_user AS (
-    SELECT
-        user_id,
-        CAST(DATE_TRUNC(creation_date, DAY) AS DATE) AS activity_date,
-        COUNT(*) as total_comments
-    FROM
-        bigquery-public-data.stackoverflow.comments
-    WHERE
-        TRUE
-    	AND creation_date >= CAST('2021-06-01' as TIMESTAMP) 
-    	AND creation_date <= CAST('2021-09-30' as TIMESTAMP)
-	GROUP BY
-        1,2
-)
-SELECT *
-FROM comments_by_user 
-WHERE user_id = 16366214
+SELECT 
+    q.id AS post_id,
+    q.creation_date,
+    q.tags
+FROM
+    bigquery-public-data.stackoverflow.posts_questions q
+WHERE
+    TRUE
+    AND creation_date >= CAST('2021-06-01' as TIMESTAMP) 
+    AND creation_date <= CAST('2021-09-30' as TIMESTAMP)
+LIMIT 10
+
+post_id |creation_date          |tags                                            |
+--------+-----------------------+------------------------------------------------+
+67781287|2021-05-31 20:00:59.663|python|selenium|screen-scraping|thesaurus       |
+67781291|2021-05-31 20:01:48.593|python                                          |
+67781295|2021-05-31 20:02:38.043|html|css|bootstrap-4                            |
+67781298|2021-05-31 20:03:01.413|xpages|lotus-domino                             |
+67781300|2021-05-31 20:03:12.987|bash|awk|sed                                    |
+67781306|2021-05-31 20:03:54.117|c                                               |
+67781310|2021-05-31 20:04:33.980|php|html|navbar                                 |
+67781313|2021-05-31 20:04:57.957|java|spring|dependencies                        |
+67781314|2021-05-31 20:05:12.723|python|qml|kde                                  |
+67781315|2021-05-31 20:05:15.703|javascript|reactjs|redux|react-router|components|
 ```
 
+The tags pertain to the list of topics or subjects that a post is about. One of the tricky things about storing tags like this is that you don't have to worry about the order in which they appear. There's no categorization system here. A tag can appear anywhere in the string.
+
+How would you go about filtering all the posts that are about SQL? Since the tag `|sql|` can appear anywhere in the string, you'll need a way to search the entire string. One way to do that is to use the `INSTR()` function like this:
 ```sql
-WITH comments_by_user AS (
-    SELECT
-        user_id,
-        CAST(DATE_TRUNC(creation_date, DAY) AS DATE) AS activity_date,
-        COUNT(*) as total_comments
-    FROM
-        bigquery-public-data.stackoverflow.comments
-	GROUP BY
-        1,2
-)
-SELECT *
-FROM comments_by_user 
-WHERE user_id = 16366214
+SELECT 
+    q.id AS post_id,
+    q.creation_date,
+    q.tags
+FROM
+    bigquery-public-data.stackoverflow.posts_questions q
+WHERE
+    TRUE
+    AND creation_date >= CAST('2021-06-01' as TIMESTAMP) 
+    AND creation_date <= CAST('2021-09-30' as TIMESTAMP)
+    AND INSTR(tags, "|sql|") > 0
+LIMIT 10
+
+post_id |creation_date          |tags                           |
+--------+-----------------------+-------------------------------+
+67941534|2021-06-11 13:55:08.693|mysql|sql|database|datatable   |
+67810767|2021-06-02 14:40:44.110|mysql|sql|sqlite               |
+67814136|2021-06-02 20:55:41.193|mysql|sql|where-clause         |
+67849335|2021-06-05 07:58:09.493|php|mysql|sql|double|var-dump  |
+68074104|2021-06-21 16:08:25.487|php|sql|postgresql|mdb2        |
+67920305|2021-06-10 07:32:21.393|python|sql|pandas|pyodbc       |
+68015950|2021-06-17 04:47:27.713|c#|sql|.net|forms|easy-modbus  |
+68058413|2021-06-20 13:28:00.980|java|sql|spring|kotlin|jpa     |
+68060567|2021-06-20 18:39:04.150|mysql|sql|ruby-on-rails|graphql|
+68103046|2021-06-23 11:40:56.087|php|mysql|sql|stored-procedures|
 ```
 
-However in the second query, if I were to join that CTE with another table or CTE in the query it would join with a much larger table, many more rows which would make the final query really slow.
+This should be pretty simple to understand. We're searching for the sub-string `|sql|` anywhere in the `tags` column. The `INSTR()` searches for a sub-string within a string and returns the position of the character where it's found. Since we don't care about that, we only care that it's found our condition is `> 0`
 
-### SELECT * Antipattern
-It’s very tempting to always do `SELECT *` in your queries or CTEs, especially if you don’t know which columns you need later. While this may be ok in a traditional RDBMS, in fact many introduction courses suggest to use this to explore data, cloud warehouse platforms are different.
+This is a very typical example of using functions in the `WHERE` clause. This particular query might be fast but in general this pattern is not advised. So what can you do instead?
 
-This means that each column you select increases the amount of data you scan and how much compute resources you use. This in turn directly affects the performance of your queries and your bottom line. Platforms like BigQuery charge based o the amount of data you scan, even if you limit the rows. So a `SELECT * LIMIT 10` will still scan the entire table!
+Use the `LIKE` keyword to look for patterns. Many query optimizers perform much better with `LIKE` then with using a function:
+```sql
+SELECT 
+    q.id AS post_id,
+    q.creation_date,
+    q.tags
+FROM
+    bigquery-public-data.stackoverflow.posts_questions q
+WHERE
+    TRUE
+    AND creation_date >= CAST('2021-06-01' as TIMESTAMP) 
+    AND creation_date <= CAST('2021-09-30' as TIMESTAMP)
+    AND tags LIKE "%|sql|%"
+LIMIT 10
 
-Throughout this book you've seen that my code only selects the columns that I need and restrict the data inside a CTE before I use that CTE in a join. We will continue this pattern while we add the final element to our query, the votes.
+post_id |creation_date          |tags                           |
+--------+-----------------------+-------------------------------+
+67941534|2021-06-11 13:55:08.693|mysql|sql|database|datatable   |
+67810767|2021-06-02 14:40:44.110|mysql|sql|sqlite               |
+67814136|2021-06-02 20:55:41.193|mysql|sql|where-clause         |
+67849335|2021-06-05 07:58:09.493|php|mysql|sql|double|var-dump  |
+68074104|2021-06-21 16:08:25.487|php|sql|postgresql|mdb2        |
+67920305|2021-06-10 07:32:21.393|python|sql|pandas|pyodbc       |
+68015950|2021-06-17 04:47:27.713|c#|sql|.net|forms|easy-modbus  |
+68058413|2021-06-20 13:28:00.980|java|sql|spring|kotlin|jpa     |
+68060567|2021-06-20 18:39:04.150|mysql|sql|ruby-on-rails|graphql|
+68103046|2021-06-23 11:40:56.087|php|mysql|sql|stored-procedures|
+```
 
-You can see here that despite all the columns available in the `post_questions` and `post_answers` tables we only get the `post_id` here since the column `post_type` has a static value and doesn't affect the performance. 
+## Reducing Columns
+Almost every book or course will tell you to start exploring a table by doing:
+```sql
+SELECT *
+FROM bigquery-public-data.stackoverflow.posts_questions
+LIMIT 10
+```
+
+This may be ok in a traditional RDBMS, but with modern data warehouses things are different. Because they store data in columns vs rows `SELECT *` will scan the entire table and your query will be slower.
+
+In addition to that, in BigQuery you get charged by how many bytes of a table you scan. Doing a `SELECT *` on a very large table will be just as expensive if you return 10 rows or 10 million rows.
+
+By selecting only the columns you need you ensure that your query is as efficient as it needs to be.
+
+Here's an example you've seen before. In the `post_activity` CTE we select only the `id` column which is the only one we need to join with `post_activity` on. The `post_type` is a static value which is negligible when it comes to performance.
 ```sql
 ,post_types AS (
     SELECT
@@ -94,8 +163,13 @@ You can see here that despite all the columns available in the `post_questions` 
     	AND creation_date <= CAST('2021-09-30' as TIMESTAMP)
  )
  ```
-### Premature Ordering Antipattern
-So far we've created CTEs for all the post activity and the comments. The only piece remaining is the upvotes and downvotes. The `votes` table is only attached to a post, meaning it only tracks the votes at the post level not the user level. In order to get this at the `user_id, date` level we'll have to join it with the `posts_activity` CTE like this:
+
+## Premature Ordering
+As a rule of thumb you should leave ordering until the very end, if it is at all necessary. Sorting data is generally an expensive operation in databases so it should be reserved for when you really need it. Window functions for example sometimes necessitate ordering. We'll cover them in chapter 8.
+
+If you know that your data will be used by a business intelligence tool like Looker or Tableau then you should leave the ordering up to the tool itself so the user can sort data any way they see fit.
+
+For example, the following is unnecessary and slows down performance
 ```sql
 , votes_on_user_post AS (
   	SELECT
@@ -113,14 +187,9 @@ So far we've created CTEs for all the post activity and the comments. The only p
     	AND v.creation_date <= CAST('2021-09-30' as TIMESTAMP)
 	GROUP BY
         1,2
+    ORDER BY
+	    v.creation_date
 )
 ```
 
-With this final section in place we can finally write the query that calculates all the metrics:
-```
-
-```
-
-You can see we're finally ordering the results by total posts created. We could have been sorting data at any point in the query but it would have been unnecessary and a performance drain. So leave sorting at the very end if absolutely necessary or better yet leave it out and let the reporting tool handle it.
-
-### Functions in WHERE Antipattern
+That wraps up query performance. There's a lot more to learn about improving query performance but that's not the purpose of this book. In the next chapter we'll cover how to make your queries robust against unexpected changes in the underlying data.

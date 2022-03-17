@@ -158,25 +158,25 @@ SELECT
     total_comments_on_post,
     streak_in_days,
     ROUND(IFNULL(SAFE_DIVIDE(
-            total_posts_created, streak_in_days), 0), 1) AS posts_per_day,
+        total_posts_created, streak_in_days), 0), 1) AS posts_per_day,
     ROUND(IFNULL(SAFE_DIVIDE(
-            total_posts_edited, streak_in_days), 0), 1) AS edits_per_day,
+        total_posts_edited, streak_in_days), 0), 1) AS edits_per_day,
     ROUND(IFNULL(SAFE_DIVIDE(
-            total_answers_created, streak_in_days), 0), 1) AS answers_per_day,
+        total_answers_created, streak_in_days), 0), 1) AS answers_per_day,
     ROUND(IFNULL(SAFE_DIVIDE(
-            total_questions_created, streak_in_days), 0), 1) AS questions_per_day,
+        total_questions_created, streak_in_days), 0), 1) AS questions_per_day,
     ROUND(IFNULL(SAFE_DIVIDE(
-            total_comments_by_user, streak_in_days), 0), 1) AS comments_by_user_per_day,
+        total_comments_by_user, streak_in_days), 0), 1) AS comments_by_user_per_day,
     ROUND(IFNULL(SAFE_DIVIDE(
-            total_answers_created, total_posts_created), 0), 1) AS answers_per_post,
+        total_answers_created, total_posts_created), 0), 1) AS answers_per_post,
     ROUND(IFNULL(SAFE_DIVIDE(
-            total_questions_created, total_posts_created), 0), 1) AS questions_per_post,
+        total_questions_created, total_posts_created), 0), 1) AS questions_per_post,
     ROUND(IFNULL(SAFE_DIVIDE(
-            total_upvotes, total_posts_created), 0), 1) AS upvotes_per_post,
+        total_upvotes, total_posts_created), 0), 1) AS upvotes_per_post,
     ROUND(IFNULL(SAFE_DIVIDE(
-            total_downvotes, total_posts_created), 0), 1) AS downvotes_per_post,
+        total_downvotes, total_posts_created), 0), 1) AS downvotes_per_post,
     ROUND(IFNULL(SAFE_DIVIDE(
-            total_comments_by_user, total_posts_created), 0), 1)  AS user_comments_per_post,
+        total_comments_by_user, total_posts_created), 0), 1)  AS user_comments_per_post,
     ROUND(IFNULL(SAFE_DIVIDE(
     total_comments_on_post, total_posts_created), 0), 1)  AS comments_on_post_per_post
 FROM

@@ -110,7 +110,7 @@ WITH post_activity AS (
              WHEN ph.post_history_type_id IN (4,5,6) THEN 'edited' 
         END AS activity_type
     FROM
-        `bigquery-public-data.stackoverflow.post_history` ph
+        bigquery-public-data.stackoverflow.post_history ph
         INNER JOIN `bigquery-public-data.stackoverflow.users` u on u.id = ph.user_id
     WHERE
         TRUE 
@@ -131,7 +131,7 @@ WITH post_activity AS (
         pa.activity_date,
         pa.activity_type
     FROM
-        `bigquery-public-data.stackoverflow.posts_questions` q
+        bigquery-public-data.stackoverflow.posts_questions q
         INNER JOIN post_activity pa ON q.id = pa.post_id
     WHERE
         TRUE
@@ -147,7 +147,7 @@ WITH post_activity AS (
         pa.activity_date,
         pa.activity_type
     FROM
-        `bigquery-public-data.stackoverflow.posts_answers` q
+        bigquery-public-data.stackoverflow.posts_answers q
         INNER JOIN post_activity pa ON q.id = pa.post_id
     WHERE
         TRUE
