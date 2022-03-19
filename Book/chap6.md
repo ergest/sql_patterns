@@ -1,20 +1,24 @@
 # Chapter 7: Query Robustness
 In this chapter we're going to talk about how to make your queries robust to most data problems you'll encounter. Robustness means that your query will not break if the underlying data changes in unpredictable ways.
 
-What are some of the ways that data can change?
+Here are some of the ways that data can change:
 
-1. New columns are added that have NULL value for past data
+1. New columns are added that have NULL values for past data
 2. Existing columns that didn't have NULLs before now contain NULLs
-3. Columns that contained numbers stored as strings no longer
+3. Columns that contained numbers or dates stored as strings now contain other values
+4. The formatting of dates or numbers gets messed up and the type conversion fails.
+5. The denominator in a ratio calculation becomes zero
 
-### Defensive Programming Patterns
-From NULLs, to missing data, duplicate rows and random values, real world data is messy. A well-written query is robust enough to handle many of these cases without crashing or giving inaccurate results.
+Ideally these things should not happen but in reality they happen more often than we'd like. The purpose of this chapter is to teach you how to anticipate these problems before they happen and 
 
-Real world data is not static. As companies push their development processes to release early and often, applications are in constant flux and their data is constantly changing. Bugs and other issues are always present so your queries need to be robust enough to handle these changes without breaking.
+This is why I like to call this chapter **Defense Against Dirty Data**
 
-Below are some common patterns of what I like to call Defensive Programming, protecting against bad data.
+We'll break these patterns down into two three groups:
+1. Dealing with formatting issues
+3. Dealing with NULLs
+2. Dealing with division by zero
 
-### Type Conversion Defeneses
+## Dealing with formatting issues
 Type conversion is very important core principle of SQL. Tables can store many different types and the reason for this is that different types use up different storage and at the same time allow for more flexibility in calculations.
 
 SQL mainly built support for primitive types such as strings, integers and dates.
