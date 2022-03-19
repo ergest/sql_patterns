@@ -1,5 +1,7 @@
 # Chapter 7: Query Robustness
-In this chapter we're going to talk about how to make your queries robust to most data problems you'll encounter. Robustness means that your query will not break if the underlying data changes in unpredictable ways.
+In this chapter we're going to talk about how to make your queries robust to most data problems you'll encounter. Spend enough time working with real world data and you'll eventually get burned by one of these unexpected data issues.
+
+Robustness means that your query will not break if the underlying data changes in unpredictable ways.
 
 Here are some of the ways that data can change:
 
@@ -19,15 +21,11 @@ We'll break these patterns down into two three groups:
 2. Dealing with division by zero
 
 ## Dealing with formatting issues
-Type conversion is very important core principle of SQL. Tables can store many different types and the reason for this is that different types use up different storage and at the same time allow for more flexibility in calculations.
+SQL supports 3 primitive data types, strings, numbers and dates. They allow for mathematical operations with numbers and calendar operations with dates. Oftentimes you might see numbers and dates stored as strings.
 
-SQL mainly built support for primitive types such as strings, integers and dates.
+This makes it super easy to load data from text files into tables without worrying about formatting. However in order to operate on actual dates and numbers, you need to convert the strings to the native SQL type for number or date.
 
-By definition strings can be any length of characters (numbers, letters or symbols) but because of limitations of storage in the early days of computing, in many databases strings are stored as either `CHAR(n)` which represents a fixed-length string of n characters or `VARCHAR(n)` which represents a variable-length string of characters.
-
-Strings can be considered "universal" data types because anything can be stored as a string. Doing this is very useful when loading data into a table from a text file like a comma-delimited CSV or tab-delimited TSV. If you try to load data in at the correct type and there are errors in the file, you'll be dealing with a lot of anguish, so load as string first.
-
-Once data is loaded in a table as strings, we can convert it to a more appropriate type and handle the errors. The standard function for converting data in SQL is `CAST()` Some other database implementations like SQL Server also use a custom function called `CONVERT()`. We can use `CAST()` to both convert between types (like string to date) or within the same type (like a timestamp to date)
+The standard function for converting data in SQL is `CAST()` Some other database implementations, like SQL Server, also use their own custom function called `CONVERT()`. We will use `CAST()` to both convert between types (like string to date) or within the same type (like a timestamp to date)
 
 Here's an example of how type conversion works:
 ```sql
@@ -40,7 +38,7 @@ dt        |
 
 Suppose that for whatever reason the date was bad:
 ```sql
-SELECT CAST('2021-12-01' as DATE);
+SELECT CAST('2021-13-01' as DATE);
 
 Error: Could not cast literal "2021-13-01" to type DATE at [1:13]
 ```
@@ -54,12 +52,14 @@ Message: Could not cast literal "2021-12--01" to type DATE at [1:13]
 ```
 The extra dash in this case messes up conversion.
 
-Same types of things happen if you try to convert a string to a number and the formatting is malformed or the data is not a number. So how do you deal with these issues?
+Same thing can happen if you try to convert a string to a number and the formatting is malformed or the data is not a number. So how do you deal with these issues?
 
-### Ignore the Error Pattern
-One of the easiest ways to deal with these issues is to simply ignore the malformed data. However the `CAS()` function will fail if it encounters an issue and we want our query to be robust.
+### Ignore Bad Data
+One of the easiest ways to deal with formatting issues when converting data is to simply ignore bad formatting. What this means is we simply skip the malformed rows and don't deal with them at all. This works great in cases when the error is unfixable or occurs very rarely. So if a few rows out of 10 million are malformed and can't be fixed we can skip them
 
-To deal with this problem many databases introduce "safe" casting functions like `SAFE_CAST()` in BigQuery or `TRY_CAST()` in SQL Server. These functions will not fail when the formatting is unexpected but rather return `NULL` which then allows us to use `IFNULL()` or `COALESCE()` to replace `NULL` with a sensible value.
+However the `CAST()` function will fail if it encounters an issue, as we just saw, and we want our query to be robust. To deal with this problem some databases introduce "safe" casting functions like `SAFE_CAST()` in BigQuery or `TRY_CAST()` in SQL Server. Not all servers provide this function though.
+
+These functions will not fail when the formatting is unexpected but return `NULL` instead which then can be handled by using `COALESCE()` to replace `NULL` with a sensible value.
 
 Here's how that works:
 ```sql
@@ -71,17 +71,17 @@ SELECT SAFE_CAST('2021-12--01' as DATE) AS dt;
 ```
 Now we can apply any of the functions that deal with `NULL` and replace it or just leave it. 
 ```sql
-SELECT IFNULL(SAFE_CAST('2021-' as INTEGER), 0) AS num;
+SELECT COALESCE(SAFE_CAST('2021-' as INTEGER), 0) AS num;
 
 num|
 ---+
   0|
 ```
 
-### Force Formatting Pattern
-While ignoring incorrect data is easy, you can't always get away with it. Sometimes you need to extract the valuable data from the incorrect format. This is the time when you need to look for repeating patterns in the incorrect data and force the formatting.
+### Force Formatting
+While ignoring incorrect data is easy, you can't always get away with it. Sometimes you need to extract the valuable data from the incorrect format. This is when you need to look for repeating patterns in the incorrect data and force the formatting.
 
-Here's a few examples: Suppose that all dates had extra dashes like this:
+Suppose that all dates had extra dashes like this:
 ```
 2021-12--01
 2021-12--02
@@ -116,7 +116,7 @@ date_field
 ```
 So as you can see in this example, we took advantage of the regularity of the incorrect formatting to extract the important information (the year, month and day) and reconstruct the correct formatting by concatenating strings via the `||` operator.
 
-What if you have multiple types of regularities in your data? In some cases if information is aggregated from multiple sources you might have to deal with multiple types of formatting.
+What if you have different types of irregularities in your data? In some cases if information is aggregated from multiple sources you might have to deal with multiple types of formatting.
 
 Let's take a look at an example:
 ```
@@ -128,7 +128,7 @@ dt         |
 12/04/2021 |
 12/05/2021 |
 ```
-Obviously we can't force the same format for all the dates here so we'll have to split this up and apply the force formatting pattern separately as long as we can detect the right patterns:
+Obviously we can't force the same formatting for all the dates here so we'll have to split this up and apply the pattern separately using the `CASE` statement:
 ```sql
 WITH dates AS (
     SELECT '2021-12--01' AS dt
@@ -142,31 +142,58 @@ WITH dates AS (
     SELECT '12/05/2021' AS dt
 )
 SELECT CAST(CASE WHEN dt LIKE '%-%--%'
-            THEN SUBSTRING(dt, 1, 4) || '-' ||
-				 SUBSTRING(dt, 6, 2) || '-' ||
-				 SUBSTRING(dt, 10, 2)
-            WHEN dt LIKE '%/%/%'
-            THEN SUBSTRING(dt, 7, 4) || '-' ||
-				 SUBSTRING(dt, 1, 2) || '-' ||
-				 SUBSTRING(dt, 4, 2)
-            END AS DATE) AS date_field 
+	             THEN SUBSTRING(dt, 1, 4) || '-' ||
+					  SUBSTRING(dt, 6, 2) || '-' ||
+					  SUBSTRING(dt, 10, 2)
+	             WHEN dt LIKE '%/%/%'
+	             THEN SUBSTRING(dt, 7, 4) || '-' ||
+					  SUBSTRING(dt, 1, 2) || '-' ||
+					  SUBSTRING(dt, 4, 2)
+	             END AS DATE) AS date_field 
 FROM dates;
 ```
-As you can see in this example what we're doing is separating each pattern via a `CASE` statement and handling each one differently. You can repeat this pattern as many times as you want to handle each case.
+You can repeat this pattern as many times as you want to handle each case.
 
-### Expect NULLs
-This pattern can and should be used at any time even when you think the data is clean. Basically whenever you're doing a `LEFT JOIN` or type conversion you should be expecting NULLs and protecting against them as a defensive measure. This is done to make sure that even if your data ever gets messy your query will not fail. It's simply the use of `IFNULL()` or `COALESCE()` everywhere in your select.
-
-NULLs in SQL represent unknown values. While the data may appear to be blank or empty, it's not the same as an empty string or white space. You cannot compare NULLs to anything directly, for example you cannot say:
+Here's an example using numbers
+```sql
+WITH weights AS (
+    SELECT '32.5lb' AS wt
+    UNION ALL 
+    SELECT '45.2lb' AS wt
+    UNION ALL 
+    SELECT '53.1lb' AS wt
+    UNION ALL 
+    SELECT '77kg' AS wt
+    UNION ALL 
+    SELECT '68kg' AS wt
+)
+SELECT 
+	CAST(CASE WHEN wt LIKE '%lb' THEN SUBSTRING(wt, 1, INSTR(wt, 'lb')-1)
+			  WHEN wt LIKE '%kg' THEN SUBSTRING(wt, 1, INSTR(wt, 'kg')-1)
+         END AS DECIMAL) AS weight,
+	CASE WHEN wt LIKE '%lb' THEN 'LB'
+		 WHEN wt LIKE '%kg' THEN 'KG'
+	END AS unit
+FROM weights
 ```
+
+I'm using the `SUBSTRING()` function again to extract parts of a string, but this time I add the function `INSTR()` which searches for a string within another string and returns the first occurrence of it or 0 if not found. 
+
+### Dealing with NULLs
+As a rule, you should always assume any column can be NULL at any point in time so it's a good idea to provide a default value for that column as part of your SELECT. This way you make sure that even if your data becomes NULL your query will not fail.
+
+NULLs in SQL represent unknown values. While the data may appear to be blank or empty in the results, it's not the same as an empty string or white space. You cannot compare NULLs to anything directly, for example you cannot say:
+```sql
 SELECT col1
 FROM table
 WHERE col2 = NULL;
 ```
 
-You get `NULL` when you try to perform any type of calculation with `NULL` like adding or subtracting, multiplying or dividing because adding anything to an unknown value is still unknown. SQL deals with NULLs by using the `IS` keyword. `IS NULL` literally means is unknown. `IFNULL()` then means if this is unknown.
+You get NULL whenever you perform any type of calculation with NULL like adding or subtracting, multiplying or dividing. Doing any operation with an unknown value is still unknown. 
 
-So in order to protect against unexpected NULLs it's often a good idea for your production queries to wrap `IFNUL()` around all the fields.
+Since you cannot compare to NULL using the equals sign (=) SQL deals with NULLs using the `IS` keyword. `IS NULL` literally means is unknown. To replace NULLs with a default value when you're doing conversions, you use `COALESCE()` which takes a comma-separated list of values and returns the first non-null value.
+
+So in order to protect against unexpected NULLs it's often a good idea for your production queries to wrap `COALESCE()` around all the fields.
 ```sql
 WITH dates AS (
     SELECT '2021-12--01' AS dt
@@ -181,7 +208,7 @@ WITH dates AS (
     UNION ALL 
     SELECT '13/05/2021' AS dt
 )
-SELECT IFNULL(SAFE_CAST(
+SELECT COALESCE(SAFE_CAST(
             CASE WHEN dt LIKE '%-%--%'
             THEN SUBSTRING(dt, 1, 4) || '-' ||
                  SUBSTRING(dt, 6, 2) || '-' ||
@@ -194,19 +221,10 @@ SELECT IFNULL(SAFE_CAST(
 FROM dates;
 ```
 
-This is the same query as above but implemented using "defensive coding" where we expect junk dates (like `13/05/2021`) and we replace with a fixed date `1900-01-01` This way our query will not fail and afterwards we can investigate why the data was junk.
-
-### Start With a LEFT JOIN
-One of the ways you'll get NULLs in your results is when you use a `LEFT JOIN`. Now there are legitimate reasons to use a `LEFT JOIN`, like when you know for sure the data will be missing on the right table but in this case we're using it deliberately to avoid restricting the final results.
-
-Whenever we use `INNER JOIN` the final result is always reduced down to just the matching rows from both tables. This means that if the history table has some strange `user_id` that doesn't exist in the `users` table, they will not show up in the final result. The same happens with the `users` that have no activity in `post_history`
-
-For the purposes of our project, we only want the active users so an `INNER JOIN` is very appropriate here. If we wanted everyone, we'd have to user a `LEFT JOIN` So why am I saying you should start with a `LEFT JOIN`? Get burned too many times and you eventually learn your lesson.
-
-The mantra I keep repeating here is "real world data is messy" There are missing rows, duplicate rows, incorrect types and so on. Unless you know your data well and it's being carefully monitored for these things, you should consider them in your joins.
+This is the same query we saw earlier but implemented using "defensive coding" where we replace malformed data with a fixed value of `1900-01-01`. This protects our query from failing and later we can investigate why the data was junk.
 
 ### Dealing with division by zero
-Whenever you need to calculate ratios you always have to worry about division by zero. Going back to our principle of defensive programming, it makes sense to explicitly handle cases where the denominator can be zero.
+Whenever you need to calculate ratios you always have to worry about division by zero. Your query might work when you first write it, but if the denominator ever becomes zero your query will fail.
 
 The easiest way to handle this is by excluding zero values in the where clause as we do in our query
 ```sql
@@ -221,7 +239,7 @@ ORDER BY
     total_questions_created DESC;
 ```
 
-This will work fine in most cases but what if you're calculating multiple ratios and you don't want to restrict the data for each one? One way to handle this is by using a `CASE` statement like this:
+This will work fine in some cases but it also will filter the entire dataset causing counts to be wrong. One way to handle this is by using a `CASE` statement like this:
 ```sql
 SELECT
     CASE
@@ -240,7 +258,7 @@ FROM
 ORDER BY 
     total_questions_created DESC;
 ```
-This looks good and is pretty clean but not as elegant. BigQuery offers another way we can do this more cleanly. Just like the `SAFE_CAST()` function, it has a `SAFE_DIVIDE()` function which returns `NULL` in the case of divide-by-zero error. Then you can simply deal with the `NULL` value using `IFNULL()`
+This works but is not as elegant. BigQuery offers another way we can do this more cleanly. Just like the `SAFE_CAST()` function, it has a `SAFE_DIVIDE()` function which returns NULL in the case of divide-by-zero error. Then you simply deal with NULL values using `COALESCE()`
 
 ```sql
 SELECT
@@ -253,9 +271,9 @@ FROM
 ORDER BY 
     total_questions_created DESC;
 ```
-Now that's far more elegant isn't it?  Snowflake also implements a similar function they call `DIV()` which automatically returns 0 if there's a division by zero error eschewing the need for `IFNULL()` If your database has these functions, I highly recommend you use them.
+Now that's far more elegant isn't it?  Snowflake also implements a similar function they call `DIV0()` which automatically returns 0 if there's a division by zero error.
 
-### Dealing with messy strings
+### Comparing Strings
 I said earlier that strings are the easiest way to store any kind of data (numbers, dates, strings) but strings also have their own issues, especially when you're trying to join on a string field.
 
 Here are some issues you'll undoubtedly run into with strings. 
@@ -274,7 +292,7 @@ false|
 
 As you can see, a different case causes the test to show as `FALSE` The only way to deal with this problem when joining on strings or matching patterns on a string is to convert all fields to upper or lower case.
 ```sql
-SELECT lower('string') = lower('String') AS test;
+SELECT LOWER('string') = LOWER('String') AS test;
 
 test|
 ----+
@@ -292,9 +310,20 @@ false|
 
 You deal with this by using the `TRIM()` function which removes all the leading and trailing spaces.
 ```sql
-SELECT trim('string') = trim(' string') AS test;
+SELECT TRIM('string') = TRIM(' string') AS test;
 
 test|
 ----+
 true|
 ```
+
+If you ever have to join on an email column these functions are absolutely essential. It's best to combine them just to be sure:
+```sql
+SELECT TRIM(LOWER('String')) = TRIM(LOWER(' string')) AS test;
+
+test|
+----+
+true|
+```
+
+That wraps up our chapter on query robustness. In the next chapter we get to see the entire query for user engagement. It's also a great opportunity to review what we've learned so far.

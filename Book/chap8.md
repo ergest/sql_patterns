@@ -51,6 +51,15 @@ As a rule of thumb, whenever you're appending tables, it's a good idea to add a 
 
 You'll notice in my query above I create a `post_type` column indicating where the data is coming from.
 
+### Start With a LEFT JOIN
+One of the ways you'll get NULLs in your results is when you use a `LEFT JOIN`. Now there are legitimate reasons to use a `LEFT JOIN`, like when you know for sure the data will be missing on the right table but in this case we're using it deliberately to avoid restricting the final results.
+
+Whenever we use `INNER JOIN` the final result is always reduced down to just the matching rows from both tables. This means that if the history table has some strange `user_id` that doesn't exist in the `users` table, they will not show up in the final result. The same happens with the `users` that have no activity in `post_history`
+
+For the purposes of our project, we only want the active users so an `INNER JOIN` is very appropriate here. If we wanted everyone, we'd have to user a `LEFT JOIN` So why am I saying you should start with a `LEFT JOIN`? Get burned too many times and you eventually learn your lesson.
+
+The mantra I keep repeating here is "real world data is messy" There are missing rows, duplicate rows, incorrect types and so on. Unless you know your data well and it's being carefully monitored for these things, you should consider them in your joins.
+
 ## Accidental Inner Join
 Did you know that SQL will ignore a `LEFT JOIN` clause and perform an `INNER JOIN` instead if you make this one simple mistake? This is one of those SQL hidden secrets which sometimes gets asked as a trick question in interviews so strap in.
 
