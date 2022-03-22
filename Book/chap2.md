@@ -286,4 +286,107 @@ Notice how the `user_name` repeats for each row.
 
 So if the history table has 10 entries for the same user and the `users` table has 1, the final result will contain 10 x 1 entries for the same user. If for some reason the `users` contained 2 entries for the same user (messy real world data), we'd see 10 x 2 = 20 entries for that user in the final result and each row would repeat twice.
 
+## Accidental INNER JOIN
+Did you know that SQL will ignore a `LEFT JOIN` clause and perform an `INNER JOIN` instead if you make this one simple mistake? This is one of those SQL hidden secrets which sometimes gets asked as a trick question in interviews so strap in.
+
+When doing a `LEFT JOIN` you're intending to show all the results on the table in the `FROM` clause but if you need to limit
+
+Let's take a look at the example query from above:
+```sql
+SELECT
+	ph.post_id,
+	ph.user_id,
+	u.display_name AS user_name,
+	ph.creation_date AS activity_date
+FROM
+	bigquery-public-data.stackoverflow.post_history ph
+	INNER JOIN bigquery-public-data.stackoverflow.users u ON u.id = ph.user_id
+WHERE
+	TRUE
+	AND ph.post_id = 4
+ORDER BY
+	activity_date;
+```
+
+This query will produce 58 rows. Now let's change the `INNER JOIN` to a `LEFT JOIN`and rerun the query:
+```sql
+SELECT
+	ph.post_id,
+	ph.user_id,
+	u.display_name AS user_name,
+	ph.creation_date AS activity_date
+FROM
+	bigquery-public-data.stackoverflow.post_history ph
+	LEFT JOIN bigquery-public-data.stackoverflow.users u ON u.id = ph.user_id
+WHERE
+	TRUE
+	AND ph.post_id = 4
+ORDER BY
+	activity_date;
+```
+
+Now we get 72 rows!! If you scan the results, you'll notice several where both the `user_name` and the `user_id` are `NULL` which means they're unknown. These could be people who made changes to that post and then deleted their accounts. Notice how the `INNER JOIN` was filtering them out? That's what I mean by data reduction which we discussed previously.
+
+Suppose we only want to see users with a reputation of higher than 50. That's seems pretty straightforward just add the condition to the where clause
+```sql
+SELECT
+	ph.post_id,
+	ph.user_id,
+	u.display_name AS user_name,
+	ph.creation_date AS activity_date
+FROM
+	bigquery-public-data.stackoverflow.post_history ph
+	LEFT JOIN bigquery-public-data.stackoverflow.users u ON u.id = ph.user_id
+WHERE
+	TRUE
+	AND ph.post_id = 4
+	AND u.reputation > 50
+ORDER BY
+	activity_date;
+```
+
+We only get 56 rows! What happened?
+
+Adding filters on the where clause for tables that are left joined will ALWAYS perform an `INNER JOIN` except for one single condition where the left join is preserved. If we wanted to filter rows in the `users` table and still do a `LEFT JOIN`  we have to add the filter in the join condition like so:
+```sql
+SELECT
+	ph.post_id,
+	ph.user_id,
+	u.display_name AS user_name,
+	ph.creation_date AS activity_date
+FROM
+	bigquery-public-data.stackoverflow.post_history ph
+	LEFT JOIN bigquery-public-data.stackoverflow.users u ON u.id = ph.user_id
+	AND u.reputation > 50		
+WHERE
+	TRUE
+	AND ph.post_id = 4
+ORDER BY
+	activity_date;
+```
+
+The ONLY time when putting a condition in the `WHERE` clause does NOT turn a `LEFT JOIN` into an `INNER JOIN` is when checking for `NULL`. This is very useful when you want to see the missing data on the table that's being left joined. Here's an example
+```sql
+SELECT
+	ph.post_id,
+	ph.user_id,
+	u.display_name AS user_name,
+	ph.creation_date AS activity_date
+FROM
+	bigquery-public-data.stackoverflow.post_history ph
+	LEFT JOIN bigquery-public-data.stackoverflow.users u ON u.id = ph.user_id	
+WHERE
+	TRUE
+	AND ph.post_id = 4
+	AND u.id is NULL
+ORDER BY
+	activity_date;
+```
+This query gives us the 12 missing users
+
+### Starting with a LEFT JOIN
+Since we're on the subject of LEFT JOINS, one of my most used rules of thumb is to always use a `LEFT JOIN` when I'm not sure if one table is a subset of the other. For example in the query above, there's definitely users that have a valid `user_id` in the `users` table but have never had any activity.
+
+This often happens in the real world when data is deleted from a table and there's no foreign key constraints to ensure referential integrity (i.e. the database ensures you can't delete a row if it's referenced in another table. These types of constraints don't exist in data warehouses hence my general rule of thumb of always starting with a `LEFT JOIN`
+
 Now that we have covered the basic concepts, it's time to dive into the patterns.
