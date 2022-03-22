@@ -178,11 +178,11 @@ SELECT
     ROUND(IFNULL(SAFE_DIVIDE(
         total_comments_by_user, total_posts_created), 0), 1)  AS user_comments_per_post,
     ROUND(IFNULL(SAFE_DIVIDE(
-    total_comments_on_post, total_posts_created), 0), 1)  AS comments_on_post_per_post
+        total_comments_on_post, total_posts_created), 0), 1)  AS comments_on_post_per_post
 FROM
     total_metrics_per_user
 ORDER BY 
-    total_questions_created DESC;
+    total_posts_created DESC;
 ```
 
 There's one final pattern we use in the final CTE. We pre-calculate all the aggregates at the user level and then add a few more ratio-based metrics. You'll notice that we use two functions to shape the results: `CAST()` is used because SQL performs integer division and for the ratios we want to show the remainder, and then `ROUND()` is used to round the remainder to a single decimal point.
