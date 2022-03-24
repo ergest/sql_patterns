@@ -1,6 +1,7 @@
 # Chapter 7: Finishing the Project
-We've now explored all the sections of the query so let's see the whole thing in one place so we can see all the patterns in action. 
+In this chapter we wrap up our query and go over it one more time highlighting the various patterns we've learned so far. This is a good opportunity to test yourself and see what you've learned. Analyze the query and see what patterns you recognize.
 
+So here's the whole query
 ```sql
  -- Get the user name and collapse the granularity of post_history to the user_id, post_id, activity type and date
 WITH post_activity AS (
@@ -187,8 +188,6 @@ ORDER BY
 
 There's one final pattern we use in the final CTE. We pre-calculate all the aggregates at the user level and then add a few more ratio-based metrics. You'll notice that we use two functions to shape the results: `CAST()` is used because SQL performs integer division and for the ratios we want to show the remainder, and then `ROUND()` is used to round the remainder to a single decimal point.
 
-Now that you have all these wonderful metrics you can sort it by any of the metrics. For example you can sort by `questions_per_post` to see everyone who posts mostly questions or `answers_by_post` to see those who post mostly answers. You can also create new metrics that indicate who your best users are.
+Now that you have all these wonderful metrics you can sort the results by any of them to see different types of users. For example you can sort by `questions_per_post` to see everyone who posts mostly questions or `answers_by_post` to see those who post mostly answers. You can also create new metrics that indicate who your best users are.
 
 Some of the best uses of this type of table are for customer segmentation or as a feature table for data science.
-
-Could we have written this query in fewer lines using subqueries? Of course! The power of SQL is that there's many ways to solve a problem, especially one as complex as this. But, by splitting our query up into multiple CTEs, aligning the granularity on the CTEs, chaining them carefully together we can achieve a solution that's cleaner, easier to read and understand, and easier to maintain.
