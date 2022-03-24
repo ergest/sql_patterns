@@ -1,0 +1,1 @@
+pandoc chap*.md -o output/book.pdf --from markdown --toc --template eisvogel --listings -V fontsize=14pt -V titlepage=true -V listings-no-page-break=true

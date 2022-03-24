@@ -45,7 +45,7 @@ Writing accurate and efficient SQL begins with understanding the data model we'r
 The original StackOverflow (SO) data model is different from the one loaded in BigQuery. When the engineers loaded it, they modified the mode somewhat. For example the SO model contains a single `Posts` table for all the different post types whereas BigQuery split each one into a separate table.
 
 Here's a look at the Entity-Relationship (ER) diagram
-![[StackOverflow BQ ER Diagram.jpeg]]
+![StackOverflow BQ ER Diagram](img/er_diagram.jpeg)
 **Figure 1.1 - StackOverflow ER diagram**
 
 There are 8 tables that represent the various post types. You can get this result by using the `INFORMATION_SCHEMA` views in BigQuery like this:
