@@ -218,14 +218,13 @@ SELECT
 	id,
 	display_name,
 	creation_date,
-	reputation,
-	views
+	reputation
 FROM bigquery-public-data.stackoverflow.users
 WHERE id = 8974849;
 
-id     |user_name|creation_date          |reputation|views|
--------+---------+-----------------------+----------+-----+
-8974849|neutrino |2017-11-20 18:16:46.653|       790|  107|
+id     |user_name|creation_date          |reputation|
+-------+---------+-----------------------+----------+
+8974849|neutrino |2017-11-20 18:16:46.653|       790|
 ```
 
 Whereas the `post_history` table has multiple rows for the same user:
