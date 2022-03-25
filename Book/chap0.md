@@ -4,8 +4,9 @@ subtitle: "Hands-On Design Patterns and Best Practices with SQL"
 author: "Ergest Xheblati"
 date: "Version 1.0: 2022-04-01"
 titlepage-background: "backgrounds/background10.pdf"
-header-right: ""
-footer-left: ""
+fontsize: "14pt"
+titlepage: true
+listings-no-page-break: true
 ---
 
 # Introduction

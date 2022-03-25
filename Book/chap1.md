@@ -44,7 +44,6 @@ Writing accurate and efficient SQL begins with understanding the data model we'r
 
 The original StackOverflow (SO) data model is different from the one loaded in BigQuery. When the engineers loaded it, they modified the mode somewhat. For example the SO model contains a single `Posts` table for all the different post types whereas BigQuery split each one into a separate table.
 
-Here's a look at the Entity-Relationship (ER) diagram
 ![StackOverflow BQ ER Diagram](img/er_diagram.jpeg)
 **Figure 1.1 - StackOverflow ER diagram**
 
@@ -164,7 +163,6 @@ WHERE table_name = 'users'
 ```
 
 Next we take a look at the `comments` table. It has a zero-to-many relationship with posts and with users shown in the diagram as number 5 and number 7, since both a user or a post could have 0 or many comments.
-
 ```sql
 SELECT column_name, data_type
 FROM bigquery-public-data.stackoverflow.INFORMATION_SCHEMA.COLUMNS
@@ -182,7 +180,6 @@ WHERE table_name = 'comments'
 ```
 
 Finally the `votes` table represents the upvotes and downvotes on a post. We'll need this to compute the total vote count on a user's post which will indicate how good the question or the answer is. This table has a granularity of one row per vote per post per date.
-
 ```sql
 SELECT column_name, data_type
 FROM bigquery-public-data.stackoverflow.INFORMATION_SCHEMA.COLUMNS
