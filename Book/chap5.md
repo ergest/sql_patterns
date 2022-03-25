@@ -14,8 +14,8 @@ You might have noticed this little snipped in every CTE:
 ```sql
 WHERE
 	TRUE
-	AND creation_date >= CAST('2021-06-01' as TIMESTAMP) 
-	AND creation_date <= CAST('2021-09-30' as TIMESTAMP)
+	AND creation_date >= '2021-06-01' 
+	AND creation_date <= '2021-09-30'
 ```
 
 What we're doing here is filtering each table to only 90 days so we can both to keep costs down and make the query faster. This is what I mean by reducing the dataset before joining.
@@ -43,8 +43,8 @@ FROM
     bigquery-public-data.stackoverflow.posts_questions q
 WHERE
     TRUE
-    AND creation_date >= CAST('2021-06-01' as TIMESTAMP) 
-    AND creation_date <= CAST('2021-09-30' as TIMESTAMP)
+    AND creation_date >= '2021-06-01' 
+    AND creation_date <= '2021-09-30'
 LIMIT 10
 
 post_id |creation_date          |tags                                            |
@@ -73,8 +73,8 @@ FROM
     bigquery-public-data.stackoverflow.posts_questions q
 WHERE
     TRUE
-    AND creation_date >= CAST('2021-06-01' as TIMESTAMP) 
-    AND creation_date <= CAST('2021-09-30' as TIMESTAMP)
+    AND creation_date >= '2021-06-01' 
+    AND creation_date <= '2021-09-30'
     AND INSTR(tags, "|sql|") > 0
 LIMIT 10
 
@@ -106,8 +106,8 @@ FROM
     bigquery-public-data.stackoverflow.posts_questions q
 WHERE
     TRUE
-    AND creation_date >= CAST('2021-06-01' as TIMESTAMP) 
-    AND creation_date <= CAST('2021-09-30' as TIMESTAMP)
+    AND creation_date >= '2021-06-01' 
+    AND creation_date <= '2021-09-30'
     AND tags LIKE "%|sql|%"
 LIMIT 10
 
@@ -150,8 +150,8 @@ Here's an example you've seen before. In the `post_activity` CTE we select only 
         bigquery-public-data.stackoverflow.posts_questions
     WHERE
         TRUE
-    	AND creation_date >= CAST('2021-06-01' as TIMESTAMP) 
-    	AND creation_date <= CAST('2021-09-30' as TIMESTAMP)
+    	AND creation_date >= '2021-06-01' 
+    	AND creation_date <= '2021-09-30'
     UNION ALL
     SELECT
         id AS post_id,
@@ -160,8 +160,8 @@ Here's an example you've seen before. In the `post_activity` CTE we select only 
         bigquery-public-data.stackoverflow.posts_answers
     WHERE
         TRUE
-    	AND creation_date >= CAST('2021-06-01' as TIMESTAMP) 
-    	AND creation_date <= CAST('2021-09-30' as TIMESTAMP)
+    	AND creation_date >= '2021-06-01' 
+    	AND creation_date <= '2021-09-30'
  )
  ```
 
@@ -185,8 +185,8 @@ For example, the following is unnecessary and slows down performance because the
     WHERE
         TRUE
         AND pa.activity_type = 'created'
-    	AND v.creation_date >= CAST('2021-06-01' as TIMESTAMP) 
-    	AND v.creation_date <= CAST('2021-09-30' as TIMESTAMP)
+    	AND v.creation_date >= '2021-06-01' 
+    	AND v.creation_date <= '2021-09-30'
 	GROUP BY
         1,2
     ORDER BY
@@ -215,8 +215,8 @@ FROM
 WHERE
 	TRUE
 	AND pa.activity_type = 'created'
-	AND v.creation_date >= CAST('2021-06-01' as TIMESTAMP) 
-	AND v.creation_date <= CAST('2021-09-30' as TIMESTAMP)
+	AND v.creation_date >= '2021-06-01' 
+	AND v.creation_date <= '2021-09-30'
 GROUP BY
 	1,2
 ORDER BY

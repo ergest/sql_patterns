@@ -8,6 +8,9 @@ fontsize: "14pt"
 titlepage: true
 listings-no-page-break: true
 classoption: "oneside"
+header-right: ""
+footer-left: ""
+book: true
 ---
 
 # Introduction

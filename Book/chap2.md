@@ -27,9 +27,9 @@ For the `post_history` table we can run the following query:
 SELECT 
 	creation_date,
 	post_id,
-	post_history_type_id as type_id,
+	post_history_type_id AS type_id,
 	user_id,
-	COUNT(*) AS total_rows
+	COUNT(*) AS total
 FROM bigquery-public-data.stackoverflow.post_history
 GROUP BY 1,2,3,4
 HAVING COUNT(*) > 1;
@@ -38,18 +38,18 @@ So I'm aggregating by all the columns I expect to make up the unique row and fil
 
 But we don't! We get a bunch of duplicate rows:
 ```
-creation_date          |post_id |type_id|user_id |total_rows|
------------------------+--------+-------+--------+----------+
-2020-07-20 05:00:26.413|62964197|     34|      -1|         2|
-2020-08-05 16:31:15.220|63272171|      5|14038907|         2|
-2018-10-08 09:54:40.990|40921767|      5| 4826457|         2|
-2020-05-07 22:02:27.877|61637980|     34|      -1|         2|
-2018-10-13 05:26:22.243|52784015|      5| 6599590|         2|
-2021-01-03 10:35:35.693|65550662|      5|12833166|         2|
-2018-12-02 14:28:12.947|53576317|      5|10732059|         2|
-2018-09-05 04:16:26.440|52140985|      4| 3623424|         3|
-2018-12-17 22:43:27.800|53826052|      8| 1863229|         2|
-2018-09-13 17:13:31.490|52321596|      5| 5455640|         2|
+creation_date          |post_id |type_id|user_id |rows|
+-----------------------+--------+-------+--------+----+
+2020-07-20 05:00:26.413|62964197|     34|      -1|   2|
+2020-08-05 16:31:15.220|63272171|      5|14038907|   2|
+2018-10-08 09:54:40.990|40921767|      5| 4826457|   2|
+2020-05-07 22:02:27.877|61637980|     34|      -1|   2|
+2018-10-13 05:26:22.243|52784015|      5| 6599590|   2|
+2021-01-03 10:35:35.693|65550662|      5|12833166|   2|
+2018-12-02 14:28:12.947|53576317|      5|10732059|   2|
+2018-09-05 04:16:26.440|52140985|      4| 3623424|   3|
+2018-12-17 22:43:27.800|53826052|      8| 1863229|   2|
+2018-09-13 17:13:31.490|52321596|      5| 5455640|   2|
 ```
 
 This means we have to be careful when joining with this table on `post_id, user_id, creation_date, post_history_type_id` and we'd have to deal with the duplicate issue first. Let's see a couple of methods for doing that.
@@ -80,8 +80,10 @@ SELECT
     ph.post_id,
     ph.user_id,
     ph.creation_date AS activity_date,
-    CASE WHEN ph.post_history_type_id IN (1,2,3) THEN 'created'
-         WHEN ph.post_history_type_id IN (4,5,6) THEN 'edited' 
+    CASE WHEN ph.post_history_type_id IN (1,2,3)
+		 THEN 'created'
+         WHEN ph.post_history_type_id IN (4,5,6)
+		 THEN 'edited' 
     END AS activity_type
 FROM
     bigquery-public-data.stackoverflow.post_history ph
@@ -90,8 +92,8 @@ WHERE
     AND ph.post_history_type_id BETWEEN 1 AND 6
     AND ph.user_id > 0 --exclude automated processes
     AND ph.user_id IS NOT NULL --exclude deleted accounts
-    AND ph.creation_date >= CAST('2021-06-01' as TIMESTAMP) 
-    AND ph.creation_date <= CAST('2021-09-30' as TIMESTAMP)
+    AND ph.creation_date >= '2021-06-01'
+    AND ph.creation_date <= '2021-09-30'
 	AND ph.post_id = 69301792
 GROUP BY
     1,2,3,4
@@ -121,8 +123,10 @@ SELECT
     ph.post_id,
     ph.user_id,
     CAST(ph.creation_date AS DATE) AS activity_date,
-    CASE WHEN ph.post_history_type_id IN (1,2,3) THEN 'created'
-         WHEN ph.post_history_type_id IN (4,5,6) THEN 'edited' 
+    CASE WHEN ph.post_history_type_id IN (1,2,3)
+		 THEN 'created'
+         WHEN ph.post_history_type_id IN (4,5,6)
+		 THEN 'edited' 
     END AS activity_type,
     COUNT(*) AS total
 FROM
@@ -132,8 +136,8 @@ WHERE
     AND ph.post_history_type_id BETWEEN 1 AND 6
     AND ph.user_id > 0 --exclude automated processes
     AND ph.user_id IS NOT NULL --exclude deleted accounts
-    AND ph.creation_date >= CAST('2021-06-01' as TIMESTAMP) 
-    AND ph.creation_date <= CAST('2021-09-30' as TIMESTAMP)
+    AND ph.creation_date >= '2021-06-01' 
+    AND ph.creation_date <= '2021-09-30'
 	AND ph.post_id = 69301792
 GROUP BY
     1,2,3,4
@@ -160,8 +164,10 @@ SELECT
     ph.post_id,
     ph.user_id,
     CAST(ph.creation_date AS DATE) AS activity_date,
-    SUM(CASE WHEN ph.post_history_type_id IN (1,2,3) THEN 1 ELSE 0 END) AS created,
-    SUM(CASE WHEN ph.post_history_type_id IN (4,5,6) THEN 1 ELSE 0 END) AS edited
+    SUM(CASE WHEN ph.post_history_type_id IN (1,2,3)
+		THEN 1 ELSE 0 END) AS created,
+    SUM(CASE WHEN ph.post_history_type_id IN (4,5,6)
+		THEN 1 ELSE 0 END) AS edited
 FROM
     bigquery-public-data.stackoverflow.post_history ph
 WHERE
@@ -169,8 +175,8 @@ WHERE
     AND ph.post_history_type_id BETWEEN 1 AND 6
     AND ph.user_id > 0 --exclude automated processes
     AND ph.user_id IS NOT NULL --exclude deleted accounts
-    AND ph.creation_date >= CAST('2021-06-01' as TIMESTAMP) 
-    AND ph.creation_date <= CAST('2021-09-30' as TIMESTAMP)
+    AND ph.creation_date >= '2021-06-01' 
+    AND ph.creation_date <= '2021-09-30'
     AND ph.post_id = 69301792
 GROUP BY
     1,2,3
@@ -217,10 +223,9 @@ SELECT
 FROM bigquery-public-data.stackoverflow.users
 WHERE id = 8974849;
 
-
-id     |display_name|creation_date          |reputation|views|
--------+------------+-----------------------+----------+-----+
-8974849|neutrino    |2017-11-20 18:16:46.653|       790|  107|
+id     |user_name|creation_date          |reputation|views|
+-------+---------+-----------------------+----------+-----+
+8974849|neutrino |2017-11-20 18:16:46.653|       790|  107|
 ```
 
 Whereas the `post_history` table has multiple rows for the same user:
@@ -229,26 +234,26 @@ SELECT
 	id,
 	creation_date,
 	post_id,
-	post_history_type_id,
+	post_history_type_id AS type_id,
 	user_id 
 FROM
 	bigquery-public-data.stackoverflow.post_history ph
 WHERE
 	TRUE
-	AND ph.creation_date >= CAST('2021-06-01' as TIMESTAMP) 
-	AND ph.creation_date <= CAST('2021-09-30' as TIMESTAMP)
+	AND ph.creation_date >= '2021-06-01' 
+	AND ph.creation_date <= '2021-09-30'
 	AND ph.user_id = 8974849;
 
 
-id       |creation_date          |post_id |post_history_type_id|user_id|
----------+-----------------------+--------+--------------------+-------+
-250199272|2021-07-14 00:54:58.127|68372251|                   2|8974849|
-250199273|2021-07-14 00:54:58.127|68372251|                   1|8974849|
-250199274|2021-07-14 00:54:58.127|68372251|                   3|8974849|
-250263915|2021-07-15 00:01:07.497|68387743|                   2|8974849|
-250263916|2021-07-15 00:01:07.497|68387743|                   1|8974849|
-250263917|2021-07-15 00:01:07.497|68387743|                   3|8974849|
-250316277|2021-07-15 16:32:44.163|68400451|                   2|8974849|
+id       |creation_date          |post_id |type_id|user_id|
+---------+-----------------------+--------+-------+-------+
+250199272|2021-07-14 00:54:58.127|68372251|      2|8974849|
+250199273|2021-07-14 00:54:58.127|68372251|      1|8974849|
+250199274|2021-07-14 00:54:58.127|68372251|      3|8974849|
+250263915|2021-07-15 00:01:07.497|68387743|      2|8974849|
+250263916|2021-07-15 00:01:07.497|68387743|      1|8974849|
+250263917|2021-07-15 00:01:07.497|68387743|      3|8974849|
+250316277|2021-07-15 16:32:44.163|68400451|      2|8974849|
 ```
 
 If we join them on `user_id` the granularity of the final result will be multiplied to have as many rows per user:
@@ -258,28 +263,29 @@ SELECT
 	ph.user_id,
 	u.display_name AS user_name,
 	ph.creation_date AS activity_date,
-	post_history_type_id
+	post_history_type_id AS type_id
 FROM
 	bigquery-public-data.stackoverflow.post_history ph
-	INNER JOIN bigquery-public-data.stackoverflow.users u ON u.id = ph.user_id
+	INNER JOIN bigquery-public-data.stackoverflow.users u 
+		ON u.id = ph.user_id
 WHERE
 	TRUE
-	AND ph.creation_date >= CAST('2021-06-01' as TIMESTAMP) 
-	AND ph.creation_date <= CAST('2021-09-30' as TIMESTAMP)
+	AND ph.creation_date >= '2021-06-01' 
+	AND ph.creation_date <= '2021-09-30'
 	AND ph.user_id = 8974849;
 
-post_id |user_id|user_name|activity_date          |post_history_type_id|
---------+-------+---------+-----------------------+--------------------+
-68078326|8974849|neutrino |2021-06-22 02:03:45.830|                   2|
-68078326|8974849|neutrino |2021-06-22 02:03:45.830|                   1|
-68078326|8974849|neutrino |2021-06-22 02:03:45.830|                   3|
-68273785|8974849|neutrino |2021-07-06 11:56:05.827|                   2|
-68273785|8974849|neutrino |2021-07-06 11:56:05.827|                   1|
-68273785|8974849|neutrino |2021-07-06 11:56:05.827|                   3|
-68277148|8974849|neutrino |2021-07-06 16:40:53.003|                   2|
-68277148|8974849|neutrino |2021-07-06 16:40:53.003|                   1|
-68277148|8974849|neutrino |2021-07-06 16:40:53.003|                   3|
-68273785|8974849|neutrino |2021-07-06 12:02:11.913|                   5|
+post_id |user_id|user_name|activity_date          |type_id|
+--------+-------+---------+-----------------------+-------+
+68078326|8974849|neutrino |2021-06-22 02:03:45.830|      2|
+68078326|8974849|neutrino |2021-06-22 02:03:45.830|      1|
+68078326|8974849|neutrino |2021-06-22 02:03:45.830|      3|
+68273785|8974849|neutrino |2021-07-06 11:56:05.827|      2|
+68273785|8974849|neutrino |2021-07-06 11:56:05.827|      1|
+68273785|8974849|neutrino |2021-07-06 11:56:05.827|      3|
+68277148|8974849|neutrino |2021-07-06 16:40:53.003|      2|
+68277148|8974849|neutrino |2021-07-06 16:40:53.003|      1|
+68277148|8974849|neutrino |2021-07-06 16:40:53.003|      3|
+68273785|8974849|neutrino |2021-07-06 12:02:11.913|      5|
 ```
 
 Notice how the `user_name` repeats for each row.
@@ -300,7 +306,8 @@ SELECT
 	ph.creation_date AS activity_date
 FROM
 	bigquery-public-data.stackoverflow.post_history ph
-	INNER JOIN bigquery-public-data.stackoverflow.users u ON u.id = ph.user_id
+	INNER JOIN bigquery-public-data.stackoverflow.users u 
+		ON u.id = ph.user_id
 WHERE
 	TRUE
 	AND ph.post_id = 4
@@ -317,7 +324,8 @@ SELECT
 	ph.creation_date AS activity_date
 FROM
 	bigquery-public-data.stackoverflow.post_history ph
-	LEFT JOIN bigquery-public-data.stackoverflow.users u ON u.id = ph.user_id
+	LEFT JOIN bigquery-public-data.stackoverflow.users u
+		ON u.id = ph.user_id
 WHERE
 	TRUE
 	AND ph.post_id = 4
@@ -336,7 +344,8 @@ SELECT
 	ph.creation_date AS activity_date
 FROM
 	bigquery-public-data.stackoverflow.post_history ph
-	LEFT JOIN bigquery-public-data.stackoverflow.users u ON u.id = ph.user_id
+	LEFT JOIN bigquery-public-data.stackoverflow.users u
+		ON u.id = ph.user_id
 WHERE
 	TRUE
 	AND ph.post_id = 4
@@ -356,7 +365,8 @@ SELECT
 	ph.creation_date AS activity_date
 FROM
 	bigquery-public-data.stackoverflow.post_history ph
-	LEFT JOIN bigquery-public-data.stackoverflow.users u ON u.id = ph.user_id
+	LEFT JOIN bigquery-public-data.stackoverflow.users u
+		ON u.id = ph.user_id
 	AND u.reputation > 50		
 WHERE
 	TRUE
@@ -374,7 +384,8 @@ SELECT
 	ph.creation_date AS activity_date
 FROM
 	bigquery-public-data.stackoverflow.post_history ph
-	LEFT JOIN bigquery-public-data.stackoverflow.users u ON u.id = ph.user_id	
+	LEFT JOIN bigquery-public-data.stackoverflow.users u
+		ON u.id = ph.user_id	
 WHERE
 	TRUE
 	AND ph.post_id = 4

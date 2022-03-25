@@ -66,7 +66,6 @@ WHERE table_name like 'posts_%'
 ```
 
 We'll be focusing on just two of them for our project so I've left the other ones out:
-
  1. `posts_questions` contains all the question posts
  2. `posts_answers` contains all the answer posts
 

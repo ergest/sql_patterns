@@ -24,8 +24,8 @@ WITH post_activity AS (
         AND ph.post_history_type_id BETWEEN 1 AND 6
         AND user_id > 0 --exclude automated processes
         AND user_id IS NOT NULL --exclude deleted accounts
-        AND ph.creation_date >= CAST('2021-06-01' as TIMESTAMP) 
-        AND ph.creation_date <= CAST('2021-09-30' as TIMESTAMP)
+        AND ph.creation_date >= '2021-06-01' 
+        AND ph.creation_date <= '2021-09-30'
     GROUP BY
         1,2,3,4,5
 )
@@ -67,8 +67,8 @@ and to join with comments and votes to user level data via the `post_id`
     WHERE
         TRUE
         AND pa.activity_type = 'created'
-        AND c.creation_date >= CAST('2021-06-01' as TIMESTAMP) 
-        AND c.creation_date <= CAST('2021-09-30' as TIMESTAMP)
+        AND c.creation_date >= '2021-06-01' 
+        AND c.creation_date <= '2021-09-30'
     GROUP BY
         1,2
 )
@@ -84,8 +84,8 @@ and to join with comments and votes to user level data via the `post_id`
     WHERE
         TRUE
         AND pa.activity_type = 'created'
-        AND v.creation_date >= CAST('2021-06-01' as TIMESTAMP) 
-        AND v.creation_date <= CAST('2021-09-30' as TIMESTAMP)
+        AND v.creation_date >= '2021-06-01' 
+        AND v.creation_date <= '2021-09-30'
     GROUP BY
         1,2
 )
@@ -117,8 +117,8 @@ WITH post_activity AS (
         AND ph.post_history_type_id BETWEEN 1 AND 6
         AND user_id > 0 --exclude automated processes
         AND user_id IS NOT NULL --exclude deleted accounts
-        AND ph.creation_date >= CAST('2021-06-01' as TIMESTAMP) 
-        AND ph.creation_date <= CAST('2021-09-30' as TIMESTAMP)
+        AND ph.creation_date >= '2021-06-01' 
+        AND ph.creation_date <= '2021-09-30'
     GROUP BY
         1,2,3,4,5
 )
@@ -135,8 +135,8 @@ WITH post_activity AS (
         INNER JOIN post_activity pa ON q.id = pa.post_id
     WHERE
         TRUE
-        AND creation_date >= CAST('2021-06-01' as TIMESTAMP) 
-        AND creation_date <= CAST('2021-09-30' as TIMESTAMP)
+        AND creation_date >= '2021-06-01' 
+        AND creation_date <= '2021-09-30'
 )
 , answers AS (
      SELECT
@@ -151,8 +151,8 @@ WITH post_activity AS (
         INNER JOIN post_activity pa ON q.id = pa.post_id
     WHERE
         TRUE
-        AND creation_date >= CAST('2021-06-01' as TIMESTAMP) 
-        AND creation_date <= CAST('2021-09-30' as TIMESTAMP)
+        AND creation_date >= '2021-06-01' 
+        AND creation_date <= '2021-09-30'
 )
 SELECT
     user_id,
@@ -185,8 +185,8 @@ FROM
 	bigquery-public-data.stackoverflow.posts_questions
 WHERE
 	TRUE
-	AND creation_date >= CAST('2021-06-01' as TIMESTAMP) 
-	AND creation_date <= CAST('2021-09-30' as TIMESTAMP)
+	AND creation_date >= '2021-06-01' 
+	AND creation_date <= '2021-09-30'
 
 UNION ALL
 
@@ -197,8 +197,8 @@ FROM
 	bigquery-public-data.stackoverflow.posts_answers
 WHERE
 	TRUE
-	AND creation_date >= CAST('2021-06-01' as TIMESTAMP) 
-	AND creation_date <= CAST('2021-09-30' as TIMESTAMP)
+	AND creation_date >= '2021-06-01' 
+	AND creation_date <= '2021-09-30'
  ```
 
 There are two types of unions, `UNION ALL` and `UNION` (distinct) 
@@ -266,8 +266,8 @@ CREATE OR REPLACE VIEW v_post_types AS
         bigquery-public-data.stackoverflow.posts_questions
     WHERE
         TRUE
-        AND creation_date >= CAST('2021-06-01' as TIMESTAMP) 
-        AND creation_date <= CAST('2021-09-30' as TIMESTAMP)
+        AND creation_date >= '2021-06-01' 
+        AND creation_date <= '2021-09-30'
     UNION ALL
     SELECT
         id AS post_id,
@@ -276,8 +276,8 @@ CREATE OR REPLACE VIEW v_post_types AS
         bigquery-public-data.stackoverflow.posts_answers
     WHERE
         TRUE
-        AND creation_date >= CAST('2021-06-01' as TIMESTAMP) 
-        AND creation_date <= CAST('2021-09-30' as TIMESTAMP);
+        AND creation_date >= '2021-06-01' 
+        AND creation_date <= '2021-09-30';
  ```
 
 *Note: In BigQuery views are considered like CTEs so they count towards the maximum level of nesting. That is if you call a view from inside a CTE, that's two levels of nesting and if you then join that CTE in another CTE that's three levels of nesting. BigQuery has a hard limitation on how deep nesting can go beyond which you can no longer run your query. At that point, perhaps the view is best materialized into a table.
