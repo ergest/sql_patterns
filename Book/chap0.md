@@ -7,9 +7,7 @@ titlepage-background: "backgrounds/background10.pdf"
 fontsize: "14pt"
 titlepage: true
 listings-no-page-break: true
-header-right: ""
-footer-left: ""
-book: true
+classoption: "oneside"
 ---
 
 # Introduction
