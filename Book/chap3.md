@@ -6,7 +6,7 @@ CTEs or Common Table Expressions are temporary views whose scope is limited to t
 
 CTEs allow you to break down complex queries into simpler, smaller self-contained modules. By connecting them together we can solve just about any complex query. One of the key requirements is that these CTEs should not try to do too much. They should have a single purpose or responsibility so you can write, test and debug them independently.
 
-_Side Note: Even though CTEs have been part of the definition of the SQL standard since 1999, it has taken many years for database vendors to implement them. Some versions of older databases (like MySQL before 8.0, PostgreSQL before 8.4, SQL Server before 2005) do not have support for CTEs. All the modern cloud vendors have support for CTEs
+_Side Note_: Even though CTEs have been part of the definition of the SQL standard since 1999, it has taken many years for database vendors to implement them. Some versions of older databases (like MySQL before 8.0, PostgreSQL before 8.4, SQL Server before 2005) do not have support for CTEs. All the modern cloud vendors have support for CTEs
 
 We define a single CTE using the `WITH` keyword and then use it in the main query like this:
 ```sql
@@ -97,8 +97,10 @@ WITH post_activity AS (
         ph.user_id,
         u.display_name AS user_name,
         ph.creation_date AS activity_date,
-        CASE WHEN ph.post_history_type_id IN (1,2,3) THEN 'created'
-             WHEN ph.post_history_type_id IN (4,5,6) THEN 'edited' 
+        CASE WHEN ph.post_history_type_id IN (1,2,3)
+             THEN 'created'
+             WHEN ph.post_history_type_id IN (4,5,6)
+             THEN 'edited' 
         END AS activity_type
     FROM
         bigquery-public-data.stackoverflow.post_history ph
