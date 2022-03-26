@@ -11,6 +11,8 @@ classoption: "oneside"
 header-right: ""
 footer-left: ""
 book: true
+toc-own-page: true
+code-block-font-size: \footnotesize
 ---
 
 # Introduction
