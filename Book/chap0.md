@@ -8,11 +8,13 @@ fontsize: "14pt"
 titlepage: true
 listings-no-page-break: true
 classoption: "oneside"
-header-right: ""
-footer-left: ""
+header-right: \thepage
+footer-left: " "
+footer-right: " "
 book: true
 toc-own-page: true
 code-block-font-size: \footnotesize
+first-chapter: 1
 ---
 
 # Introduction

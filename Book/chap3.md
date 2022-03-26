@@ -38,7 +38,8 @@ WITH <cte1_name> AS (
 -- Main query
 SELECT *
 FROM <cte1_name> AS cte1
-JOIN <cte2_name> AS cte2 ON cte1.col1 = cte2.col1
+JOIN <cte2_name> AS cte2 
+    ON cte1.col1 = cte2.col1
 ```
 
 Notice that you only use the `WITH` keyword once then you separate them using a comma in front of the name of the each one.
@@ -97,10 +98,8 @@ WITH post_activity AS (
         ph.user_id,
         u.display_name AS user_name,
         ph.creation_date AS activity_date,
-        CASE WHEN ph.post_history_type_id IN (1,2,3)
-             THEN 'created'
-             WHEN ph.post_history_type_id IN (4,5,6)
-             THEN 'edited' 
+        CASE WHEN ph.post_history_type_id IN (1,2,3) THEN 'created'
+             WHEN ph.post_history_type_id IN (4,5,6) THEN 'edited' 
         END AS activity_type
     FROM
         bigquery-public-data.stackoverflow.post_history ph
@@ -344,16 +343,16 @@ By now you should start to see very clearly how the final result is constructed.
 SELECT
 	pm.user_id,
 	pm.user_name,
-	CAST(SUM(pm.posts_created) AS NUMERIC)            AS total_posts_created, 
-	CAST(SUM(pm.posts_edited) AS NUMERIC)             AS total_posts_edited,
-	CAST(SUM(pm.answers_created) AS NUMERIC)          AS total_answers_created,
-	CAST(SUM(pm.answers_edited) AS NUMERIC)           AS total_answers_edited,
-	CAST(SUM(pm.questions_created) AS NUMERIC)        AS total_questions_created,
-	CAST(SUM(pm.questions_edited) AS NUMERIC)         AS total_questions_edited,
-	CAST(SUM(vu.total_upvotes) AS NUMERIC)            AS total_upvotes,
-	CAST(SUM(vu.total_downvotes) AS NUMERIC)          AS total_downvotes,
-	CAST(SUM(cu.total_comments) AS NUMERIC)           AS total_comments_by_user,
-	CAST(SUM(cp.total_comments) AS NUMERIC)           AS total_comments_on_post,
+	CAST(SUM(pm.posts_created) AS NUMERIC) AS total_posts_created, 
+	CAST(SUM(pm.posts_edited) AS NUMERIC)  AS total_posts_edited,
+	CAST(SUM(pm.answers_created) AS NUMERIC) AS total_answers_created,
+	CAST(SUM(pm.answers_edited) AS NUMERIC)  AS total_answers_edited,
+	CAST(SUM(pm.questions_created) AS NUMERIC) AS total_questions_created,
+	CAST(SUM(pm.questions_edited) AS NUMERIC)  AS total_questions_edited,
+	CAST(SUM(vu.total_upvotes) AS NUMERIC)   AS total_upvotes,
+	CAST(SUM(vu.total_downvotes) AS NUMERIC) AS total_downvotes,
+	CAST(SUM(cu.total_comments) AS NUMERIC)  AS total_comments_by_user,
+	CAST(SUM(cp.total_comments) AS NUMERIC)  AS total_comments_on_post,
 	CAST(COUNT(DISTINCT pm.activity_date) AS NUMERIC) AS streak_in_days      
 FROM
 	user_post_metrics pm

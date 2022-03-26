@@ -80,10 +80,8 @@ SELECT
     ph.post_id,
     ph.user_id,
     ph.creation_date AS activity_date,
-    CASE WHEN ph.post_history_type_id IN (1,2,3)
-		 THEN 'created'
-         WHEN ph.post_history_type_id IN (4,5,6)
-		 THEN 'edited' 
+    CASE WHEN ph.post_history_type_id IN (1,2,3) THEN 'created'
+         WHEN ph.post_history_type_id IN (4,5,6) THEN 'edited' 
     END AS activity_type
 FROM
     bigquery-public-data.stackoverflow.post_history ph
@@ -123,10 +121,8 @@ SELECT
     ph.post_id,
     ph.user_id,
     CAST(ph.creation_date AS DATE) AS activity_date,
-    CASE WHEN ph.post_history_type_id IN (1,2,3)
-		 THEN 'created'
-         WHEN ph.post_history_type_id IN (4,5,6)
-		 THEN 'edited' 
+    CASE WHEN ph.post_history_type_id IN (1,2,3) THEN 'created'
+         WHEN ph.post_history_type_id IN (4,5,6) THEN 'edited' 
     END AS activity_type,
     COUNT(*) AS total
 FROM
