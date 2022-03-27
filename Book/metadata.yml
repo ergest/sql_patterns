@@ -1,0 +1,18 @@
+---
+title: "Minimum Viable SQL Patterns"
+subtitle: "Hands-On Design Patterns and Best Practices with SQL"
+author: "Ergest Xheblati"
+date: "2022-04-01"
+titlepage-background: "backgrounds/background10.pdf"
+fontsize: "14pt"
+titlepage: true
+#listings-no-page-break: true
+classoption: "oneside"
+header-right: \thepage
+footer-left: " "
+footer-right: " "
+book: true
+toc-own-page: true
+code-block-font-size: \scriptsize
+first-chapter: 1
+---

@@ -1,22 +1,3 @@
----
-title: "Minimum Viable SQL Patterns"
-subtitle: "Hands-On Design Patterns and Best Practices with SQL"
-author: "Ergest Xheblati"
-date: "Version 1.0: 2022-04-01"
-titlepage-background: "backgrounds/background10.pdf"
-fontsize: "14pt"
-titlepage: true
-listings-no-page-break: true
-classoption: "oneside"
-header-right: \thepage
-footer-left: " "
-footer-right: " "
-book: true
-toc-own-page: true
-code-block-font-size: \footnotesize
-first-chapter: 1
----
-
 # Introduction
 This is a book about SQL Patterns. Patterns describe problems that occur over and over in our professional settings. A pattern is a like a template that you can apply to different problems. Once you learn each one, you can apply them to solve problems faster and make your code more readable.
 
