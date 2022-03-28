@@ -1,1 +1,2 @@
-pandoc chap*.md -o output/book.pdf --from markdown --toc --pdf-engine=xelatex              --indented-code-classes=javascript--highlight-style=monochrome      -V mainfont="Palatino"            -V documentclass=report           -V papersize=A5                   -V geometry:margin=1in
+#pandoc chap*.md -o output/book.pdf --from markdown --toc --pdf-engine=xelatex --indented-code-classes=javascript --highlight-style=monochrome -V mainfont="Palatino"  -V documentclass=report  -V papersize=A5 -V geometry:margin=1in --listings
+pandoc chap*.md -o output/book.pdf --from markdown --toc --listings --template eisvogel
