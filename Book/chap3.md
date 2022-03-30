@@ -119,6 +119,10 @@ SELECT *
 FROM post_activity
 WHERE user_id = 16366214
 ORDER BY activity_date;
+```
+
+Here's the output:
+```sql
 
 post_id |user_id |user_name  |activity_date          |activity_type|
 --------+--------+-----------+-----------------------+-------------+
@@ -188,7 +192,10 @@ FROM
     JOIN post_types pt ON pa.post_id = pt.post_id
 WHERE user_id = 16366214
 ORDER BY activity_date;
+```
 
+Here's the output:
+```sql
 user_id |date      |activity_type|post_type|
 --------+----------+-------------+---------+
 16366214|2021-07-18|created      |question |
@@ -198,7 +205,7 @@ user_id |date      |activity_type|post_type|
 16366214|2021-07-01|created      |question |
 16366214|2021-07-25|edited       |question |
 
-Table 3.2
+Table 3.1
 ```
 
 The final result should look like this:
@@ -210,10 +217,10 @@ user_id |date      |question_created|answer_created|question_edited|answer_edite
 16366214|2021-07-01|               1|             0|              0|            0|
 16366214|2021-07-20|               1|             0|              0|            0|
 
-Table 3.1
+Table 3.2
 ```
 
-How do we go from *Table 3.2* to *Table 3.1*? If you recall from **Chapter 2**, we can use aggregation and pivoting:
+How do we go from *Table 3.1* to *Table 3.2*? If you recall from **Chapter 2**, we can use aggregation and pivoting:
 ```sql
 --code snippet will not actually run
 SELECT
@@ -283,6 +290,10 @@ FROM comments_by_user c1
         AND c1.activity_date = c2.activity_date 
 WHERE 
     c1.user_id = 16366214
+```
+
+Here's the output:
+```sql
 
 user_id |activity_date|comments_by_user|comments_on_user_post|
 --------+-------------+----------------+---------------------+
@@ -327,6 +338,10 @@ FROM
     votes_on_user_post v
 WHERE 
     v.user_id = 16366214
+```
+
+Here's the output:
+```sql
 
 user_id |activity_date|total_upvotes|total_downvotes|
 --------+-------------+-------------+---------------+

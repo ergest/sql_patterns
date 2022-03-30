@@ -10,7 +10,7 @@ Using this dataset we're going to build a table that calculates reputation metri
 Since the query to build it is complex, it's the perfect tool to illustrate some of the patterns described in this book.
 
 The schema of what it would look something like this:
-```
+```sql
 | column_name               | type    |
 |---------------------------|---------|
 | user_id                   | INT64   |

@@ -37,7 +37,7 @@ HAVING COUNT(*) > 1;
 So I'm aggregating by all the columns I expect to make up the unique row and filtering for any that invalidate my assumption. If my hunch is correct, I should get 0 rows from this query.
 
 But we don't! We get a bunch of duplicate rows:
-```
+```sql
 creation_date          |post_id |type_id|user_id |rows|
 -----------------------+--------+-------+--------+----+
 2020-07-20 05:00:26.413|62964197|     34|      -1|   2|
@@ -95,7 +95,10 @@ WHERE
 	AND ph.post_id = 69301792
 GROUP BY
     1,2,3,4
+```
 
+Here's the output:
+```sql
 post_id |user_id |activity_date          |activity_type|
 --------+--------+-----------------------+-------------+
 69301792|  331024|2021-09-23 21:11:44.957|edited       |
@@ -137,6 +140,10 @@ WHERE
 	AND ph.post_id = 69301792
 GROUP BY
     1,2,3,4
+```
+
+Here's the output:
+```sql
 
 post_id |user_id |activity_date|activity_type|total|
 --------+--------+-------------+-------------+-----+
@@ -217,7 +224,10 @@ SELECT
 	reputation
 FROM bigquery-public-data.stackoverflow.users
 WHERE id = 8974849;
+```
 
+Here's the output:
+```sql
 id     |user_name|creation_date          |reputation|
 -------+---------+-----------------------+----------+
 8974849|neutrino |2017-11-20 18:16:46.653|       790|
@@ -238,8 +248,10 @@ WHERE
 	AND ph.creation_date >= '2021-06-01' 
 	AND ph.creation_date <= '2021-09-30'
 	AND ph.user_id = 8974849;
+```
 
-
+Here's the output:
+```sql
 id       |creation_date      |post_id |type_id|user_id|
 ---------+-------------------+--------+-------+-------+
 250199272|2021-07-14 00:54:58|68372251|      2|8974849|
@@ -268,6 +280,10 @@ WHERE
 	AND ph.creation_date >= '2021-06-01' 
 	AND ph.creation_date <= '2021-09-30'
 	AND ph.user_id = 8974849;
+```
+
+Here's the output:
+```sql
 
 post_id |user_id|user_name|activity_date      |type_id|
 --------+-------+---------+-------------------+-------+

@@ -46,6 +46,10 @@ WHERE
     AND creation_date >= '2021-06-01' 
     AND creation_date <= '2021-09-30'
 LIMIT 10
+```
+
+Here's the output:
+```sql
 
 post_id |creation_date          |tags                                            |
 --------+-----------------------+------------------------------------------------+
@@ -77,6 +81,10 @@ WHERE
     AND creation_date <= '2021-09-30'
     AND INSTR(tags, "|sql|") > 0
 LIMIT 10
+```
+
+Here's the output:
+```sql
 
 post_id |creation_date          |tags                           |
 --------+-----------------------+-------------------------------+
@@ -110,6 +118,10 @@ WHERE
     AND creation_date <= '2021-09-30'
     AND tags LIKE "%|sql|%"
 LIMIT 10
+```
+
+Here's the output:
+```sql
 
 post_id |creation_date          |tags                           |
 --------+-----------------------+-------------------------------+

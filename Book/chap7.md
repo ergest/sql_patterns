@@ -177,9 +177,9 @@ SELECT
     ROUND(IFNULL(SAFE_DIVIDE(
         total_downvotes, total_posts_created), 0), 1) AS downvotes_per_post,
     ROUND(IFNULL(SAFE_DIVIDE(
-        total_comments_by_user, total_posts_created), 0), 1)  AS user_comments_per_post,
+        total_comments_by_user, total_posts_created), 0), 1) AS user_comments_per_post,
     ROUND(IFNULL(SAFE_DIVIDE(
-        total_comments_on_post, total_posts_created), 0), 1)  AS comments_on_post_per_post
+        total_comments_on_post, total_posts_created), 0), 1) AS comments_on_post_per_post
 FROM
     total_metrics_per_user
 ORDER BY 
