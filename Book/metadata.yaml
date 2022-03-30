@@ -4,13 +4,17 @@ subtitle: "Hands-On Design Patterns and Best Practices with SQL"
 author: Ergest Xheblati
 fontsize: "14pt"
 language: en-US
+mainfont: "Palatino"
+monofont: "Menlo"
+geometry: "margin=1in"
+documentclass: report
 # cover-image: img/example-book-cover.png
-# toc-own-page: true
-# titlepage: false
-# titlepage-background: backgrounds/background10.pdf
+toc-own-page: true
+titlepage: false
+titlepage-background: backgrounds/background10.pdf
 # titlepage-text-color: "333333"
 # titlepage-rule-color: "00737C"
 papersize: "letter"
 colorlinks: true
-# code-block-font-size: \scriptsize
+code-block-font-size: \scriptsize
 ---
