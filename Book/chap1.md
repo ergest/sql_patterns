@@ -78,7 +78,7 @@ FROM bigquery-public-data.stackoverflow.INFORMATION_SCHEMA.COLUMNS
 WHERE table_name = 'posts_answers'
 ```
 Here's the result of the query
-```
+```sql
 |column_name             |data_type|
 |------------------------|---------|
 |id                      |INT64    |
@@ -115,7 +115,7 @@ FROM bigquery-public-data.stackoverflow.INFORMATION_SCHEMA.COLUMNS
 WHERE table_name = 'post_history'
 ```
 Here's the result of the query
-```
+```sql
 |column_name         |data_type|
 |--------------------|---------|
 |id                  |INT64    |
@@ -151,7 +151,7 @@ FROM bigquery-public-data.stackoverflow.INFORMATION_SCHEMA.COLUMNS
 WHERE table_name = 'users'
 ```
 Here's the result of the query
-```
+```sql
 |column_name      |data_type|
 |-----------------|---------|
 |id               |INT64    |
@@ -176,7 +176,7 @@ FROM bigquery-public-data.stackoverflow.INFORMATION_SCHEMA.COLUMNS
 WHERE table_name = 'comments'
 ```
 Here's the result of the query
-```
+```sql
 |column_name      |data_type|
 |-----------------|---------|
 |id               |INT64    |
@@ -195,7 +195,7 @@ FROM bigquery-public-data.stackoverflow.INFORMATION_SCHEMA.COLUMNS
 WHERE table_name = 'votes'
 ```
 Here's the result of the query
-```
+```sql
 |column_name  |data_type|
 |-------------|---------|
 |id           |INT64    |
