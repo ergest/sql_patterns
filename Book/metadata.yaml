@@ -5,15 +5,12 @@ author: Ergest Xheblati
 fontsize: "14pt"
 language: en-US
 cover-image: img/example-book-cover.png
-lof: true
-lof-own-page: true
 toc-own-page: true
 titlepage: false
 titlepage-background: backgrounds/background10.pdf
 titlepage-text-color: "333333"
 titlepage-rule-color: "00737C"
-papersize: letter
-prepend-titlepage: img/example-book-cover.pdf
+papersize: "letter"
 colorlinks: true
-code-block-font-size: \footnotesize
+code-block-font-size: \scriptsize
 ---

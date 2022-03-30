@@ -45,7 +45,7 @@ Writing accurate and efficient SQL begins with understanding the data model we'r
 The original StackOverflow (SO) data model is different from the one loaded in BigQuery. When the engineers loaded it, they modified the mode somewhat. For example the SO model contains a single `Posts` table for all the different post types whereas BigQuery split each one into a separate table.
 
 ![StackOverflow BQ ER Diagram](img/er_diagram.jpeg)
-**Figure 1.2 - StackOverflow ER diagram**
+**Figure 1.1 - StackOverflow ER diagram**
 
 There are 8 tables that represent the various post types. You can get this result by using the `INFORMATION_SCHEMA` views in BigQuery like this:
 ```sql
@@ -53,6 +53,7 @@ SELECT table_name
 FROM bigquery-public-data.stackoverflow.INFORMATION_SCHEMA.TABLES
 WHERE table_name like 'posts_%'
 ```
+Here's the result of the query
 ```
 |table_name                |
 |--------------------------|
@@ -76,6 +77,7 @@ SELECT column_name, data_type
 FROM bigquery-public-data.stackoverflow.INFORMATION_SCHEMA.COLUMNS
 WHERE table_name = 'posts_answers'
 ```
+Here's the result of the query
 ```
 |column_name             |data_type|
 |------------------------|---------|
@@ -111,7 +113,9 @@ Both post types (question and answer) have a one-to-many relationship to the `po
 SELECT column_name, data_type
 FROM bigquery-public-data.stackoverflow.INFORMATION_SCHEMA.COLUMNS
 WHERE table_name = 'post_history'
-
+```
+Here's the result of the query
+```
 |column_name         |data_type|
 |--------------------|---------|
 |id                  |INT64    |
@@ -146,6 +150,7 @@ SELECT column_name, data_type
 FROM bigquery-public-data.stackoverflow.INFORMATION_SCHEMA.COLUMNS
 WHERE table_name = 'users'
 ```
+Here's the result of the query
 ```
 |column_name      |data_type|
 |-----------------|---------|
@@ -170,6 +175,7 @@ SELECT column_name, data_type
 FROM bigquery-public-data.stackoverflow.INFORMATION_SCHEMA.COLUMNS
 WHERE table_name = 'comments'
 ```
+Here's the result of the query
 ```
 |column_name      |data_type|
 |-----------------|---------|
@@ -188,6 +194,7 @@ SELECT column_name, data_type
 FROM bigquery-public-data.stackoverflow.INFORMATION_SCHEMA.COLUMNS
 WHERE table_name = 'votes'
 ```
+Here's the result of the query
 ```
 |column_name  |data_type|
 |-------------|---------|
