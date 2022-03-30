@@ -54,16 +54,18 @@ WITH post_activity AS (
         user_id,
         user_name,
         CAST(activity_date AS DATE) AS activity_date,
+        SUM(CASE WHEN activity_type = 'created' AND post_type = 'question' 
+                THEN 1 ELSE 0 END) AS questions_created,
+        SUM(CASE WHEN activity_type = 'created' AND post_type = 'answer' 
+                THEN 1 ELSE 0 END) AS answers_created,
+        SUM(CASE WHEN activity_type = 'edited' AND post_type = 'question'
+                THEN 1 ELSE 0 END) AS questions_edited,
+        SUM(CASE WHEN activity_type = 'edited' AND post_type = 'answer'
+                THEN 1 ELSE 0 END) AS answers_edited,
         SUM(CASE WHEN activity_type = 'created'
-            AND post_type = 'question' THEN 1 ELSE 0 END) AS questions_created,
-        SUM(CASE WHEN activity_type = 'created'
-            AND post_type = 'answer' THEN 1 ELSE 0 END) AS answers_created,
+                THEN 1 ELSE 0 END) AS posts_created,
         SUM(CASE WHEN activity_type = 'edited'
-            AND post_type = 'question' THEN 1 ELSE 0 END) AS questions_edited,
-        SUM(CASE WHEN activity_type = 'edited'
-            AND post_type = 'answer' THEN 1 ELSE 0 END) AS answers_edited,
-        SUM(CASE WHEN activity_type = 'created' THEN 1 ELSE 0 END) AS posts_created,
-        SUM(CASE WHEN activity_type = 'edited' THEN 1 ELSE 0 END)  AS posts_edited
+                THEN 1 ELSE 0 END)  AS posts_edited
     FROM post_types pt
          JOIN post_activity pa ON pt.post_id = pa.post_id
     GROUP BY 1,2,3
@@ -119,16 +121,16 @@ WITH post_activity AS (
     SELECT
         pm.user_id,
         pm.user_name,
-        CAST(SUM(pm.posts_created) AS NUMERIC)     AS total_posts_created, 
-        CAST(SUM(pm.posts_edited) AS NUMERIC)      AS total_posts_edited,
-        CAST(SUM(pm.answers_created) AS NUMERIC)   AS total_answers_created,
-        CAST(SUM(pm.answers_edited) AS NUMERIC)    AS total_answers_edited,
-        CAST(SUM(pm.questions_created) AS NUMERIC) AS total_questions_created,
-        CAST(SUM(pm.questions_edited) AS NUMERIC)  AS total_questions_edited,
-        CAST(SUM(vu.total_upvotes) AS NUMERIC)     AS total_upvotes,
-        CAST(SUM(vu.total_downvotes) AS NUMERIC)   AS total_downvotes,
-        CAST(SUM(cu.total_comments) AS NUMERIC)    AS total_comments_by_user,
-        CAST(SUM(cp.total_comments) AS NUMERIC)    AS total_comments_on_post,
+        CAST(SUM(pm.posts_created) AS NUMERIC) AS posts_created, 
+        CAST(SUM(pm.posts_edited) AS NUMERIC) AS posts_edited,
+        CAST(SUM(pm.answers_created) AS NUMERIC) AS answers_created,
+        CAST(SUM(pm.answers_edited) AS NUMERIC) AS answers_edited,
+        CAST(SUM(pm.questions_created) AS NUMERIC) AS questions_created,
+        CAST(SUM(pm.questions_edited) AS NUMERIC) AS questions_edited,
+        CAST(SUM(vu.total_upvotes) AS NUMERIC) AS total_upvotes,
+        CAST(SUM(vu.total_downvotes) AS NUMERIC) AS total_downvotes,
+        CAST(SUM(cu.total_comments) AS NUMERIC) AS comments_by_user,
+        CAST(SUM(cp.total_comments) AS NUMERIC) AS comments_on_post,
         CAST(COUNT(DISTINCT pm.activity_date) AS NUMERIC) AS streak_in_days      
     FROM
         user_post_metrics pm
@@ -149,41 +151,41 @@ WITH post_activity AS (
 SELECT
     user_id,
     user_name,
-    total_posts_created, 
-    total_answers_created,
-    total_answers_edited,
-    total_questions_created,
-    total_questions_edited,
+    posts_created, 
+    answers_created,
+    answers_edited,
+    questions_created,
+    questions_edited,
     total_upvotes,
-    total_comments_by_user,
-    total_comments_on_post,
+    comments_by_user,
+    comments_on_post,
     streak_in_days,
     ROUND(IFNULL(SAFE_DIVIDE(
-        total_posts_created, streak_in_days), 0), 1) AS posts_per_day,
+        posts_created, streak_in_days), 0), 1) AS posts_per_day,
     ROUND(IFNULL(SAFE_DIVIDE(
-        total_posts_edited, streak_in_days), 0), 1) AS edits_per_day,
+        posts_edited, streak_in_days), 0), 1) AS edits_per_day,
     ROUND(IFNULL(SAFE_DIVIDE(
-        total_answers_created, streak_in_days), 0), 1) AS answers_per_day,
+        answers_created, streak_in_days), 0), 1) AS answers_per_day,
     ROUND(IFNULL(SAFE_DIVIDE(
-        total_questions_created, streak_in_days), 0), 1) AS questions_per_day,
+        questions_created, streak_in_days), 0), 1) AS questions_per_day,
     ROUND(IFNULL(SAFE_DIVIDE(
-        total_comments_by_user, streak_in_days), 0), 1) AS comments_by_user_per_day,
+        comments_by_user, streak_in_days), 0), 1) AS comments_by_user_per_day,
     ROUND(IFNULL(SAFE_DIVIDE(
-        total_answers_created, total_posts_created), 0), 1) AS answers_per_post,
+        answers_created, posts_created), 0), 1) AS answers_per_post,
     ROUND(IFNULL(SAFE_DIVIDE(
-        total_questions_created, total_posts_created), 0), 1) AS questions_per_post,
+        questions_created, posts_created), 0), 1) AS questions_per_post,
     ROUND(IFNULL(SAFE_DIVIDE(
-        total_upvotes, total_posts_created), 0), 1) AS upvotes_per_post,
+        total_upvotes, posts_created), 0), 1) AS upvotes_per_post,
     ROUND(IFNULL(SAFE_DIVIDE(
-        total_downvotes, total_posts_created), 0), 1) AS downvotes_per_post,
+        total_downvotes, posts_created), 0), 1) AS downvotes_per_post,
     ROUND(IFNULL(SAFE_DIVIDE(
-        total_comments_by_user, total_posts_created), 0), 1) AS user_comments_per_post,
+        comments_by_user, posts_created), 0), 1) AS user_comments_per_post,
     ROUND(IFNULL(SAFE_DIVIDE(
-        total_comments_on_post, total_posts_created), 0), 1) AS comments_on_post_per_post
+        comments_on_post, posts_created), 0), 1) AS comments_on_post_per_post
 FROM
     total_metrics_per_user
 ORDER BY 
-    total_posts_created DESC;
+    posts_created DESC;
 ```
 
 There's one final pattern we use in the final CTE. We pre-calculate all the aggregates at the user level and then add a few more ratio-based metrics. You'll notice that we use two functions to shape the results: `CAST()` is used because SQL performs integer division and for the ratios we want to show the remainder, and then `ROUND()` is used to round the remainder to a single decimal point.
