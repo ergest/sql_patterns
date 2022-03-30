@@ -12,5 +12,5 @@ book: true
 titlepage-background: backgrounds/background10.pdf
 papersize: "letter"
 colorlinks: true
-code-block-font-size: \scriptsize
+code-block-font-size: \footnotesize
 ---
