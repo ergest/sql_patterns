@@ -1,4 +1,4 @@
-# Chapter 5: Query Maintainability
+# Chapter 4: Query Maintainability
 In this chapter we're going to extend the pattern of decomposition into the realm of query maintainability. Breaking down large queries into small pieces doesn't only make them easier to read, write and understand, it also makes them easier to maintain.
 
 ## The Reusability Principle

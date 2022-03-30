@@ -1,4 +1,4 @@
-# Chapter 7: Query Robustness
+# Chapter 6: Query Robustness
 In this chapter we're going to talk about how to make your queries robust to most data problems you'll encounter. Spend enough time working with real world data and you'll eventually get burned by one of these unexpected data issues.
 
 Robustness means that your query will not break if the underlying data changes in unpredictable ways.
