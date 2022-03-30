@@ -5,14 +5,12 @@ author: Ergest Xheblati
 mainfont: "Palatino"
 monofont: "Menlo"
 geometry: "margin=1in"
-# documentclass: report
 # cover-image: img/example-book-cover.png
 toc-own-page: true
 titlepage: true
+book: true
 top-level-division: chapter
 titlepage-background: backgrounds/background10.pdf
-# titlepage-text-color: "333333"
-# titlepage-rule-color: "00737C"
 papersize: "letter"
 colorlinks: true
 code-block-font-size: \scriptsize
