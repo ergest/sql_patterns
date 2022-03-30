@@ -9,7 +9,6 @@ geometry: "margin=1in"
 toc-own-page: true
 titlepage: true
 book: true
-top-level-division: chapter
 titlepage-background: backgrounds/background10.pdf
 papersize: "letter"
 colorlinks: true
