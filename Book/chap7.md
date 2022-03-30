@@ -130,7 +130,7 @@ WITH post_activity AS (
         CAST(SUM(vu.total_downvotes) AS NUMERIC) AS total_downvotes,
         CAST(SUM(cu.total_comments) AS NUMERIC) AS comments_by_user,
         CAST(SUM(cp.total_comments) AS NUMERIC) AS comments_on_post,
-        CAST(COUNT(DISTINCT pm.activity_date) AS NUMERIC) AS streak_in_days      
+        CAST(COUNT(DISTINCT pm.activity_date) AS NUMERIC) AS streak_in_days
     FROM
         user_post_metrics pm
         JOIN votes_on_user_post vu

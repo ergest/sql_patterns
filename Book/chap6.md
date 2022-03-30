@@ -82,7 +82,7 @@ num|
 While ignoring incorrect data is easy, you can't always get away with it. Sometimes you need to extract the valuable data from the incorrect format. This is when you need to look for repeating patterns in the incorrect data and force the formatting.
 
 Suppose that all dates had extra dashes like this:
-```sql
+```
 2021-12--01
 2021-12--02
 2021-12--03
@@ -119,7 +119,7 @@ So as you can see in this example, we took advantage of the regularity of the in
 What if you have different types of irregularities in your data? In some cases if information is aggregated from multiple sources you might have to deal with multiple types of formatting.
 
 Let's take a look at an example:
-```sql
+```
 dt         |
 -----------+
 2021-12--01|
