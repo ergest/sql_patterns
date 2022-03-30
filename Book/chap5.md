@@ -51,18 +51,18 @@ LIMIT 10
 Here's the output:
 ```sql
 
-post_id |creation_date          |tags                                      |
---------+-----------------------+------------------------------------------+
-67781287|2021-05-31 20:00:59.663|python|selenium|screen-scraping|thesaurus |
-67781291|2021-05-31 20:01:48.593|python                                    |
-67781295|2021-05-31 20:02:38.043|html|css|bootstrap-4                      |
-67781298|2021-05-31 20:03:01.413|xpages|lotus-domino                       |
-67781300|2021-05-31 20:03:12.987|bash|awk|sed                              |
-67781306|2021-05-31 20:03:54.117|c                                         |
-67781310|2021-05-31 20:04:33.980|php|html|navbar                           |
-67781313|2021-05-31 20:04:57.957|java|spring|dependencies                  |
-67781314|2021-05-31 20:05:12.723|python|qml|kde                            |
-67781315|2021-05-31 20:05:15.703|javascript|reactjs|redux|react-router|    |
+post_id |creation_date          |tags                                  |
+--------+-----------------------+--------------------------------------+
+67781287|2021-05-31 20:00:59.663|python|selenium|screen-scraping|      |
+67781291|2021-05-31 20:01:48.593|python                                |
+67781295|2021-05-31 20:02:38.043|html|css|bootstrap-4                  |
+67781298|2021-05-31 20:03:01.413|xpages|lotus-domino                   |
+67781300|2021-05-31 20:03:12.987|bash|awk|sed                          |
+67781306|2021-05-31 20:03:54.117|c                                     |
+67781310|2021-05-31 20:04:33.980|php|html|navbar                       |
+67781313|2021-05-31 20:04:57.957|java|spring|dependencies              |
+67781314|2021-05-31 20:05:12.723|python|qml|kde                        |
+67781315|2021-05-31 20:05:15.703|javascript|reactjs|redux|react-router||
 ```
 
 The tags pertain to the list of topics or subjects that a post is about. One of the tricky things about storing tags like this is that you don't have to worry about the order in which they appear. There's no categorization system here. A tag can appear anywhere in the string.
