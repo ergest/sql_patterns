@@ -1,1 +1,1 @@
-pandoc chap*.md metadata.yaml -o output/book.pdf --from markdown --toc --highlight-style tango --pdf-engine=xelatex -V fontsize="14pt"
+pandoc chap*.md metadata.yaml -o output/book.pdf --from markdown --toc --highlight-style tango --pdf-engine=xelatex -V fontsize=14pt
