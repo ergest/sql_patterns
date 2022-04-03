@@ -5,11 +5,12 @@ author: Ergest Xheblati
 mainfont: "Palatino"
 monofont: "Menlo"
 geometry: "margin=1in"
-# cover-image: img/example-book-cover.png
+cover-image: img/cover.png
 toc-own-page: true
 titlepage: true
+titlepage-text-color: "FFFFFF"
 book: true
-titlepage-background: backgrounds/background10.pdf
+titlepage-background: backgrounds/background1.pdf
 papersize: "letter"
 colorlinks: true
 code-block-font-size: \footnotesize
