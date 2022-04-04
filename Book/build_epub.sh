@@ -1,1 +1,1 @@
-pandoc chap*.md metadata.yaml -o output/book.epub --from markdown --toc --highlight-style tango -V fontsize=10pt --css epub.css --top-level-division=chapter
+pandoc chap*.md metadata.yaml -o output/sql_patterns.epub --from markdown --toc --highlight-style tango -V fontsize=10pt --css epub.css --top-level-division=chapter

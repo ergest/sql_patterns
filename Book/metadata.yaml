@@ -7,11 +7,12 @@ monofont: "Menlo"
 geometry: "margin=1in"
 cover-image: img/cover.png
 toc-own-page: true
-titlepage: true
-titlepage-text-color: "FFFFFF"
+# titlepage: true
+# titlepage-text-color: "FFFFFF"
+# titlepage-background: backgrounds/background1.pdf
 book: true
-titlepage-background: backgrounds/background1.pdf
 papersize: "letter"
 colorlinks: true
 code-block-font-size: \footnotesize
+disable-header-and-footer: true
 ---

@@ -1,1 +1,1 @@
-pandoc chap*.md metadata.yaml -o output/book.pdf --from markdown --toc --highlight-style tango --template eisvogel -V fontsize=14pt --top-level-division=chapter
+pandoc chap*.md metadata.yaml -o output/sql_patterns.pdf --from markdown --toc --highlight-style tango --template eisvogel -V fontsize=14pt --top-level-division=chapter --include-before-body cover.tex
