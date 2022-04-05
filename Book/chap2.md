@@ -208,10 +208,11 @@ post_id |user_id |activity_date|created|edited|
 
 Pivoting is how we're going to calculate all the metrics for users, so this is an important concept to learn.
 
-## Granularity Multiplication 
-Joining tables is one of the most basic functions in SQL. Databases are designed to minimize redundancy of information and they do that by a process known as normalization. Joins then allow us to get all the information back in a single piece by combining these tables together.
-
+## Granularity Multiplication
 Granularity multiplication will happen if the tables you're joining have different levels of detail for the columns being joined on. This will cause the resulting number of rows to multiply.
+
+### Basic JOINs
+Joining tables is one of the most basic functions in SQL. Databases are designed to minimize redundancy of information and they do that by a process known as normalization. Joins then allow us to get all the information back in a single piece by combining these tables together.
 
 Let's look at an example:
 
@@ -303,7 +304,7 @@ Notice how the `user_name` repeats for each row.
 
 So if the history table has 10 entries for the same user and the `users` table has 1, the final result will contain 10 x 1 entries for the same user. If for some reason the `users` contained 2 entries for the same user (messy real world data), we'd see 10 x 2 = 20 entries for that user in the final result and each row would repeat twice.
 
-## Accidental INNER JOIN
+### Accidental INNER JOIN
 Did you know that SQL will ignore a `LEFT JOIN` clause and perform an `INNER JOIN` instead if you make this one simple mistake? This is one of those SQL hidden secrets which sometimes gets asked as a trick question in interviews so strap in.
 
 When doing a `LEFT JOIN` you're intending to show all the results on the table in the `FROM` clause but if you need to limit

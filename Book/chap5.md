@@ -177,7 +177,7 @@ Here's an example you've seen before. In the `post_activity` CTE we select only 
  )
  ```
 
-## Premature Ordering
+## Delaying Ordering
 As a rule of thumb you should leave ordering until the very end, if it is at all necessary. Sorting data is generally an expensive operation in databases so it should be reserved for when you really need it. Window functions for example sometimes necessitate ordering. We'll cover them in chapter 8.
 
 If you know that your data will be used by a business intelligence tool like Looker or Tableau then you should leave the ordering up to the tool itself so the user can sort data any way they see fit.

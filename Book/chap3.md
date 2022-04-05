@@ -67,7 +67,7 @@ We'll talk about chaining in a little bit.
 
 When you use CTEs you can read a query top to bottom and easily understand what's going on. When you use sub-queries it's a lot harder to trace the logic and figure out which column is defined where and what scope it has. You have to read the innermost subquery first and then remember each of the definitions.
 
-## Query Decomposition
+## Decomposing Queries With CTEs
 Getting our user data from the current form to the final form of one row per user is not something that can be done in a single step. Well you probably could hack something together that works but that will not be very easy to maintain. It's a complex query.
 
 In order to solve it, we need to decompose (break down) our complex query into smaller, easier to write pieces. Here's how to think about it:
