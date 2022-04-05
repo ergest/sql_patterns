@@ -16,7 +16,7 @@ I’ve been writing SQL for ~15 years. I’ve seen and written hundreds of thous
 ## Why did I write this book
 I have a background in computer science. As part of the curriculum we learn how to make our code more efficient, more readable and easy to debug. As I started to write SQL, I applied many of these lessons to my own code.
 
-When reviewing other people’s code I would often spot the same mistakes. There were chunks of code that would repeat everywhere. The queries were long, complex and slow. I would often have rewrite them so I could understand what they were doing.
+When reviewing other people’s code I would often spot the same mistakes. There were chunks of code that would repeat everywhere. The queries were long, complex and slow. I would often have rewrite them just so I could understand what they were doing.
 
 I looked around for a book or course that taught these patterns but couldn’t find one, so I decided to write it myself.
 
