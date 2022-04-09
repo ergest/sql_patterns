@@ -5,7 +5,7 @@ author: Ergest Xheblati
 mainfont: "Palatino"
 monofont: "Menlo"
 geometry: "margin=1in"
-cover-image: img/cover.png
+cover-image: img/cover_epub.png
 toc-own-page: true
 # titlepage: true
 # titlepage-text-color: "FFFFFF"

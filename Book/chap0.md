@@ -1,5 +1,5 @@
 # Introduction
-This is a book about SQL Patterns. Patterns describe problems that occur over and over in our professional settings. A pattern is a like a template that you can apply to different problems. Once you learn each one, you can apply them to solve problems faster and make your code more readable.
+This is a book about SQL Patterns. Patterns describe problems that occur over and over in our professional settings. A pattern is like a template that you can apply to different problems. Once you learn each one, you can apply them to solve problems faster and make your code more readable.
 
 We can illustrate this with an example. In fiction writing, authors rarely write from scratch. They use character patterns like: “antihero”, “sidekick”, “mad scientist”, “girl next door”. They also use plot patterns like romantic comedy, drama, red herring, foreshadowing, cliffhangers. This helps them write better books, movies and TV shows.
 
@@ -62,7 +62,5 @@ In **Chapter 6** we cover *Query Robustness* patterns. They teach you ways to ma
 The project is interwoven throughout the book. I make sure that each chapter covers some section of the final query.
 
 In **Chapter 7** we wrap up our project and you get to see the entire query. By now you should be able to understand it and know exactly how it was designed. I recap the entire project so that you get another chance to review all the patterns. The goal here is to allow you to see all the patterns together and give you ideas on how to apply them in your day-to-day work.
-
-In **Chapter 8** we cover a few special case patterns. We dive deeper into window functions and string manipulation, such as regular expressions and JSON parsing. Even though this is not related to our project, I wanted to make sure I enrich your vocabulary of patterns beyond what's in the project.
 
 With that out of the way, let's dive into the project.
