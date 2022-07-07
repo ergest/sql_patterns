@@ -85,6 +85,7 @@ var EXCEL_DOUBLE_QUOTE_ESCAPED_REGEX = /""/g;
 function addMarkdownSyntax(rows, columnWidths) {
   return rows.map(function(row, rowIndex) {
     return "| " + row.map(function(column, index) {
+      column = column.replace("|", "\\|");
       return column + Array(columnWidths[index] - column.length + 1).join(" ");
     }).join(" | ") + " |";
   });

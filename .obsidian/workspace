@@ -87,17 +87,8 @@
               "type": "advanced-tables-toolbar",
               "state": {}
             }
-          },
-          {
-            "id": "1c472aaecfd1f70a",
-            "type": "leaf",
-            "state": {
-              "type": "git-view",
-              "state": {}
-            }
           }
-        ],
-        "currentTab": 2
+        ]
       }
     ],
     "direction": "horizontal",
@@ -106,14 +97,14 @@
   "active": "5e5654e78e6e118c",
   "lastOpenFiles": [
     "misc/Analytics Engineering Article.md",
+    "book/output/sql_patterns.pdf",
+    "book/chap2.md",
+    "book/chap1.md",
+    "book/chap0.md",
+    "book/cover.md",
+    "misc/SQL Patterns Article.md",
     "misc/Medium Article.md",
     "book/outline.md",
-    "book/chap0.md",
-    "book/title.md",
-    "book/chap1.md",
-    "book/output/book.pdf",
-    "book/chap2.md",
-    "archive/extra sections.md",
-    "book/chap7.md"
+    "book/title.md"
   ]
 }
