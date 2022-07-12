@@ -8,17 +8,17 @@ In this series of posts, I'll explore what I've learned about the Activity schem
 ## One table to rule them all
 Activity schema is based on the idea of a single time-series table that conforms all customer activities to a fixed 11 column schema. You only need 11 columns to express your entire customer journey and to build all the analyses around it.
 
-I will not go into a lot of details about the table and what's stored there, you can read all that in the [github repo.](https://github.com/ActivitySchema/ActivitySchema)
+I will not go into a lot of details about the table and the schema since you can read all about it in the [github repo.](https://github.com/ActivitySchema/ActivitySchema)
 
 Having done my fair share of modeling in the past I immediately recognized the benefits of the activity schema:
 
-- Each activity is an isolated event that never changes. This makes each activity idempotent (unchanging) and the activity stream table append-only. What that means is that when something changes in the future, I don't have to modify past records to update them like you have to do with dimensional modeling or ER diagrams.
-- You don't have to worry about slowly changing dimensions or late arriving facts, you just append them all in the table. We'll cover this later.
+- Each activity is an isolated event that never changes. This makes each activity idempotent (unchanging) and the activity stream table append-only. What that means is that when something changes in the future, I don't have to modify past records to update them like you have to do with dimensional modeling or ER diagrams. You just add more activities.
+- You don't have to worry about slowly changing dimensions or late arriving facts, you just append them all in the table, again using activities . We'll cover this later.
 - Because the schema is standardized regardless of the activities, querying the model becomes very predictable once you figure out the basics. You're basically joining activities for the same customer in time through the help of temporal relationships.
 - There are only 11 temporal relationships which means that almost every question you can think of can be reduced to one or many of these 11 temporal relationships. We'll explore them one by one later as well.
 
 ## Constructing the table
-Without further ado, let's get into how to build the table. LIke I said earlier, I used Shopify data from a friend's store, so unfortunately I cannot show the results of the queries, but the patterns should be pretty clear. I'm using BigQuery for my experiments.
+Without further ado, let's get into how to build the table. Like I said earlier, I used Shopify data from a friend's store, so unfortunately I cannot show the results of the queries, but the patterns should be pretty clear. I'm using BigQuery for my experiments.
 
 Creating the table is pretty straightforward:
 ```sql
@@ -69,7 +69,7 @@ where
 ```
 
 ## Loading Shopify data
-Narrator lists all the the queries for Shopify [here](https://docs.narrator.ai/docs/shopify) I didn't use all the activities so I'll just mention the ones I did use.
+Narrator lists all the the queries for Shopify [here](https://docs.narrator.ai/docs/shopify) I didn't use all the activities so I'll just mention the ones I used.
 
 ### Started Checkout
 Customer started a checkout session
