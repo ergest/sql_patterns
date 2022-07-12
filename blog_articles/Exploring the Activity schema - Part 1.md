@@ -1,7 +1,7 @@
 ## Introduction
 Ever since I read about the [Activity Schema](https://www.activityschema.com) I've been fascinated with it and have wanted to try it out. The only problem is that the only tool that implements it is [Narrator](https://narrator.ai) and you have to pay for it. I also didn't have a good enough dataset to try it on.
 
-Then a friend asked me to help him with analytics for his Shopfify store. I got some of his data stored in BigQuery but his set up wasn't that good. He only had the free Google Analytics installed on his site and his Facebook campaIgns weren't tagged properly. I gave up on that quest but since the Shopify data was still there and Narrator has ready-made activities for it, I decided to give it a try.
+Then a friend asked me to help him do some analytics for his Shopify store. I got some of the data stored in BigQuery and Narrator has ready-made activities for it, I decided to give it a try. Unfortunately his Facebook campaigns weren't tagged properly and he only used the free Google Analytics setup on his site so I couldn't do deeper analysis.
 
 In this series of posts, I'll explore what I've learned about the Activity schema and hopefully provide some insight into this new modeling technique. In the first post we'll explore the table and how to set that up. In the upcoming posts we'll cover the various SQL queries that let you explore this table.
 
