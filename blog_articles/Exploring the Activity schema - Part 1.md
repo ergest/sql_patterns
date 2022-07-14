@@ -12,7 +12,7 @@ I will not go into a lot of details about the table and the schema since you can
 
 Having done my fair share of modeling in the past I immediately recognized the benefits of the activity schema:
 
-- Each activity is an isolated event that never changes. This makes each activity idempotent (unchanging) and the activity stream table append-only. What that means is that when something changes in the future, I don't have to modify past records to update them like you have to do with dimensional modeling or ER diagrams. You just add more activities.
+- Each activity is an isolated event that never changes. This makes each activity immutable (unchanging) and the activity stream table append-only. What that means is that when something changes in the future, I don't have to modify past records to update them like you have to do with dimensional modeling or ER diagrams. You just add more activities.
 - You don't have to worry about slowly changing dimensions or late arriving facts, you just append them all in the table, again using activities . We'll cover this later.
 - Because the schema is standardized regardless of the activities, querying the model becomes very predictable once you figure out the basics. You're basically joining activities for the same customer in time through the help of temporal relationships.
 - There are only 11 temporal relationships which means that almost every question you can think of can be reduced to one or many of these 11 temporal relationships. We'll explore them one by one later as well.
@@ -210,7 +210,7 @@ where
 ```
 
 ### Order enrichment table
-On the rare occasion that you need more dimensionality beyond the 3 features, you can create an optional enrichment table. Ideally this table is also idempotent so you don't have to worry about maintaining history.
+On the rare occasion that you need more dimensionality beyond the 3 features, you can create an optional enrichment table. Ideally this table is also immuatable so you don't have to worry about maintaining history.
 
 ```sql
 create or replace table my_data.order_enrichment

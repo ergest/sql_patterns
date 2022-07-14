@@ -1,2 +1,4 @@
 ## Introduction
-Welcome to Part 2 of the series on the Activity Schema, a new way to model data for modern warehouses that relies on a single time-series table. In Part 1 of the series we covered the basics of how to set up the table and how to load the activity
+Welcome to Part 2 of the series on the Activity Schema, a new way to model data for modern warehouses that relies on a single time-series table. In Part 1 of the series we covered the basics of how to set up the table and how to load the activities onto it. In this part we'll start to look into querying this table.
+
+Querying such a table is very different than the traditional way of using keys. Since activities for the customer are strung together in time, the relations amongst them are temporal in nature. When you join one or many activities, you're essentially figuring out how to link them with each other by using the customer id and the timestamp
