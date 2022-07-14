@@ -1,0 +1,2 @@
+## Introduction
+Welcome to Part 2 of the series on the Activity Schema, a new way to model data for modern warehouses that relies on a single time-series table. In Part 1 of the series we covered the basics of how to set up the table and how to load the activity
