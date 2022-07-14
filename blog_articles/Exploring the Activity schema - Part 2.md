@@ -46,4 +46,4 @@ ts                     |activity         |customer|activity_repeated_at   |
 2020-10-21 20:27:08.000|started_session  |12345   |2020-11-16 14:41:27.000|
 2020-11-16 14:41:27.000|started_session  |12345   |                       |
 ```
-Suppose we want to know 
+If this was our base activity and we wanted to append 
