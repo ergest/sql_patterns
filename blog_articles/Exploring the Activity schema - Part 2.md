@@ -16,4 +16,23 @@ ts                     |activity         |customer|activity_repeated_at   |
 2020-11-17 17:50:13.000|started_checkout |12345   |                       |
 ```
 
-As you can see this customer's journey begins by starting a web session (assuming of course we've identified them, more on that later) and then a few days later they start a checkout, complete the order and 
+As you can see this customer's journey begins by starting a web session (assuming of course we've identified them, more on that later) and then a few days later they start a checkout, complete the order and it gets shipped. Then they start another web session a few weeks later.
+
+This is what an ActivitySchema is supposed to look like. We've stitched together activities from multiple tools (web logging and Shopify) into a singular customer view with a conformed schema. This allows us to answer almost any question about the customer as long as it can be phrased in a temporal relationship.
+
+## Temporal Relationships
+In order to stitch activities together in time we have to join them through the customer, activity and timestamp fields and we can then pivot the features out into their own columns in order to enrich our data set. There are 11 such relationships and we'll cover each one separately.
+
+1.  First ever
+2.  First before
+3.  First after
+4.  First in between
+5.  Last ever
+6.  Last before
+7.  Last in between
+8.  Aggregate all ever
+9.  Aggregate before
+10.  Aggregate after
+11.  Aggregate in between
+
+The way you join activities together is by starting with a base activity (your initial cohort) and you append other activities to it based on whether those activities occurred 
