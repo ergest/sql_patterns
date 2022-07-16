@@ -37,13 +37,4 @@ In order to stitch activities together in time we have to join them through the 
 
 The way you join activities together is by starting with a base activity (your initial cohort) and you append other activities to it based on whether those activities occurred before all the base activities, after all the base activities or in between them and whether we care about the first occurrence or the last occurrence.
 
-Yes I know this is a little confusing but bear with me, I'll explain it in a moment.
-
-Let's take a look at the `started_session` activity in the table above, there are two of them:
-```
-ts                     |activity         |customer|activity_repeated_at   |
------------------------+-----------------+--------+-----------------------+
-2020-10-21 20:27:08.000|started_session  |12345   |2020-11-16 14:41:27.000|
-2020-11-16 14:41:27.000|started_session  |12345   |                       |
-```
-If this was our base activity and we wanted to append 
+In this part we're going to cover the **First Ever** and **Last Ever** relationships. 
