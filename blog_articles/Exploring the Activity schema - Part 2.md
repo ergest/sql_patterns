@@ -217,4 +217,7 @@ from
         and c.join_cohort_id = fe.join_cohort_id;
 ```
 
-The same exact query (with a minor change) applies to *Last Ever.* All you have to do is change the  `min()` function for the  `max()` function. This is the beauty of the AcivitySchema
+The same exact query (with a minor change) applies to *Last Ever.* All you have to do is change the  `min()` function for the  `max()` function. This is the beauty of the AcivitySchema. The queries are incredibly consistent.
+
+So where else can you apply *First Ever* or *Last Ever* besides attribution? What if your customer is a patient and the *First Ever* could be the first visit or the first surgery and you want to attach that information to subsequent visits or when a house was first built and you want that sale information attached to every inspection activity.
+
