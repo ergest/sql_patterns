@@ -42,4 +42,80 @@ In this part we're going to cover the *First Ever* and *Last Ever* relationships
 
 These can be very useful when you want to do say first-touch or last-touch attribution for a customer. In this case your cohort is everyone who has a `completed_order` activity and you join or append to that the first occurrence of a `stated_session` activity.
 
+You can see in results above that customer `12345` started a session on `2020-10-21 20:27:08`  and then another one on `2020-11-16 14:41:27` They also completed two orders. So if I was doing a *First Ever* relationship, I would start with the `completed_order` activity as my cohort like this:
+```sql
+with cohort as (
+    select
+        activity_id,
+        datetime(ts, 'America/New_York') as activity_timestamp,
+        activity,
+        customer,
+        activity_occurrence,
+        feature_1,
+        feature_2,
+        feature_3,
+        ts                   as join_ts,
+        activity_id          as join_cohort_id,
+        customer             as join_customer,
+        activity_repeated_at as join_cohort_next_ts
+    from
+        my_data.customer_stream 
+    where
+        activity = 'completed_order'
+    order by
+        ts desc
+)
+```
 
+This would get me both order completed activities:
+```
+ts                     |activity         |customer|
+-----------------------+-----------------+--------+
+2020-10-28 15:19:33.000|completed_order  |12345   |
+2020-11-17 18:15:13.000|completed_order  |12345   |
+```
+
+Then I would grab the first ever `session_started` like this:
+```sql
+first_ever_checkout_started as (
+    select
+        join_customer,
+        join_cohort_id,
+        min(cs.ts) as first_session_started_at
+    from
+        cohort c
+        inner join my_data.customer_stream cs
+            on c.join_customer = cs.customer
+    where
+        cs.activity = 'session_started'
+    group by
+        1,2
+)
+```
+
+Then if I wanted to grab all the features of the `session_started` activity, all I'd need to do is join that activity on customer and timestamp like this:
+```sql
+, first_ever_session_started_features as (
+    select
+        fe.join_customer,
+        fe.join_cohort_id,
+        fe.first_checkout_started_at,
+        s.activity,
+        s.feature_1,
+        s.feature_2,
+        s.feature_3,
+        s.link
+    from
+        my_data.customer_stream s
+        inner join first_ever_checkout_started fe
+            on s.customer = fe.join_customer
+            and s.ts = fe.first_checkout_started_at
+    where 
+        s.activity = 'started_checkout'
+)
+```
+
+Finally, I would join the two and pivot out the features that I wanted like this:
+```sql
+
+```
