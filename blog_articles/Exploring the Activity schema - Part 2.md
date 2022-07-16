@@ -10,10 +10,11 @@ ts                     |activity         |customer|activity_repeated_at   |
 -----------------------+-----------------+--------+-----------------------+
 2020-10-21 20:27:08.000|started_session  |12345   |2020-11-16 14:41:27.000|
 2020-10-25 16:39:51.000|started_checkout |12345   |2020-11-17 17:50:13.000|
-2020-10-28 15:19:33.000|completed_order  |12345   |                       |
+2020-10-28 15:19:33.000|completed_order  |12345   |2020-11-17 18:15:13.000|
 2020-10-28 15:36:05.000|shipped_order    |12345   |                       |
 2020-11-16 14:41:27.000|started_session  |12345   |                       |
 2020-11-17 17:50:13.000|started_checkout |12345   |                       |
+2020-11-17 18:15:13.000|completed_order  |12345   |                       |
 ```
 
 As you can see this customer's journey begins by starting a web session (assuming of course we've identified them, more on that later) and then a few days later they start a checkout, complete the order and it gets shipped. Then they start another web session a few weeks later.
@@ -37,4 +38,8 @@ In order to stitch activities together in time we have to join them through the 
 
 The way you join activities together is by starting with a base activity (your initial cohort) and you append other activities to it based on whether those activities occurred before all the base activities, after all the base activities or in between them and whether we care about the first occurrence or the last occurrence.
 
-In this part we're going to cover the **First Ever** and **Last Ever** relationships. 
+In this part we're going to cover the *First Ever* and *Last Ever* relationships. The *First Ever* relationship means that you attach the first occurrence of that activity to the cohort you start with regardless of when that base activity happened. The same happens with the *Last Ever*, you attach the last activity that happened regardless of when it happened.
+
+These can be very useful when you want to do say first-touch or last-touch attribution for a customer. In this case your cohort is everyone who has a `completed_order` activity and you join or append to that the first occurrence of a `stated_session` activity.
+
+
