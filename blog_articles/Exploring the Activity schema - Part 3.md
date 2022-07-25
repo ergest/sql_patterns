@@ -15,4 +15,4 @@ To recap part 2 we started by looking at the 11 temporal relationships:
 10.  Aggregate after
 11.  Aggregate in between
 
-Then we 
+Then we looked at **First Ever** and **Last Ever** relationships. In this post we'll look into the **First Before** and **First After** relationships

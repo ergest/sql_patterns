@@ -38,7 +38,7 @@ In order to stitch activities together in time we have to join them through the 
 
 The way you join activities together is by starting with a base activity (your initial cohort) and you append other activities to it based on whether those activities occurred before all the base activities, after all the base activities or in between them and whether we care about the first occurrence or the last occurrence.
 
-In this part we're going to cover the **First Ever* and *Last Ever* relationships. The *First Ever* relationship means that you attach the first occurrence of that activity to the cohort you start with regardless of when that base activity happened. The same happens with the *Last Ever*, you attach the last activity that happened regardless of when it happened.
+In this part we're going to cover the **First Ever** and **Last Ever** relationships. The *First Ever* relationship means that you attach the first occurrence of that activity to the cohort you start with regardless of when that base activity happened. The same happens with the *Last Ever*, you attach the last activity that happened regardless of when it happened.
 
 These can be very useful when you want to do say first-touch or last-touch attribution for a customer. In this case your cohort is everyone who has a `completed_order` activity and you join or append to that the first occurrence of a `stated_session` activity.
 
