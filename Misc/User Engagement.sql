@@ -9,8 +9,8 @@ WITH post_activity AS (
              WHEN ph.post_history_type_id IN (4,5,6) THEN 'edited' 
         END AS activity_type
     FROM
-        `bigquery-public-data.stackoverflow.post_history` ph
-        INNER JOIN `bigquery-public-data.stackoverflow.users` u on u.id = ph.user_id
+        post_history ph
+        INNER JOIN users u on u.id = ph.user_id
     WHERE
         TRUE 
         AND ph.post_history_type_id BETWEEN 1 AND 6
@@ -27,7 +27,7 @@ WITH post_activity AS (
         id AS post_id,
         'question' AS post_type,
     FROM
-        `bigquery-public-data.stackoverflow.posts_questions`
+        posts_questions
     WHERE
         TRUE
         AND creation_date >= CAST('2021-06-01' as TIMESTAMP) 
@@ -37,7 +37,7 @@ WITH post_activity AS (
         id AS post_id,
         'answer' AS post_type,
     FROM
-        `bigquery-public-data.stackoverflow.posts_answers`
+        posts_answers
     WHERE
         TRUE
         AND creation_date >= CAST('2021-06-01' as TIMESTAMP) 
@@ -69,7 +69,7 @@ WITH post_activity AS (
         CAST(creation_date AS DATE) AS activity_date,
         COUNT(*) as total_comments
     FROM
-        `bigquery-public-data.stackoverflow.comments`
+        comments
     WHERE
         TRUE
         AND creation_date >= CAST('2021-06-01' as TIMESTAMP) 
@@ -83,7 +83,7 @@ WITH post_activity AS (
         CAST(c.creation_date AS DATE) AS activity_date,
         COUNT(*) as total_comments
     FROM
-        `bigquery-public-data.stackoverflow.comments` c
+        comments c
         INNER JOIN post_activity pa ON pa.post_id = c.post_id
     WHERE
         TRUE
@@ -100,7 +100,7 @@ WITH post_activity AS (
         SUM(CASE WHEN vote_type_id = 2 THEN 1 ELSE 0 END) AS total_upvotes,
         SUM(CASE WHEN vote_type_id = 3 THEN 1 ELSE 0 END) AS total_downvotes,
     FROM
-        `bigquery-public-data.stackoverflow.votes` v
+        votes v
         INNER JOIN post_activity pa ON pa.post_id = v.post_id
     WHERE
         TRUE
@@ -153,28 +153,17 @@ SELECT
     total_comments_by_user,
     total_comments_on_post,
     streak_in_days,
-    ROUND(IFNULL(SAFE_DIVIDE(
-            total_posts_created, streak_in_days), 0), 1) AS posts_per_day,
-    ROUND(IFNULL(SAFE_DIVIDE(
-            total_posts_edited, streak_in_days), 0), 1) AS edits_per_day,
-    ROUND(IFNULL(SAFE_DIVIDE(
-            total_answers_created, streak_in_days), 0), 1) AS answers_per_day,
-    ROUND(IFNULL(SAFE_DIVIDE(
-            total_questions_created, streak_in_days), 0), 1) AS questions_per_day,
-    ROUND(IFNULL(SAFE_DIVIDE(
-            total_comments_by_user, streak_in_days), 0), 1) AS comments_by_user_per_day,
-    ROUND(IFNULL(SAFE_DIVIDE(
-            total_answers_created, total_posts_created), 0), 1) AS answers_per_post,
-    ROUND(IFNULL(SAFE_DIVIDE(
-            total_questions_created, total_posts_created), 0), 1) AS questions_per_post,
-    ROUND(IFNULL(SAFE_DIVIDE(
-            total_upvotes, total_posts_created), 0), 1) AS upvotes_per_post,
-    ROUND(IFNULL(SAFE_DIVIDE(
-            total_downvotes, total_posts_created), 0), 1) AS downvotes_per_post,
-    ROUND(IFNULL(SAFE_DIVIDE(
-            total_comments_by_user, total_posts_created), 0), 1)  AS user_comments_per_post,
-    ROUND(IFNULL(SAFE_DIVIDE(
-            total_comments_on_post, total_posts_created), 0), 1)  AS comments_on_post_per_post
+    ROUND(IFNULL(DIVIDE(total_posts_created, streak_in_days), 0), 1) AS posts_per_day,
+    ROUND(IFNULL(DIVIDE(total_posts_edited, streak_in_days), 0), 1) AS edits_per_day,
+    ROUND(IFNULL(DIVIDE(total_answers_created, streak_in_days), 0), 1) AS answers_per_day,
+    ROUND(IFNULL(DIVIDE(total_questions_created, streak_in_days), 0), 1) AS questions_per_day,
+    ROUND(IFNULL(DIVIDE(total_comments_by_user, streak_in_days), 0), 1) AS comments_by_user_per_day,
+    ROUND(IFNULL(DIVIDE(total_answers_created, total_posts_created), 0), 1) AS answers_per_post,
+    ROUND(IFNULL(DIVIDE(total_questions_created, total_posts_created), 0), 1) AS questions_per_post,
+    ROUND(IFNULL(DIVIDE(total_upvotes, total_posts_created), 0), 1) AS upvotes_per_post,
+    ROUND(IFNULL(DIVIDE(total_downvotes, total_posts_created), 0), 1) AS downvotes_per_post,
+    ROUND(IFNULL(DIVIDE(total_comments_by_user, total_posts_created), 0), 1)  AS user_comments_per_post,
+    ROUND(IFNULL(DIVIDE(total_comments_on_post, total_posts_created), 0), 1)  AS comments_on_post_per_post
 FROM
     total_metrics_per_user
 ORDER BY 
