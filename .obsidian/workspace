@@ -9,7 +9,7 @@
         "state": {
           "type": "markdown",
           "state": {
-            "file": "blog_articles/Exploring the Activity schema - Part 3.md",
+            "file": "book/chap4.md",
             "mode": "source",
             "source": false
           }
@@ -69,7 +69,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "blog_articles/Exploring the Activity schema - Part 3.md",
+                "file": "book/chap4.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -103,17 +103,17 @@
     "direction": "horizontal",
     "width": 300
   },
-  "active": "196688334c92bba7",
+  "active": "f7aa877f8e511c11",
   "lastOpenFiles": [
-    "blog_articles/Exploring the Activity schema - Part 2.md",
+    "book/chap3.md",
+    "book/chap2.md",
+    "book/chap1.md",
+    "book/chap0.md",
     "blog_articles/Exploring the Activity schema - Part 3.md",
+    "blog_articles/Exploring the Activity schema - Part 2.md",
     "blog_articles/Exploring the Activity schema - Part 1.md",
     "Exploring `.md",
-    "book/chap2.md",
     "misc/SQL Patterns Article.md",
-    "misc/Medium Article.md",
-    "misc/Analytics Engineering Article.md",
-    "book/output/sql_patterns.pdf",
-    "book/chap1.md"
+    "misc/Medium Article.md"
   ]
 }
