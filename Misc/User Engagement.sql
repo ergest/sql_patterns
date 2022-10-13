@@ -16,35 +16,25 @@ WITH post_activity AS (
         AND ph.post_history_type_id BETWEEN 1 AND 6
         AND user_id > 0 --exclude automated processes
         AND user_id IS NOT NULL --exclude deleted accounts
-        AND ph.creation_date >= CAST('2021-06-01' as TIMESTAMP) 
-        AND ph.creation_date <= CAST('2021-09-30' as TIMESTAMP)
     GROUP BY
         1,2,3,4,5
-)
+),
 -- Get the post types we care about questions and answers only and combine them in one CTE
-,post_types AS (
+post_types AS (
     SELECT
         id AS post_id,
         'question' AS post_type,
     FROM
         posts_questions
-    WHERE
-        TRUE
-        AND creation_date >= CAST('2021-06-01' as TIMESTAMP) 
-        AND creation_date <= CAST('2021-09-30' as TIMESTAMP)
     UNION ALL
     SELECT
         id AS post_id,
         'answer' AS post_type,
     FROM
         posts_answers
-    WHERE
-        TRUE
-        AND creation_date >= CAST('2021-06-01' as TIMESTAMP) 
-        AND creation_date <= CAST('2021-09-30' as TIMESTAMP)
- )
+),
  -- Finally calculate the post metrics 
-, user_post_metrics AS (
+user_post_metrics AS (
     SELECT
         user_id,
         user_name,
@@ -62,8 +52,8 @@ WITH post_activity AS (
     FROM post_types pt
          JOIN post_activity pa ON pt.post_id = pa.post_id
     GROUP BY 1,2,3
-)
-, comments_by_user AS (
+),
+comments_by_user AS (
     SELECT
         user_id,
         CAST(creation_date AS DATE) AS activity_date,
@@ -72,12 +62,10 @@ WITH post_activity AS (
         comments
     WHERE
         TRUE
-        AND creation_date >= CAST('2021-06-01' as TIMESTAMP) 
-        AND creation_date <= CAST('2021-09-30' as TIMESTAMP)
     GROUP BY
         1,2
-)
-, comments_on_user_post AS (
+),
+comments_on_user_post AS (
     SELECT
         pa.user_id,
         CAST(c.creation_date AS DATE) AS activity_date,
@@ -88,12 +76,10 @@ WITH post_activity AS (
     WHERE
         TRUE
         AND pa.activity_type = 'created'
-        AND c.creation_date >= CAST('2021-06-01' as TIMESTAMP) 
-        AND c.creation_date <= CAST('2021-09-30' as TIMESTAMP)
     GROUP BY
         1,2
-)
-, votes_on_user_post AS (
+),
+votes_on_user_post AS (
       SELECT
         pa.user_id,
         CAST(v.creation_date AS DATE) AS activity_date,
@@ -105,12 +91,10 @@ WITH post_activity AS (
     WHERE
         TRUE
         AND pa.activity_type = 'created'
-        AND v.creation_date >= CAST('2021-06-01' as TIMESTAMP) 
-        AND v.creation_date <= CAST('2021-09-30' as TIMESTAMP)
     GROUP BY
         1,2
-)
-, total_metrics_per_user AS (
+),
+total_metrics_per_user AS (
     SELECT
         pm.user_id,
         pm.user_name,
@@ -167,4 +151,4 @@ SELECT
 FROM
     total_metrics_per_user
 ORDER BY 
-    total_questions_created DESC;
+    total_posts_created DESC;
