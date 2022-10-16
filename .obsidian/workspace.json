@@ -1,0 +1,130 @@
+{
+  "main": {
+    "id": "8bf7357d08fc4a6a",
+    "type": "split",
+    "children": [
+      {
+        "id": "65128b688eed2c43",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "f7aa877f8e511c11",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "book/chap7.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "9e882ae75bcca575",
+    "type": "split",
+    "children": [
+      {
+        "id": "20fb20cf20a323eb",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "196688334c92bba7",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical"
+              }
+            }
+          },
+          {
+            "id": "7344326a0882a3d0",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "joinin",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 328
+  },
+  "right": {
+    "id": "06fd7f74b6ef412f",
+    "type": "split",
+    "children": [
+      {
+        "id": "b7fd7964bea27dcd",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "9275c37ed45661eb",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "book/chap7.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": false
+              }
+            }
+          },
+          {
+            "id": "fd9b22a934b8c367",
+            "type": "leaf",
+            "state": {
+              "type": "advanced-tables-toolbar",
+              "state": {}
+            }
+          },
+          {
+            "id": "268547243b7b049a",
+            "type": "leaf",
+            "state": {
+              "type": "git-view",
+              "state": {}
+            }
+          }
+        ],
+        "currentTab": 2
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "ribbon": {
+    "mostRecentAction": ""
+  },
+  "active": "f7aa877f8e511c11",
+  "lastOpenFiles": [
+    "book/chap6.md",
+    "book/chap5.md",
+    "book/chap4.md",
+    "book/chap3.md",
+    "book/chap2.md",
+    "book/chap1.md",
+    "book/chap0.md",
+    "blog_articles/Exploring the Activity schema - Part 3.md",
+    "blog_articles/Exploring the Activity schema - Part 2.md",
+    "blog_articles/Exploring the Activity schema - Part 1.md"
+  ]
+}
