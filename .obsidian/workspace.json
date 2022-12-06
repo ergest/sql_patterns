@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "book/chap0.md",
+                "file": "book/chap3.md",
                 "mode": "source",
                 "source": false
               }
@@ -77,7 +77,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "book/chap0.md",
+                "file": "book/chap3.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -116,14 +116,14 @@
   },
   "active": "f7aa877f8e511c11",
   "lastOpenFiles": [
+    "book/chap2.md",
+    "book/chap1.md",
+    "book/chap0.md",
     "book/chap7.md",
     "book/chap6.md",
     "book/chap5.md",
     "book/chap4.md",
     "book/chap3.md",
-    "book/chap2.md",
-    "book/chap1.md",
-    "book/chap0.md",
     "blog_articles/Exploring the Activity schema - Part 3.md",
     "blog_articles/Exploring the Activity schema - Part 2.md"
   ]
