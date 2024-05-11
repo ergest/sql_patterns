@@ -46,30 +46,29 @@ creation_date          |post_id |type_id|user_id|total|
 2021-12-10 14:09:36.950|70276799|      5|       |    2|
 ```
 
-This means we have to be careful when joining with this table on `post_id, user_id, creation_date, post_history_type_id` and we'd have to deal with the duplicate issue first. Let's see a couple of methods for doing that.
+This means we have to be careful when joining with this table on `post_id, user_id, creation_date, post_history_type_id` We have to deal with the duplicate issue first otherwise we'll get incorrect results.
 
-What does this mean for our project?
+Let's see a couple of methods for doing that.
 
 Our final table will have a grain of one row per user. Only the `users` table has that same granularity. In order to build it we'll have to manipulate the granularity of the source tables so that's what we focus on next.
 
 ## Granularity Manipulation
 Now that you have a grasp of the concept of granularity the next thing to learn is how to manipulate it. What I mean by manipulation is specifically going from a fine grain to a coarser grain.
 
-For example an e-commerce website might store each transaction it performs as a single row on a table. This gives us a very fine-grained table (i.e. a very high level of detail) If we wanted to know how much revenue you got on a given day, you have to reduce that level of detail to a single row. 
+For example an e-commerce website might store each transaction it performs as a single row on a table with the millisecond timestamp when it ocurred. This gives us a very fine-grained table (i.e. a very high level of detail) 
 
-This is done via aggregation.
+But if we wanted to know how much revenue you got on a given day, you have to reduce that level of detail to a single row.  This is done via aggregation.
 
 ### Aggregation
 Aggregation is a way of reducing the level of detail by grouping (aka rolling up) data to a coarser grain. You do that by reducing the number of columns in the output and applying `GROUP BY` to the remaining columns. The more columns you remove, the coarser the grain gets. 
 
-I call this *collapsing the granularity.*
-
-This is a very common pattern of storing data in a data warehouse. You keep the table at the finest possible grain (i.e. one transaction per row) and then aggregate it up to whatever level is needed for reporting. This way you can always look up the details when you need to.
+This is a very common pattern of storing data in a data warehouse. You keep the table at the finest possible grain (i.e. one transaction per row) and then aggregate it up to whatever level is needed for reporting. This way you can always look up the details when you need to debug issues.
 
 Let's look at an example.
 
 The `post_history` table has too many rows for each `post_history_type_id` and we only need the ones representing post creation and editing. To do this, we can "collapse" them into custom categories via a `CASE` statement as shown below:
 ```sql
+--lis
 SELECT
     ph.post_id,
     ph.user_id,
