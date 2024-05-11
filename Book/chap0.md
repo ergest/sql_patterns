@@ -21,6 +21,7 @@ I have a background in computer science. As part of the curriculum we learn how 
 When reviewing other people’s code I would often spot the same mistakes. There were chunks of code that would repeat everywhere. The queries were long, complex and slow. I would often have rewrite them just so I could understand what they were doing.
 
 Software engineers have long used design patterns to make their code easier to write, understand and maintain. I looked around for a book or course that taught these same patterns for SQL. There are a lot of SQL books that show you how to query data, how to transform and model it but couldn’t find one that explained how to organize code, so I decided to write it myself.
+
 ## Who this book is for
 This book is for anyone who is familiar with SQL and wants to take their skills to the next level. We won't cover any of the basic syntax here so make sure you have that down pat. I expect you to already know how to join tables and do basic filtering and aggregation.
 
@@ -47,18 +48,18 @@ I've also included all the code in the repo so you can copy/paste it and run it.
 
 Using this dataset we're going to build a table which calculates reputation metrics. You can use this same type of table to calculate a customer engagement score or a customer 360 table.
 
-As we go through the project, we'll cover each pattern when it arises. That will help you understand why we're using the pattern at that exact moment. Each chapter will cover a select group of patterns while building on the previous chapters.
+As we go through the project, we'll cover each pattern when it arises. That will help you understand why we're using that pattern at that exact moment. Each chapter will cover a select group of patterns while building on the previous chapters.
 
 ## How this book is organized
-In **Chapter 1** we introduce the project we'll be working on throughout the book. We'll make sure you have access to the dataset and can run the queries. We also get a basic understanding of the dataset by looking at the ER diagram
+In **Chapter 1** we introduce the project we'll be working on throughout the book. We'll make sure you have access to the dataset and can run the queries. We also get a basic understanding of the dataset by looking at the ER diagram.
 
 In **Chapter 2** we cover *Core Concepts and patterns*. These patterns act as our basic building blocks that will serve us throughout the book. I explain each one using the StackOverflow dataset since we'll be using every one in our final query.
 
 The remaining patterns are grouped into four categories and each has its own chapter.
 
-In **Chapter 3** we cover *Query Decomposition* patterns. We start off by learning how to decompose large queries into smaller pieces to make it easy to solve just about any complex problem. They are important to learn first because all the other patterns flow from them.
+In **Chapter 3** we cover *Query Modularization* patterns. We start off by learning how to decompose large queries into smaller, more modular and reusable pieces to make it easy to solve just about any complex problem. They are important to learn first because all the other patterns flow from them.
 
-In **Chapter 4** we cover *Query Maintainability* patterns. These patterns teach you how to decompose a query and organize your code in ways that make it efficient. This will ensure your code is  easier to read, understand and maintain in the future.
+In **Chapter 4** we cover *Query Composition* patterns. These patterns teach you how to decompose a query and organize your code in ways that make it efficient. This will ensure your code is easier to read, understand and maintain in the future.
 
 In **Chapter 5** we cover *Query Performance* patterns. They teach you ways to make your code more faster without sacrificing clarity. It’s a delicate balance because performant code can sometimes look really messy.
 
