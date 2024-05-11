@@ -1,14 +1,13 @@
 # Chapter 1: Introducing the Project
 In this chapter we're going to get into the details of the project that will help you learn the SQL Patterns. As you saw in the introduction, we're using a real-world, public dataset from StackOverflow.
 
-StackOverflow is a popular website where users can post technical questions about any technical topic and others can post answers to these questions. They can also vote on the answers or comment on them.
+Before we dive into writing queries you should make sure you have the proper development environment set up. I will not list the instructions here in case things change so I'll add them to the GitHub repo. Make sure you visit: https://github.com/ergest/sqlpatterns for the most up to date instructions.
 
-Based on the quality of the answers, users gain reputation and badges which they can use  as social proof both on the SO site and on other websites.
+StackOverflow is a popular website where users post questions about any technical topic such as programming languages, databases, etc. and others can post answers to these questions. They can also vote on the answers or comment on them.
+
+Based on the quality of the answers, users gain reputation and badges which they can use  as social proof both on StackOverflow and on other websites.
 
 Using this dataset we're going to build a table that calculates reputation metrics for every user. This type of table is sometimes called a "feature table" and can be used in other applications in data science and analytics. You simply replace the user_id with a customer id or any other entity.
-
-## Setting up your development environment
-
 
 Since the query to build it is complex, it's the perfect tool to illustrate some of the patterns described in this book.
 
