@@ -7,11 +7,11 @@ StackOverflow is a popular website where users post questions about any technica
 
 Based on the quality of the answers, users gain reputation and badges which they can use  as social proof both on StackOverflow and on other websites.
 
-Using this dataset we're going to build a table that calculates reputation metrics for every user. This type of table is sometimes called a "feature table" and can be used in other applications in data science and analytics. You simply replace the user_id with a customer id or any other entity.
+Using this dataset we're going to build a table that calculates reputation metrics for every user. This type of table is sometimes called a "feature table" and can be used in other applications in data science and analytics. You simply replace the `user_id` with a `customer_id` or another entity.
 
 Since the query to build it is complex, it's the perfect tool to illustrate some of the patterns described in this book.
 
-The schema of what it would look something like this:
+The schema of that table would look something like this:
 ```sql
 | column_name               | type    |
 |---------------------------|---------|
@@ -39,34 +39,31 @@ The schema of what it would look something like this:
 | comments_on_post_per_post | NUMERIC |
 ```
 
-As you can see, we need to transform the source data model to a new model that has one row per `user_id` Before we do that, we need to understand the source data first.
+As you can see, we need to transform the source data model to a new model that has one row per `user_id` Before we do that, we need to first understand the source data.
 
 ## Understanding the Data Model
-Writing accurate and efficient SQL begins with understanding the data model we're starting with. This may already exist in the form of documentation and diagrams but more often than not you'll have to learn it as you go.
+Writing accurate and efficient SQL begins with understanding the data model you're working with. This may already exist in the form of documentation and diagrams but more often than not you'll have to learn it as you go.
 
 The original StackOverflow (SO) data model is different from the one loaded in BigQuery. When the engineers loaded it, they modified the mode somewhat. For example the SO model contains a single `Posts` table for all the different post types whereas BigQuery split each one into a separate table.
 
 ![StackOverflow BQ ER Diagram](img/er_diagram.jpeg)
 **Figure 1.1 - StackOverflow ER diagram**
 
-There are 8 tables that represent the various post types. You can get this result by using the `INFORMATION_SCHEMA` views in BigQuery like this:
+There are 8 tables that represent the various post types. You can get this result by using the `information_schema` views in DuckDB like this:
 ```sql
 SELECT table_name
-FROM bigquery-public-data.stackoverflow.INFORMATION_SCHEMA.TABLES
+FROM information_schema.tables
 WHERE table_name like 'posts_%'
 ```
-Here's the result of the query
+Assuming you've set things up properly here's the result of the query.
 ```
-|table_name                |
-|--------------------------|
-|posts_answers             |
-|posts_orphaned_tag_wiki   |
-|posts_tag_wiki            |
-|posts_questions           |
-|posts_tag_wiki_excerpt    |
-|posts_wiki_placeholder    |
-|posts_privilege_wiki      |
-|posts_moderator_nomination|
+┌─────────────────┐
+│   table_name    │
+│     varchar     │
+├─────────────────┤
+│ posts_answers   │
+│ posts_questions │
+└─────────────────┘
 ```
 
 We'll be focusing on just two of them for our project so I've left the other ones out:
