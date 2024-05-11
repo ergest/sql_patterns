@@ -68,7 +68,7 @@ Let's look at an example.
 
 The `post_history` table has too many rows for each `post_history_type_id` and we only need the ones representing post creation and editing. To do this, we can "collapse" them into custom categories via a `CASE` statement as shown below:
 ```sql
---lis
+--listing 2.2
 SELECT
     ph.post_id,
     ph.user_id,
@@ -77,34 +77,35 @@ SELECT
          WHEN ph.post_history_type_id IN (4,5,6) THEN 'edited' 
     END AS activity_type
 FROM
-    bigquery-public-data.stackoverflow.post_history ph
+    post_history ph
 WHERE
     TRUE 
     AND ph.post_history_type_id BETWEEN 1 AND 6
     AND ph.user_id > 0 --exclude automated processes
     AND ph.user_id IS NOT NULL --exclude deleted accounts
-    AND ph.creation_date >= '2021-06-01'
-    AND ph.creation_date <= '2021-09-30'
-	AND ph.post_id = 69301792
+    AND ph.creation_date >= '2021-12-01'
+    AND ph.creation_date <= '2021-12-31'
+    AND ph.post_id = 70182248
 GROUP BY
-    1,2,3,4
+    1,2,3,4;
 ```
 
 Here's the output:
 ```sql
-post_id |user_id |activity_date          |activity_type|
---------+--------+-----------------------+-------------+
-69301792|  331024|2021-09-23 21:11:44.957|edited       |
-69301792|   63550|2021-09-24 10:38:36.220|edited       |
-69301792|  331024|2021-09-23 10:17:11.763|created      |
-69301792|  331024|2021-09-23 18:48:31.387|edited       |
-69301792|14251221|2021-09-23 22:38:04.863|edited       |
-69301792|  331024|2021-09-23 20:13:05.727|edited       |
+post_id |user_id|activity_date          |activity_type|
+--------+-------+-----------------------+-------------+
+70182248|2230216|2021-12-01 13:07:56.327|edited       |
+70182248|2230216|2021-12-01 12:59:48.113|edited       |
+70182248|2230216|2021-12-02 07:46:22.630|edited       |
+70182248|2230216|2021-12-01 10:03:18.350|created      |
+70182248|2230216|2021-12-01 18:41:18.033|edited       |
+70182248|2230216|2021-12-01 11:04:12.603|edited       |
+70182248|2702894|2021-12-01 13:35:41.293|edited       |
 ```
 
-Notice that didn't use an aggregation function like `COUNT()` or `SUM()` and that's perfectly ok since we don't need it. 
+Notice that didn't use an aggregation function like `COUNT()` or `SUM()` when doing a `GROUP BY` and that's perfectly ok since we don't need it. 
 
-You can see now how we're going to manipulate the granularity to get one row per user. We need the date in order o calculate all the date related metrics.
+You can see now how we're going to manipulate the granularity to get one row per user. We need the date in order to calculate all the date related metrics.
 
 ### Date Granularity
 The timestamp column `creation_date` is a rich field with both the date and time information (hour, minute, second, microsecond). Timestamp fields are special when it comes to aggregation because they have many levels of granularities built in.
@@ -113,6 +114,7 @@ Given a single timestamp, we can construct granularities for seconds, minutes, h
 
 For example if I wanted to remove the time information, I could reduce all activities on a given date to a single row like this:
 ```sql
+--listing 2.3
 SELECT
     ph.post_id,
     ph.user_id,
@@ -122,22 +124,21 @@ SELECT
     END AS activity_type,
     COUNT(*) AS total
 FROM
-    bigquery-public-data.stackoverflow.post_history ph
+    post_history ph
 WHERE
     TRUE 
     AND ph.post_history_type_id BETWEEN 1 AND 6
     AND ph.user_id > 0 --exclude automated processes
     AND ph.user_id IS NOT NULL --exclude deleted accounts
-    AND ph.creation_date >= '2021-06-01' 
-    AND ph.creation_date <= '2021-09-30'
-	AND ph.post_id = 69301792
+    AND ph.creation_date >= '2021-12-01'
+    AND ph.creation_date <= '2021-12-31'
+    AND ph.post_id = 70182248
 GROUP BY
-    1,2,3,4
+    1,2,3,4;
 ```
 
 Here's the output:
 ```sql
-
 post_id |user_id |activity_date|activity_type|total|
 --------+--------+-------------+-------------+-----+
 69301792|  331024|   2021-09-24|edited       |    3|
