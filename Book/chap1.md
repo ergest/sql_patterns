@@ -7,6 +7,9 @@ Based on the quality of the answers, users gain reputation and badges which they
 
 Using this dataset we're going to build a table that calculates reputation metrics for every user. This type of table is sometimes called a "feature table" and can be used in other applications in data science and analytics. You simply replace the user_id with a customer id or any other entity.
 
+## Setting up your development environment
+
+
 Since the query to build it is complex, it's the perfect tool to illustrate some of the patterns described in this book.
 
 The schema of what it would look something like this:

@@ -53,9 +53,7 @@ As we go through the project, we'll cover each pattern when it arises. That will
 ## How this book is organized
 In **Chapter 1** we introduce the project we'll be working on throughout the book. We'll make sure you have access to the dataset and can run the queries. We also get a basic understanding of the dataset by looking at the ER diagram.
 
-In **Chapter 2** we cover *Core Concepts and patterns*. These patterns act as our basic building blocks that will serve us throughout the book. I explain each one using the StackOverflow dataset since we'll be using every one in our final query.
-
-The remaining patterns are grouped into four categories and each has its own chapter.
+In **Chapter 2** we cover *Core Concepts and patterns*. These patterns act as our basic building blocks that will serve us throughout the book. I explain each one using the StackOverflow dataset since we'll be using every one in our final query. The remaining patterns are grouped into four categories and each has its own chapter.
 
 In **Chapter 3** we cover *Query Modularization* patterns. We start off by learning how to decompose large queries into smaller, more modular and reusable pieces to make it easy to solve just about any complex problem. They are important to learn first because all the other patterns flow from them.
 
