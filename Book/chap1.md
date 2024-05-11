@@ -51,55 +51,53 @@ The original StackOverflow (SO) data model is different from the one loaded in B
 
 There are 8 tables that represent the various post types. You can get this result by using the `information_schema` views in DuckDB like this:
 ```sql
+--listing 1.1
 SELECT table_name
 FROM information_schema.tables
 WHERE table_name like 'posts_%'
 ```
-Assuming you've set things up properly here's the result of the query.
+Assuming you've set things up properly here's the result of the query in DBeaver (in text output mode) I'll only use this format henceforth so your output might be different in the GUI.
 ```
-┌─────────────────┐
-│   table_name    │
-│     varchar     │
-├─────────────────┤
-│ posts_answers   │
-│ posts_questions │
-└─────────────────┘
+table_name     |
+---------------+
+posts_answers  |
+posts_questions|
 ```
 
-We'll be focusing on just two of them for our project so I've left the other ones out:
+We'll be focusing on just these two for our project:
  1. `posts_questions` contains all the question posts
  2. `posts_answers` contains all the answer posts
 
 They both have the same schema:
 ```sql
 SELECT column_name, data_type
-FROM bigquery-public-data.stackoverflow.INFORMATION_SCHEMA.COLUMNS
+FROM information_schema.columns
 WHERE table_name = 'posts_answers'
 ```
 Here's the result of the query
 ```sql
-|column_name             |data_type|
-|------------------------|---------|
-|id                      |INT64    |
-|title                   |STRING   |
-|body                    |STRING   |
-|accepted_answer_id      |STRING   |
-|answer_count            |STRING   |
-|comment_count           |INT64    |
-|community_owned_date    |TIMESTAMP|
-|creation_date           |TIMESTAMP|
-|favorite_count          |STRING   |
-|last_activity_date      |TIMESTAMP|
-|last_edit_date          |TIMESTAMP|
-|last_editor_display_name|STRING   |
-|last_editor_user_id     |INT64    |
-|owner_display_name      |STRING   |
-|owner_user_id           |INT64    |
-|parent_id               |INT64    |
-|post_type_id            |INT64    |
-|score                   |INT64    |
-|tags                    |STRING   |
-|view_count              |STRING   |
+column_name             |data_type|
+------------------------+---------+
+id                      |BIGINT   |
+title                   |VARCHAR  |
+body                    |VARCHAR  |
+accepted_answer_id      |VARCHAR  |
+answer_count            |VARCHAR  |
+comment_count           |BIGINT   |
+community_owned_date    |TIMESTAMP|
+creation_date           |TIMESTAMP|
+favorite_count          |VARCHAR  |
+last_activity_date      |TIMESTAMP|
+last_edit_date          |TIMESTAMP|
+last_editor_display_name|VARCHAR  |
+last_editor_user_id     |BIGINT   |
+owner_display_name      |VARCHAR  |
+owner_user_id           |BIGINT   |
+parent_id               |BIGINT   |
+post_type_id            |BIGINT   |
+score                   |BIGINT   |
+tags                    |VARCHAR  |
+view_count              |VARCHAR  |
 ```
 
 Both tables have an `id` column that identifies a single post, `creation_date` that identifies the timestamp when the post was created and a few other attributes like `score` for the upvotes and downvotes. 
@@ -110,7 +108,7 @@ Both post types (question and answer) have a one-to-many relationship to the `po
 
 ```sql
 SELECT column_name, data_type
-FROM bigquery-public-data.stackoverflow.INFORMATION_SCHEMA.COLUMNS
+FROM information_schema.columns
 WHERE table_name = 'post_history'
 ```
 Here's the result of the query
