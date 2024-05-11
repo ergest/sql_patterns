@@ -54,7 +54,7 @@ There are 8 tables that represent the various post types. You can get this resul
 --listing 1.1
 SELECT table_name
 FROM information_schema.tables
-WHERE table_name like 'posts_%'
+WHERE table_name like 'posts_%';
 ```
 Assuming you've set things up properly here's the result of the query in DBeaver (in text output mode) I'll only use this format henceforth so your output might be different in the GUI.
 ```
@@ -70,9 +70,10 @@ We'll be focusing on just these two for our project:
 
 They both have the same schema:
 ```sql
+--listing 1.2
 SELECT column_name, data_type
 FROM information_schema.columns
-WHERE table_name = 'posts_answers'
+WHERE table_name = 'posts_answers';
 ```
 Here's the result of the query
 ```sql
@@ -107,22 +108,23 @@ Note the `parent_id` column which signifies a hierarchical structure. The `paren
 Both post types (question and answer) have a one-to-many relationship to the `post_history`. These are relations 3 and 4 in the diagram above.
 
 ```sql
+--listing 1.3
 SELECT column_name, data_type
 FROM information_schema.columns
-WHERE table_name = 'post_history'
+WHERE table_name = 'post_history';
 ```
 Here's the result of the query
 ```sql
-|column_name         |data_type|
-|--------------------|---------|
-|id                  |INT64    |
-|creation_date       |TIMESTAMP|
-|post_id             |INT64    |
-|post_history_type_id|INT64    |
-|revision_guid       |STRING   |
-|user_id             |INT64    |
-|text                |STRING   |
-|comment             |STRING   |
+column_name         |data_type|
+--------------------+---------+
+id                  |BIGINT   |
+creation_date       |TIMESTAMP|
+post_id             |BIGINT   |
+post_history_type_id|BIGINT   |
+revision_guid       |VARCHAR  |
+user_id             |BIGINT   |
+text                |VARCHAR  |
+comment             |VARCHAR  |
 ```
 
 A single post can have many types of activities identified by the `post_history_type_id` column. This id indicates the different types of activities a user can perform on the site. We're only concerned with the first 6. You can see the rest of them [here](https://meta.stackexchange.com/questions/2677/database-schema-documentation-for-the-public-data-dump-and-sede/2678#2678) if you're curious.
@@ -136,71 +138,74 @@ A single post can have many types of activities identified by the `post_history_
 
 The first 3 indicate when a post is first submitted and the next 3 when a post is edited.
 
-The `post_history` table also connects to the `users` table via the `user_id` in a one-to-many relationship shown in the diagram as number 6.  A single user can perform multiple activities on a post.
+The `post_history` table also connects to the `users` table via the `user_id` in a one-to-many relationship shown in Figure 1.1 as number 6.  A single user can perform multiple activities on a post.
 
 In database lingo this is known as a bridge table because it connects two tables (user and posts) that have a many-to-many relationship which cannot be modeled otherwise.
 
 The `users` table has one row per user and contains user attributes such as name, reputation, etc. We'll use some of these attributes in our final table.
 
 ```sql
+--listing 1.4
 SELECT column_name, data_type
-FROM bigquery-public-data.stackoverflow.INFORMATION_SCHEMA.COLUMNS
-WHERE table_name = 'users'
+FROM information_schema.columns
+WHERE table_name = 'users';
 ```
 Here's the result of the query
 ```sql
-|column_name      |data_type|
-|-----------------|---------|
-|id               |INT64    |
-|display_name     |STRING   |
-|about_me         |STRING   |
-|age              |STRING   |
-|creation_date    |TIMESTAMP|
-|last_access_date |TIMESTAMP|
-|location         |STRING   |
-|reputation       |INT64    |
-|up_votes         |INT64    |
-|down_votes       |INT64    |
-|views            |INT64    |
-|profile_image_url|STRING   |
-|website_url      |STRING   |
+column_name      |data_type|
+-----------------+---------+
+id               |BIGINT   |
+display_name     |VARCHAR  |
+about_me         |VARCHAR  |
+age              |VARCHAR  |
+creation_date    |TIMESTAMP|
+last_access_date |TIMESTAMP|
+location         |VARCHAR  |
+reputation       |BIGINT   |
+up_votes         |BIGINT   |
+down_votes       |BIGINT   |
+views            |BIGINT   |
+profile_image_url|VARCHAR  |
+website_url      |VARCHAR  |
 ```
 
 Next we take a look at the `comments` table. It has a zero-to-many relationship with posts and with users shown in the diagram as number 5 and number 7, since both a user or a post could have 0 or many comments.
 ```sql
+--listing 1.5
 SELECT column_name, data_type
-FROM bigquery-public-data.stackoverflow.INFORMATION_SCHEMA.COLUMNS
-WHERE table_name = 'comments'
+FROM information_schema.columns
+WHERE table_name = 'comments';
 ```
 Here's the result of the query
 ```sql
-|column_name      |data_type|
-|-----------------|---------|
-|id               |INT64    |
-|text             |STRING   |
-|creation_date    |TIMESTAMP|
-|post_id          |INT64    |
-|user_id          |INT64    |
-|user_display_name|STRING   |
-|score            |INT64    |
+column_name      |data_type|
+-----------------+---------+
+id               |BIGINT   |
+text             |VARCHAR  |
+creation_date    |TIMESTAMP|
+post_id          |BIGINT   |
+user_id          |BIGINT   |
+user_display_name|VARCHAR  |
+score            |BIGINT   |
 ```
 
 Finally the `votes` table represents the upvotes and downvotes on a post. We'll need this to compute the total vote count on a user's post which will indicate how good the question or the answer is. This table has a granularity of one row per vote per post per date.
 ```sql
+--listing 1.6
 SELECT column_name, data_type
-FROM bigquery-public-data.stackoverflow.INFORMATION_SCHEMA.COLUMNS
-WHERE table_name = 'votes'
+FROM information_schema.columns
+WHERE table_name = 'votes';
 ```
 Here's the result of the query
 ```sql
-|column_name  |data_type|
-|-------------|---------|
-|id           |INT64    |
-|creation_date|TIMESTAMP|
-|post_id      |INT64    |
-|vote_type_id |INT64    |
+column_name  |data_type|
+-------------+---------+
+id           |BIGINT   |
+creation_date|TIMESTAMP|
+post_id      |BIGINT   |
+vote_type_id |BIGINT   |
 ```
 
-The `votes` table is connected to a post in a 0-to-many relationship shows in the diagram as number 2. In order for us to get upvotes and downvotes on a user's post, we'll need to join it with the `users` table.
+The `votes` table is connected to a post in a one-to-many relationship shown in Fig 1.1 as number 2. In order for us to get upvotes and downvotes on a user's post, we'll need to join it with the `users` table.
 
 Alright, now that we've familiarized ourselves with the source data model, next let's look at some core concepts.
