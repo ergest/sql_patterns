@@ -6,17 +6,19 @@ Granularity (also known as the grain of the tqable) is a measure of the level of
 
 Granularity comes in two flavors: *fine grain* and *coarse grain*.
 
-A finely grained table means a high level of detail, like one row per transaction. 
+A *finely grained* table means a high level of detail like one row per transaction at the millisecond level. 
 
-A coarse grained table means a low level of detail like count of all transactions in a day.
+A *coarse grained* table means a low level of detail like count of all transactions per day, week or month.
 
-Granularity is usually expressed as the number of unique rows for each column or combination of columns. 
+Granularity is usually expressed as the column (or combination of columns) that makes up a unique row.
 
-For example the `users` table has one row per user. That is the finest grain on it. The `post_history` table, on the other hand, contains a log of all the changes that a user performs on a post on a given date and time. Therefore the granularity is one row per user, per post, per timestamp.
+For example the `users` table has one row per user id specified by the `id` column. This is also known as the primary key of the table. That is the finest grain on it.
 
-The `comments` table contains a log of all the comments on a post by a user on a given date so its granularity is also one row per user, per post, per date.
+The `post_history` table, on the other hand, contains a log of all the activities a user performs on a post on a given date and time. Therefore the granularity is one row per user, per post, per timestamp.
 
-The `votes` table contains a log of all the upvotes and downvotes on a post on a given date. It has separate rows for upvotes and downvotes so its granularity is one row per post, per vote type, per date.
+The `comments` table contains a log of all the comments on a post by a user on a given date so its granularity is also one row per user, per post, per timestamp.
+
+The `votes` table contains a log of all the upvotes and downvotes on a post on a given date. It has separate rows for upvotes and downvotes so its granularity is one row per post, per vote type, per timestamp.
 
 To find a table's granularity you either read the documentation, or if that doesn't exist, you make an educated guess and check. Trust but verify. Real world data is messy
 
@@ -24,13 +26,14 @@ How do you check? It's easy.
 
 For the `post_history` table we can run the following query:
 ```sql
+--listing 2.1
 SELECT 
 	creation_date,
 	post_id,
 	post_history_type_id AS type_id,
 	user_id,
 	COUNT(*) AS total
-FROM bigquery-public-data.stackoverflow.post_history
+FROM post_history
 GROUP BY 1,2,3,4
 HAVING COUNT(*) > 1;
 ```
