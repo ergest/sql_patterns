@@ -81,7 +81,7 @@ We know that a user can perform any of the following activities on any given dat
 6. Receive a comment on their post
 7. Receive a vote (upvote or downvote) on their post
 
-We have separate tables for these activities, so our first step is to aggregate the data from each of the tables to the `user_id` and `aciticity_date` granularity and put each one on its own CTE.
+We have separate tables for these activities, so our first step is to aggregate the data from each of the tables to the `user_id` and `activity_date` granularity and put each one on its own CTE.
 
 We can break this down into several subproblems and map out a solution like this:
 

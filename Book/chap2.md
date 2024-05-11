@@ -327,7 +327,7 @@ ORDER BY
 	activity_date;
 ```
 
-This query will produce 58 rows. Now let's change the `INNER JOIN` to a `LEFT JOIN`and rerun the query:
+Count the number of rows. Now let's change the `INNER JOIN` to a `LEFT JOIN` and rerun the query:
 ```sql
 SELECT
 	ph.post_id,
@@ -345,7 +345,7 @@ ORDER BY
 	activity_date;
 ```
 
-Now we get 72 rows!! If you scan the results, you'll notice several where both the `user_name` and the `user_id` are `NULL` which means they're unknown. These could be people who made changes to that post and then deleted their accounts. Notice how the `INNER JOIN` was filtering them out? That's what I mean by data reduction which we discussed previously.
+Now we get more rows! If you scan the results, you'll notice several where both the `user_name` and the `user_id` are `NULL` which means they're unknown. These could be people who made changes to that post and then deleted their accounts. Notice how the `INNER JOIN` was filtering them out? That's what I mean by data reduction which we discussed previously.
 
 Suppose we only want to see users with a reputation of higher than 50. That's seems pretty straightforward just add the condition to the where clause
 ```sql

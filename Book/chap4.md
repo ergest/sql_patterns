@@ -174,7 +174,7 @@ WHERE
 GROUP BY 1,2;
 ```
 
-This query will get you the same results as table 3.1 in the previous chapter but as you can see the `eustions` and `answers` CTEs both have almost identical code. Imagine if you had to do this for all question types. You'd be copying and pasting a lot of code. Also, the subquery that handles the UNION is not ideal. I'm not a fan of subqueries
+This query will get you the same results as table 3.1 in the previous chapter but as you can see the `questions` and `answers` CTEs both have almost identical code. Imagine if you had to do this for all question types. You'd be copying and pasting a lot of code. Also, the subquery that handles the UNION is not ideal. I'm not a fan of subqueries
 
 Since both questions and answers tables have the exact same schema, a great way to deal with the above problem is by appending their rows using the `UNION` operator like this:
 ```sql

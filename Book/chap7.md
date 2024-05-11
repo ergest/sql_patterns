@@ -62,7 +62,7 @@ WITH post_activity AS (
         SUM(CASE WHEN activity_type = 'edited' AND post_type = 'question'
                 THEN 1 ELSE 0 END) AS questions_edited,
         SUM(CASE WHEN activity_type = 'edited' AND post_type = 'answer'
-                THEN 1 ELSE 0 END) AS ,
+                THEN 1 ELSE 0 END) AS answers_edited,
         SUM(CASE WHEN activity_type = 'created'
                 THEN 1 ELSE 0 END) AS posts_created,
         SUM(CASE WHEN activity_type = 'edited'
