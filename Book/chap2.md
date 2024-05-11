@@ -217,18 +217,19 @@ SELECT
 	creation_date,
 	reputation
 FROM users
-WHERE id = 8974849;
+WHERE id = 2702894;
 ```
 
 Here's the output:
 ```sql
-id     |user_name|creation_date          |reputation|
--------+---------+-----------------------+----------+
-8974849|neutrino |2017-11-20 18:16:46.653|       790|
+id     |display_name  |creation_date          |reputation|
+-------+--------------+-----------------------+----------+
+2702894|Graham Ritchie|2013-08-21 09:07:23.133|     20218|
 ```
 
 Whereas the `post_history` table has multiple rows for the same user:
 ```sql
+--listing 2.6
 SELECT
 	id,
 	creation_date,
@@ -236,29 +237,30 @@ SELECT
 	post_history_type_id AS type_id,
 	user_id 
 FROM
-	bigquery-public-data.stackoverflow.post_history ph
+	post_history ph
 WHERE
 	TRUE
-	AND ph.creation_date >= '2021-06-01' 
-	AND ph.creation_date <= '2021-09-30'
-	AND ph.user_id = 8974849;
+	AND ph.user_id = 2702894;
 ```
 
-Here's the output:
+Here's the partial output:
 ```sql
-id       |creation_date      |post_id |type_id|user_id|
----------+-------------------+--------+-------+-------+
-250199272|2021-07-14 00:54:58|68372251|      2|8974849|
-250199273|2021-07-14 00:54:58|68372251|      1|8974849|
-250199274|2021-07-14 00:54:58|68372251|      3|8974849|
-250263915|2021-07-15 00:01:07|68387743|      2|8974849|
-250263916|2021-07-15 00:01:07|68387743|      1|8974849|
-250263917|2021-07-15 00:01:07|68387743|      3|8974849|
-250316277|2021-07-15 16:32:44|68400451|      2|8974849|
+id       |creation_date          |post_id |type_id|user_id|
+---------+-----------------------+--------+-------+-------+
+260173419|2021-12-16 10:54:11.637|70377756|      2|2702894|
+260541172|2021-12-22 07:51:17.123|70445771|      2|2702894|
+260044378|2021-12-14 16:28:26.013|70352124|      6|2702894|
+260548889|2021-12-22 10:04:40.227|70446634|      6|2702894|
+259143984|2021-12-01 13:34:28.483|70185165|      2|2702894|
+259145213|2021-12-01 13:50:18.883|70185401|      2|2702894|
+259211259|2021-12-02 10:38:18.150|70197917|      2|2702894|
+259212754|2021-12-02 10:59:39.880|70198204|      2|2702894|
+259457154|2021-12-06 07:56:54.167|70242375|      2|2702894|
 ```
 
 If we join them on `user_id` the granularity of the final result will be multiplied to have as many rows per user:
 ```sql
+--listing 2.7
 SELECT
 	ph.post_id,
 	ph.user_id,
@@ -266,31 +268,27 @@ SELECT
 	ph.creation_date AS activity_date,
 	post_history_type_id AS type_id
 FROM
-	bigquery-public-data.stackoverflow.post_history ph
-	INNER JOIN bigquery-public-data.stackoverflow.users u 
+	post_history ph
+	INNER JOIN users u 
 		ON u.id = ph.user_id
 WHERE
 	TRUE
-	AND ph.creation_date >= '2021-06-01' 
-	AND ph.creation_date <= '2021-09-30'
-	AND ph.user_id = 8974849;
+	AND ph.user_id = 2702894;
 ```
 
-Here's the output:
+Here's the partial output:
 ```sql
-
-post_id |user_id|user_name|activity_date      |type_id|
---------+-------+---------+-------------------+-------+
-68078326|8974849|neutrino |2021-06-22 02:03:45|      2|
-68078326|8974849|neutrino |2021-06-22 02:03:45|      1|
-68078326|8974849|neutrino |2021-06-22 02:03:45|      3|
-68273785|8974849|neutrino |2021-07-06 11:56:05|      2|
-68273785|8974849|neutrino |2021-07-06 11:56:05|      1|
-68273785|8974849|neutrino |2021-07-06 11:56:05|      3|
-68277148|8974849|neutrino |2021-07-06 16:40:53|      2|
-68277148|8974849|neutrino |2021-07-06 16:40:53|      1|
-68277148|8974849|neutrino |2021-07-06 16:40:53|      3|
-68273785|8974849|neutrino |2021-07-06 12:02:11|      5|
+post_id |user_id|user_name     |activity_date          |type_id|
+--------+-------+--------------+-----------------------+-------+
+70377756|2702894|Graham Ritchie|2021-12-16 10:54:11.637|      2|
+70445771|2702894|Graham Ritchie|2021-12-22 07:51:17.123|      2|
+70352124|2702894|Graham Ritchie|2021-12-14 16:28:26.013|      6|
+70446634|2702894|Graham Ritchie|2021-12-22 10:04:40.227|      6|
+70185165|2702894|Graham Ritchie|2021-12-01 13:34:28.483|      2|
+70185401|2702894|Graham Ritchie|2021-12-01 13:50:18.883|      2|
+70197917|2702894|Graham Ritchie|2021-12-02 10:38:18.150|      2|
+70198204|2702894|Graham Ritchie|2021-12-02 10:59:39.880|      2|
+70242375|2702894|Graham Ritchie|2021-12-06 07:56:54.167|      2|
 ```
 
 Notice how the `user_name` repeats for each row.
