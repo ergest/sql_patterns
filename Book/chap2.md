@@ -139,13 +139,12 @@ GROUP BY
 
 Here's the output:
 ```sql
-post_id |user_id |activity_date|activity_type|total|
---------+--------+-------------+-------------+-----+
-69301792|  331024|   2021-09-24|edited       |    3|
-69301792|14251221|   2021-09-24|edited       |    1|
-69301792|  331024|   2021-09-23|created      |    3|
-69301792|   63550|   2021-09-24|edited       |    2|
-69301792|  331024|   2021-09-23|edited       |    1|
+post_id |user_id|activity_date|activity_type|total|
+--------+-------+-------------+-------------+-----+
+70182248|2702894|   2021-12-01|edited       |    1|
+70182248|2230216|   2021-12-01|edited       |    5|
+70182248|2230216|   2021-12-02|edited       |    1|
+70182248|2230216|   2021-12-01|created      |    3|
 ```
 
 In our case we only need to aggregate up to the day level, so we remove the time components by using `CAST(AS DATE)` 
@@ -157,6 +156,7 @@ Note that the counts here don't make sense since we already know that there are 
 
 This is the query:
 ```sql
+--listing 2.4
 SELECT
     ph.post_id,
     ph.user_id,
@@ -166,38 +166,36 @@ SELECT
     SUM(CASE WHEN ph.post_history_type_id IN (4,5,6)
 		THEN 1 ELSE 0 END) AS edited
 FROM
-    bigquery-public-data.stackoverflow.post_history ph
+    post_history ph
 WHERE
     TRUE 
     AND ph.post_history_type_id BETWEEN 1 AND 6
     AND ph.user_id > 0 --exclude automated processes
     AND ph.user_id IS NOT NULL --exclude deleted accounts
-    AND ph.creation_date >= '2021-06-01' 
-    AND ph.creation_date <= '2021-09-30'
-    AND ph.post_id = 69301792
+    AND ph.creation_date >= '2021-12-01'
+    AND ph.creation_date <= '2021-12-31'
+    AND ph.post_id = 70182248
 GROUP BY
-    1,2,3
+    1,2,3;
 ```
 
 It will take this type of output
 ```sql
-post_id |user_id |activity_date|activity_type|total|
---------+--------+-------------+-------------+-----+
-69301792|  331024|   2021-09-24|edited       |    3|
-69301792|14251221|   2021-09-24|edited       |    1|
-69301792|  331024|   2021-09-23|created      |    3|
-69301792|   63550|   2021-09-24|edited       |    2|
-69301792|  331024|   2021-09-23|edited       |    1|
+post_id |user_id|activity_date|activity_type|total|
+--------+-------+-------------+-------------+-----+
+70182248|2702894|   2021-12-01|edited       |    1|
+70182248|2230216|   2021-12-01|edited       |    5|
+70182248|2230216|   2021-12-02|edited       |    1|
+70182248|2230216|   2021-12-01|created      |    3|
 ```
 
 and turn it into this
 ```sql
-post_id |user_id |activity_date|created|edited|
---------+--------+-------------+-------+------+
-69301792|   63550|   2021-09-24|      0|     2|
-69301792|  331024|   2021-09-24|      0|     3|
-69301792|  331024|   2021-09-23|      3|     1|
-69301792|14251221|   2021-09-24|      0|     1|
+post_id |user_id|activity_date|created|edited|
+--------+-------+-------------+-------+------+
+70182248|2230216|   2021-12-01|      3|     5|
+70182248|2702894|   2021-12-01|      0|     1|
+70182248|2230216|   2021-12-02|      0|     1|
 ```
 
 Pivoting is how we're going to calculate all the metrics for users, so this is an important concept to learn.
@@ -212,12 +210,13 @@ Let's look at an example:
 
 The `users` table has a grain of one row per user:
 ```sql
+--listing 2.5
 SELECT
 	id,
 	display_name,
 	creation_date,
 	reputation
-FROM bigquery-public-data.stackoverflow.users
+FROM users
 WHERE id = 8974849;
 ```
 
