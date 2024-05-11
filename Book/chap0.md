@@ -20,12 +20,11 @@ I have a background in computer science. As part of the curriculum we learn how 
 
 When reviewing other people’s code I would often spot the same mistakes. There were chunks of code that would repeat everywhere. The queries were long, complex and slow. I would often have rewrite them just so I could understand what they were doing.
 
-Software engineers have long used design patterns to make their code easier to write, understand and maintain. I looked around for a book or course that taught these same patterns for SQL. There are a lot of SQL books that show you
-
-but couldn’t find one, so I decided to write it myself.
-
+Software engineers have long used design patterns to make their code easier to write, understand and maintain. I looked around for a book or course that taught these same patterns for SQL. There are a lot of SQL books that show you how to query data, how to transform and model it but couldn’t find one that explained how to organize code, so I decided to write it myself.
 ## Who this book is for
 This book is for anyone who is familiar with SQL and wants to take their skills to the next level. We won't cover any of the basic syntax here so make sure you have that down pat. I expect you to already know how to join tables and do basic filtering and aggregation.
+
+If you're using SQL to build complex data processing workflows -- like I have -- this book is a must for you.
 
 If you find that your SQL code is often inefficient and slow and you want to make it faster, this book is for you.
 
@@ -40,9 +39,11 @@ That's why for this book I wanted to come up with an interesting and useful data
 
 This will ensure that you learn the material better and remember it the next time you need to apply it.
 
-We'll be working with the Stackoverflow dataset that's available in BigQuery for free. You can access it [here](https://console.cloud.google.com/marketplace/product/stack-exchange/stack-overflow).
+In the previous edition of this book I used the StackOverflow dataset that's publicly available in BigQuery. Realizing that not everyone has access to this and that it could dissappear at any moment I decided to make a few changes
 
-BigQuery offers 1TB/month free of processing so you can complete this entire course for free. I've made sure that the queries are small and limited in scope so you won't have to worry about running out.
+First of all I made the tables available as parquet files in GitHub. Second I decided to use the freely available (and may I say quite amazing) DuckDB. The instructions for setting everything up are available on this repo: https://github.com/ergest/sqlpatterns
+
+I've also included all the code in the repo so you can copy/paste it and run it. I do however strongly encourage you to actually type it yourself. You'll learn better that way.
 
 Using this dataset we're going to build a table which calculates reputation metrics. You can use this same type of table to calculate a customer engagement score or a customer 360 table.
 
