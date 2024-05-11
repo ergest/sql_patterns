@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "book/chap3.md",
+                "file": "book/chap0.md",
                 "mode": "source",
                 "source": false
               }
@@ -85,7 +85,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "book/chap3.md",
+                "file": "book/chap0.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -104,12 +104,12 @@
               "state": {}
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 300,
+    "collapsed": true
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -122,11 +122,11 @@
       "table-editor-obsidian:Advanced Tables Toolbar": false
     }
   },
-  "active": "196688334c92bba7",
+  "active": "8e6b0d89cccb8f39",
   "lastOpenFiles": [
+    "book/chap3.md",
     "build",
     "book/chap1.md",
-    "book/chap3.md",
     "book/chap4.md",
     "book/chap0.md",
     "book/chap7.md",
