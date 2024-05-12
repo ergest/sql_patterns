@@ -178,7 +178,7 @@ WITH post_activity AS (
     FROM
         post_history ph
         INNER JOIN users u 
-			ON u.id = ph.user_id
+            ON u.id = ph.user_id
     WHERE
         TRUE
         AND ph.post_history_type_id BETWEEN 1 AND 6
@@ -189,20 +189,25 @@ WITH post_activity AS (
 )
 SELECT *
 FROM post_activity
-WHERE user_id = 16366214
-ORDER BY activity_date;
+WHERE user_id = 4603670
+ORDER BY activity_date
+LIMIT 10;
 ```
 
 Here's the output:
 ```sql
-
-post_id |user_id |user_name  |activity_date          |activity_type|
---------+--------+-----------+-----------------------+-------------+
-68226767|16366214|Tony Agosta|2021-07-02 10:18:42.410|created      |
-68441160|16366214|Tony Agosta|2021-07-19 09:16:57.660|created      |
-68469502|16366214|Tony Agosta|2021-07-21 08:29:22.773|created      |
-68469502|16366214|Tony Agosta|2021-07-26 07:31:43.513|edited       |
-68441160|16366214|Tony Agosta|2021-07-26 07:32:07.387|edited       |
+post_id |user_id|user_name       |activity_date          |activity_type|
+--------+-------+----------------+-----------------------+-------------+
+70192540|4603670|Barmak Shemirani|2021-12-01 23:30:38.057|created      |
+70192540|4603670|Barmak Shemirani|2021-12-01 23:35:42.157|edited       |
+70193076|4603670|Barmak Shemirani|2021-12-02 01:06:08.973|edited       |
+70192540|4603670|Barmak Shemirani|2021-12-02 01:56:02.137|edited       |
+70199876|4603670|Barmak Shemirani|2021-12-02 12:54:40.230|created      |
+70199876|4603670|Barmak Shemirani|2021-12-02 13:21:05.200|edited       |
+70199876|4603670|Barmak Shemirani|2021-12-02 14:14:56.210|edited       |
+70208753|4603670|Barmak Shemirani|2021-12-03 02:18:58.930|created      |
+70208753|4603670|Barmak Shemirani|2021-12-03 02:40:51.667|edited       |
+70212702|4603670|Barmak Shemirani|2021-12-03 11:40:09.240|edited       |
 
 Table 3.1
 ```
