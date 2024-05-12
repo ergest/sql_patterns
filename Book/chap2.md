@@ -356,10 +356,11 @@ WHERE
 	AND u.reputation >= 500000;
 ```
 
-We get 7,596 rows. Fine you might say, that looks right. But it's not!
+We get 7,596 rows. Fine you might say, that looks right. But it's not! Adding filters on the `WHERE` clause for tables that are left joined will **ALWAYS** perform an `INNER JOIN.`
 
-Adding filters on the `WHERE` clause for tables that are left joined will ALWAYS perform an `INNER JOIN` except for one single condition where the left join is preserved. If we wanted to filter rows in the `users` table and still do a `LEFT JOIN`  we have to add the filter in the join condition like so:
+If we wanted to filter rows in the `users` table and still do a `LEFT JOIN` we have to add the filter in the join condition like so:
 ```sql
+--listing 2.11
 SELECT
 	COUNT(*)
 FROM
@@ -373,29 +374,25 @@ WHERE
 
 Now we get 806,608 rows!
 
-The ONLY time when putting a condition in the `WHERE` clause does NOT turn a `LEFT JOIN` into an `INNER JOIN` is when checking for `NULL`. This is very useful when you want to see the missing data on the table that's being left joined. Here's an example
+The ONLY time when putting a condition in the `WHERE` clause does NOT turn a `LEFT JOIN` into an `INNER JOIN` is when checking for `NULL.` 
+
+This is very useful when you want to see the missing data on the table that's being left joined. Here's an example
 ```sql
+listing 2.12
 SELECT
-	ph.post_id,
-	ph.user_id,
-	u.display_name AS user_name,
-	ph.creation_date AS activity_date
+	COUNT(*)
 FROM
-	bigquery-public-data.stackoverflow.post_history ph
-	LEFT JOIN bigquery-public-data.stackoverflow.users u
-		ON u.id = ph.user_id	
+	post_history ph
+	LEFT JOIN users u
+		ON u.id = ph.user_id
 WHERE
 	TRUE
-	AND ph.post_id = 4
-	AND u.id is NULL
-ORDER BY
-	activity_date;
+	AND u.id IS NULL;
 ```
-This query gives us the 12 missing users
 
-**Starting with a LEFT JOIN**
+**Trick of the Trade: Start with a LEFT JOIN**
 Since we're on the subject of LEFT JOINS, one of my most used rules of thumb is to always use a `LEFT JOIN` when I'm not sure if one table is a subset of the other. For example in the query above, there's definitely users that have a valid `user_id` in the `users` table but have never had any activity.
 
-This often happens in the real world when data is deleted from a table and there's no foreign key constraints to ensure referential integrity (i.e. the database ensures you can't delete a row if it's referenced in another table. These types of constraints don't exist in data warehouses hence my general rule of thumb of always starting with a `LEFT JOIN`
+This often happens in the real world when data is deleted from a table and there's no foreign key constraints to ensure referential integrity (i.e. the database ensures you can't delete a row if it's referenced in another table. These types of constraints don't exist in data warehouses hence my general rule of thumb of always starting with a `LEFT JOIN.`
 
 Now that we have covered the basic concepts, it's time to dive into the patterns.
