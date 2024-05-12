@@ -9,12 +9,11 @@ Every complex system is made up of simple, self contained elements that can be d
 When a system is designed with modularity in mind, it makes it very easy for independent parties to build these components in parallel so they can be assembled later. It also makes it easy to debug and fix the system when it's in production.
 
 In this chapter we'll learn:
--  Single Responsibility Principle (SRP)
-	- Designing easy to test, composable modules
 - Composition Patterns
-	- Single Responsibility Principle (SRP) 
+	- Single Responsibility Principle (SRP)
+	- Self Documenting Code Principle
+	- Reusability Principle
 - Maintainability Patterns
-	- 
 	- Don't Repeat Yourself Principle (DRY)
 	- Wrapping
 
