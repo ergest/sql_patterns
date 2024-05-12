@@ -15,7 +15,7 @@ In this post we'll learn how we can apply it to SQL.
 ### Three Levels of Modularity
 In SQL we can apply modularity in 3 different levels:
 
-1. Within the same SQL query
+1. Within the same SQL query using CTEs
 2. Across multiple SQL queries
 3. Beyond SQL queries
 
@@ -23,15 +23,17 @@ Have you ever written or debugged a really long SQL query? Did you get lost in t
 
 Whether you got lost or not depends a lot on whether the query was using CTEs to decompose a problem into logical modules that made it easy to understanding and debug.
 
-### Level 1 - Within the same SQL query
-CTEs or Common Table Expressions are temporary views whose scope is limited to the current query. They are not stored in the database; they only exist while the query is running and are only accessible in that query. They act like subqueries but are easier to understand and use.
+### Level 1 - Within the Same Query Using CTEs
+CTEs or Common Table Expressions are temporary views whose scope is limited to the current query. They are not stored in the database; they only exist while the query is running and are only accessible inside that query. They act like subqueries but are easier to understand and use.
 
 CTEs allow you to break down complex queries into simpler, smaller self-contained modules. By connecting them together we can solve any complex query.
+
+When you use CTEs you can read a query top to bottom and easily understand what's going on. When you use sub-queries it's a lot harder to trace the logic and figure out which column is defined where and what scope it has. You have to read the innermost subquery first and then remember each of the definitions.
 
 > _Side Note_:  
 > Even though CTEs have been part of the definition of the SQL standard since 1999, it has taken many years for database vendors to implement them. Some versions of older databases (like MySQL before 8.0, PostgreSQL before 8.4, SQL Server before 2005) do not have support for them. All the modern cloud warehouse vendors support them.
 
-One of the best ways to visualize CTEs is through a DAG (aka Directed Acyclical Graph). Here are some examples of how CTEs could be chained to solve a complex query.
+One of the best ways to visualize CTEs is to think of them as a DAG (aka Directed Acyclical Graph) where each node handles a single processing step. Here are some examples of how CTEs could be chained to solve a complex query.
 
 In this example each CTE uses the results of the previous CTE to build upon its result set and take it further.
 
@@ -137,125 +139,8 @@ SELECT *
 FROM cte6_name
 ```
 As you can see, there's an endless way in which you can chain or stack CTEs to solve complex queries.
-### Level 2- Across multiple queries
-
-When you find yourself copying and pasting CTEs across multiple queries it's time to refactor them into views, UDFs or stored procedures.
-
-Views are great for encapsulating business logic that applies to many queries. They're also used in security applications to limit the rows or columns exposed to the end user based on their permissions.
-
-#### Views
-
-Creating a view is easy:
-
-```sql
-CREATE OR REPLACE VIEW <view_name> AS
-	SELECT col1
-	FROM table1
-	WHERE col1 > x;
-```
-
-Once created you can run:
-
-```sql
-SELECT *
-FROM <view_name>
-```
-
-This view is now stored in the database but it doesn't take up any space (unless it's materialized) It only stores the query which is executed each time you select from the view or join the view in a query.
-
-Views can be put inside of CTEs or can themselves contain CTEs, thus creating multiple layers of modularity. Here's an example of what that would look like.
-
-![](https://www.ergestx.com/content/images/2022/12/Example-Dag-Dag4.drawio.png)
-
-> Side Note:  
-> By combining views and CTEs, you're nesting many queries within others. Not only does this negatively impact performance but some databases have limits to how many levels of nesting you can have.
-
-#### UDFs
-
-Similar to views you can also put commonly used logic into UDFs (user-defined functions) Pretty much all databases allow you to create UDFs but they each use different programming languages to do so.
-
-SQL Server uses T-SQL to create functions. PostgreSQL uses PL/pgsql or Python (with the right extension) BigQuery and Snowflake use Javascript, Python, etc.
-
-Functions allow for conditional flow of logic and variables which makes it easy to implement complex logic.
-
-UDFs can return a single scalar value or a table. A single scalar value can be used for example to parse certain strings via regular expressions.
-
-Table valued functions return a table instead of a single value. They behave exactly like views but the main difference is that they can take input parameters and return different tables based on that. Very useful.
-
-#### Stored Procedures
-
-Like table-valued functions, stored procedures (sprocs) allow you to encapsulate very complex business logic inside a database. They also return tables as their output.
-
-They were heavily used in transactional systems to implement business logic inside the database, but have fallen out of favor in data processing. I will not cover them here.
-
-
-## Common Table Expressions (CTEs)
-CTEs or Common Table Expressions are temporary views whose scope is limited to the current query. They are not stored in the database; they only exist while the query is running and are only accessible in that query. They act like subqueries but are easier to understand and use.
-
-CTEs allow you to break down complex queries into simpler, smaller self-contained modules. By connecting them together we can solve just about any complex query. One of the key requirements is that these CTEs should not try to do too much. They should have a single purpose or responsibility so you can write, test and debug them independently.
-
-_Side Note_: Even though CTEs have been part of the definition of the SQL standard since 1999, it has taken many years for database vendors to implement them. Some versions of older databases (like MySQL before 8.0, PostgreSQL before 8.4, SQL Server before 2005) do not have support for CTEs. All the modern cloud vendors have support for CTEs
-
-We define a single CTE using the `WITH` keyword and then use it in the main query like this:
-```sql
--- Define CTE
-WITH <cte_name> AS (
-	SELECT col1, col2
-	FROM table_name
-)
-
--- Main query
-SELECT *
-FROM <cte_name>
-```
-
-We can define multiple CTEs similarly using the `WITH` keyword like this:
-```sql
--- Define CTE 1
-WITH <cte1_name> AS (
-	SELECT col1
-	FROM table1_name
-)
-
--- Define CTE 2
-, <cte2_name> AS (
-	SELECT col1
-	FROM table2_name
-)
-
--- Main query
-SELECT *
-FROM <cte1_name> AS cte1
-JOIN <cte2_name> AS cte2 
-    ON cte1.col1 = cte2.col1
-```
-
-Notice that you only use the `WITH` keyword once then you separate them using a comma in front of the name of the each one.
-
-We can refer to a previous CTE in a new CTE so you chain them together like this:
-```sql
--- Define CTE 1
-WITH <cte1_name> AS (
-	SELECT col1
-	FROM table1_name
-)
-
--- Define CTE 2 by referring to CTE 1
-, <cte2_name> AS (
-	SELECT col1
-	FROM cte1_name
-)
-
--- Main query
-SELECT *
-FROM <cte2_name>
-```
-
-We'll talk about chaining in a little bit.
-
-When you use CTEs you can read a query top to bottom and easily understand what's going on. When you use sub-queries it's a lot harder to trace the logic and figure out which column is defined where and what scope it has. You have to read the innermost subquery first and then remember each of the definitions.
-
-## Decomposing Queries With CTEs
+## Example
+Now that you've seen the 
 Getting our user data from the current form to the final form of one row per user is not something that can be done in a single step. Well you probably could hack something together that works but that will not be very easy to maintain. It's a complex query.
 
 In order to solve it, we need to decompose (break down) our complex query into smaller, easier to write pieces. Here's how to think about it:
@@ -571,5 +456,51 @@ FROM
 GROUP BY
 	1,2
 ```
+
+
+### Level 2- Across multiple queries
+
+When you find yourself copying and pasting CTEs across multiple queries it's time to refactor them into views, UDFs or stored procedures.
+
+Views are great for encapsulating business logic that applies to many queries. They're also used in security applications to limit the rows or columns exposed to the end user based on their permissions.
+
+#### Views
+
+Creating a view is easy:
+
+```sql
+CREATE OR REPLACE VIEW <view_name> AS
+	SELECT col1
+	FROM table1
+	WHERE col1 > x;
+```
+
+Once created you can run:
+
+```sql
+SELECT *
+FROM <view_name>
+```
+
+This view is now stored in the database but it doesn't take up any space (unless it's materialized) It only stores the query which is executed each time you select from the view or join the view in a query.
+
+Views can be put inside of CTEs or can themselves contain CTEs, thus creating multiple layers of modularity. Here's an example of what that would look like.
+
+![](https://www.ergestx.com/content/images/2022/12/Example-Dag-Dag4.drawio.png)
+
+> Side Note:  
+> By combining views and CTEs, you're nesting many queries within others. Not only does this negatively impact performance but some databases have limits to how many levels of nesting you can have.
+
+#### UDFs
+
+Similar to views you can also put commonly used logic into UDFs (user-defined functions) Pretty much all databases allow you to create UDFs but they each use different programming languages to do so.
+
+SQL Server uses T-SQL to create functions. PostgreSQL uses PL/pgsql or Python (with the right extension) BigQuery and Snowflake use Javascript, Python, etc.
+
+Functions allow for conditional flow of logic and variables which makes it easy to implement complex logic.
+
+UDFs can return a single scalar value or a table. A single scalar value can be used for example to parse certain strings via regular expressions.
+
+Table valued functions return a table instead of a single value. They behave exactly like views but the main difference is that they can take input parameters and return different tables based on that. Very useful.
 
 In the next chapter we'll extend these patterns and see how they help us with query maintainability.
