@@ -425,6 +425,7 @@ Calculate votes metrics. There are two types of votes:
 The query and final result should look like this:
 ```sql
 --code snippet will not actually run
+--listing 3.5
 , votes_on_user_post AS (
       SELECT
         pa.user_id,
@@ -432,7 +433,7 @@ The query and final result should look like this:
         SUM(CASE WHEN vote_type_id = 2 THEN 1 ELSE 0 END) AS total_upvotes,
         SUM(CASE WHEN vote_type_id = 3 THEN 1 ELSE 0 END) AS total_downvotes,
     FROM
-        stackoverflow.votes v
+        votes v
         INNER JOIN post_activity pa ON pa.post_id = v.post_id
     WHERE
         TRUE
@@ -454,14 +455,20 @@ LIMIT 10;
 
 Here's the output:
 ```sql
+user_id|activity_date|total_upvotes|total_downvotes|
+-------+-------------+-------------+---------------+
+4603670|   2021-12-02|            0|              1|
+4603670|   2021-12-03|            3|              0|
+4603670|   2021-12-05|            2|              0|
+4603670|   2021-12-06|            5|              0|
+4603670|   2021-12-07|            2|              0|
+4603670|   2021-12-08|            2|              0|
+4603670|   2021-12-09|            1|              0|
+4603670|   2021-12-10|            0|              0|
+4603670|   2021-12-11|            2|              0|
+4603670|   2021-12-12|            1|              0|
 
-user_id |activity_date|total_upvotes|total_downvotes|
---------+-------------+-------------+---------------+
-16366214|   2021-07-26|            2|              0|
-16366214|   2021-07-06|            0|              1|
-16366214|   2021-07-07|            0|              0|
-
-Table 3.4
+Table 3.5
 ```
 
 By now you should start to see very clearly how the final result is constructed. All we have to do is take the 3 results from the sub-problems and join them together on `user_id` and `activity_date` This will allow us to have a single table with a granularity of one row per user and all the metrics aggregated on the day level like this:
