@@ -296,24 +296,25 @@ Notice how the `user_name` repeats for each row.
 So if the history table has 10 entries for the same user and the `users` table has 1, the final result will contain 10 x 1 entries for the same user. If for some reason the `users` contained 2 entries for the same user (messy real world data), we'd see 10 x 2 = 20 entries for that user in the final result and each row would repeat twice.
 
 ### Accidental INNER JOIN
-Did you know that SQL will ignore a `LEFT JOIN` clause and perform an `INNER JOIN` instead if you make this one simple mistake? This is one of those SQL hidden secrets which sometimes gets asked as a trick question in interviews so strap in.
+Did you know that SQL will ignore a `LEFT JOIN` clause and perform an `INNER JOIN` instead if you make this one simple mistake? This is one of those SQL hidden secrets which sometimes gets asked as a trick question in interviews.
 
 When doing a `LEFT JOIN` you're intending to show all the results on the table in the `FROM` clause but if you need to limit
 
 Let's take a look at the example query from above:
 ```sql
+--listing 2.8
 SELECT
 	ph.post_id,
 	ph.user_id,
 	u.display_name AS user_name,
 	ph.creation_date AS activity_date
 FROM
-	bigquery-public-data.stackoverflow.post_history ph
-	INNER JOIN bigquery-public-data.stackoverflow.users u 
+	post_history ph
+	INNER JOIN users u 
 		ON u.id = ph.user_id
 WHERE
 	TRUE
-	AND ph.post_id = 4
+	AND ph.post_id = 70286266
 ORDER BY
 	activity_date;
 ```
@@ -326,17 +327,19 @@ SELECT
 	u.display_name AS user_name,
 	ph.creation_date AS activity_date
 FROM
-	bigquery-public-data.stackoverflow.post_history ph
-	LEFT JOIN bigquery-public-data.stackoverflow.users u
+	post_history ph
+	LEFT JOIN users u
 		ON u.id = ph.user_id
 WHERE
 	TRUE
-	AND ph.post_id = 4
+	AND ph.post_id = 70286266
 ORDER BY
 	activity_date;
 ```
 
-Now we get more rows! If you scan the results, you'll notice several where both the `user_name` and the `user_id` are `NULL` which means they're unknown. These could be people who made changes to that post and then deleted their accounts. Notice how the `INNER JOIN` was filtering them out? That's what I mean by data reduction which we discussed previously.
+Now we get more rows! What happened?
+
+If you scan the results, you'll notice several where both the `user_name` and the `user_id` are `NULL` which means they're unknown. These could be people who made changes to that post and then deleted their accounts. Notice how the `INNER JOIN` was filtering them out? That's what I mean by data reduction which we discussed previously.
 
 Suppose we only want to see users with a reputation of higher than 50. That's seems pretty straightforward just add the condition to the where clause
 ```sql
