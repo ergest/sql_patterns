@@ -8,9 +8,15 @@ Every complex system is made up of simple, self contained elements that can be d
 
 When a system is designed with modularity in mind, it makes it very easy for independent parties to build these components in parallel so they can be assembled later. It also makes it easy to debug and fix the system when it's in production.
 
-Modularity is one of the core principles of the design of operating systems. If you're familiar with the command line interface on a Mac or Unix, you've seen its power. It's designed in a way to stitch together independent tools to solve ever more complex problems.
-
-In this post we'll learn how we can apply it to SQL.
+In this chapter we'll learn:
+-  Single Responsibility Principle (SRP)
+	- Designing easy to test, composable modules
+- Composition Patterns
+	- Single Responsibility Principle (SRP) 
+- Maintainability Patterns
+	- 
+	- Don't Repeat Yourself Principle (DRY)
+	- Wrapping
 
 ### Three Levels of Modularity
 In SQL we can apply modularity in 3 different levels:
