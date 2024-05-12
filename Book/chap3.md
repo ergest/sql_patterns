@@ -1,4 +1,4 @@
-# Chapter 3: Query Decomposition
+# Chapter 3: Query Composition
 In this chapter we're going to learn one of the most important patterns in SQL. This pattern will help you solve very complex queries by systematically decomposing them into simpler ones. Before we go that far, first we need to talk about CTEs
 
 ## Common Table Expressions (CTEs)
