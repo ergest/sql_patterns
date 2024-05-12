@@ -11,7 +11,7 @@ When a system is designed with modularity in mind, it makes it very easy for ind
 In this chapter we'll learn:
 - Composition Patterns
 	- Single Responsibility Principle (SRP)
-	- Self Documenting Code Principle
+	- Self Documenting Code Principle (intention revealing names)
 	- Reusability Principle
 - Maintainability Patterns
 	- Don't Repeat Yourself Principle (DRY)
