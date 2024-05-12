@@ -319,8 +319,9 @@ ORDER BY
 	activity_date;
 ```
 
-Count the number of rows. Now let's change the `INNER JOIN` to a `LEFT JOIN` and rerun the query:
+You'll see 6 rows. Now let's change the `INNER JOIN` to a `LEFT JOIN` and rerun the query:
 ```sql
+--listing 2.9
 SELECT
 	ph.post_id,
 	ph.user_id,
@@ -337,49 +338,40 @@ ORDER BY
 	activity_date;
 ```
 
-Now we get more rows! What happened?
+Now we get 8 rows! What happened?
 
 If you scan the results, you'll notice several where both the `user_name` and the `user_id` are `NULL` which means they're unknown. These could be people who made changes to that post and then deleted their accounts. Notice how the `INNER JOIN` was filtering them out? That's what I mean by data reduction which we discussed previously.
 
-Suppose we only want to see users with a reputation of higher than 50. That's seems pretty straightforward just add the condition to the where clause
+Suppose we only want to see users with a reputation of  500,000 or higher. That's seems pretty straightforward just add the condition to the where clause
 ```sql
+--listing 2.10
 SELECT
-	ph.post_id,
-	ph.user_id,
-	u.display_name AS user_name,
-	ph.creation_date AS activity_date
+	COUNT(*)
 FROM
-	bigquery-public-data.stackoverflow.post_history ph
-	LEFT JOIN bigquery-public-data.stackoverflow.users u
+	post_history ph
+	LEFT JOIN users u
 		ON u.id = ph.user_id
 WHERE
 	TRUE
-	AND ph.post_id = 4
-	AND u.reputation > 50
-ORDER BY
-	activity_date;
+	AND u.reputation >= 500000;
 ```
 
-We only get 56 rows! What happened?
+We get 7,596 rows. Fine you might say, that looks right. But it's not!
 
-Adding filters on the where clause for tables that are left joined will ALWAYS perform an `INNER JOIN` except for one single condition where the left join is preserved. If we wanted to filter rows in the `users` table and still do a `LEFT JOIN`  we have to add the filter in the join condition like so:
+Adding filters on the `WHERE` clause for tables that are left joined will ALWAYS perform an `INNER JOIN` except for one single condition where the left join is preserved. If we wanted to filter rows in the `users` table and still do a `LEFT JOIN`  we have to add the filter in the join condition like so:
 ```sql
 SELECT
-	ph.post_id,
-	ph.user_id,
-	u.display_name AS user_name,
-	ph.creation_date AS activity_date
+	COUNT(*)
 FROM
-	bigquery-public-data.stackoverflow.post_history ph
-	LEFT JOIN bigquery-public-data.stackoverflow.users u
+	post_history ph
+	LEFT JOIN users u
 		ON u.id = ph.user_id
-	AND u.reputation > 50		
+		AND u.reputation >= 500000
 WHERE
-	TRUE
-	AND ph.post_id = 4
-ORDER BY
-	activity_date;
+	TRUE;
 ```
+
+Now we get 806,608 rows!
 
 The ONLY time when putting a condition in the `WHERE` clause does NOT turn a `LEFT JOIN` into an `INNER JOIN` is when checking for `NULL`. This is very useful when you want to see the missing data on the table that's being left joined. Here's an example
 ```sql
