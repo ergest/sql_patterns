@@ -215,6 +215,7 @@ Table 3.1
 We then join this with the `posts_questions` and `post_answers` on `post_id`. That would look like this:
 
 ```sql
+--listing 3.2
 WITH post_activity AS (
     SELECT
         ph.post_id,
@@ -225,8 +226,8 @@ WITH post_activity AS (
              WHEN ph.post_history_type_id IN (4,5,6) THEN 'edited' 
         END AS activity_type
     FROM
-        bigquery-public-data.stackoverflow.post_history ph
-        INNER JOIN bigquery-public-data.stackoverflow.users u 
+        post_history ph
+        INNER JOIN users u 
 			ON u.id = ph.user_id
     WHERE
         TRUE
@@ -267,7 +268,7 @@ SELECT
 FROM
     post_activity pa
     JOIN post_types pt ON pa.post_id = pt.post_id
-WHERE user_id = 16366214
+WHERE user_id = 4603670
 ORDER BY activity_date;
 ```
 
