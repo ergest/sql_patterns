@@ -234,32 +234,22 @@ WITH post_activity AS (
         AND ph.post_history_type_id BETWEEN 1 AND 6
         AND user_id > 0 --exclude automated processes
         AND user_id IS NOT NULL --exclude deleted accounts
-        AND ph.creation_date >= '2021-06-01' 
-        AND ph.creation_date <= '2021-09-30'
     GROUP BY
         1,2,3,4,5
-)
-, post_types AS (
+),
+post_types AS (
     SELECT
         id AS post_id,
         'question' AS post_type,
     FROM
-        bigquery-public-data.stackoverflow.posts_questions
-    WHERE
-        TRUE
-        AND creation_date >= '2021-06-01' 
-        AND creation_date <= '2021-09-30'
+        posts_questions
     UNION ALL
     SELECT
         id AS post_id,
         'answer' AS post_type,
     FROM
-        bigquery-public-data.stackoverflow.posts_answers
-    WHERE
-        TRUE
-        AND creation_date >= '2021-06-01' 
-        AND creation_date <= '2021-09-30'
- )
+        posts_answers
+)
 SELECT
     pa.user_id,
     CAST(pa.activity_date AS DATE) AS activity_date,
@@ -274,33 +264,77 @@ ORDER BY activity_date;
 
 Here's the output:
 ```sql
-user_id |date      |activity_type|post_type|
---------+----------+-------------+---------+
-16366214|2021-07-18|created      |question |
-16366214|2021-07-20|created      |question |
-16366214|2021-07-25|edited       |question |
-16366214|2021-07-25|created      |answer   |
-16366214|2021-07-01|created      |question |
-16366214|2021-07-25|edited       |question |
-
-Table 3.1
-```
-
-The final result should look like this:
-```sql
-user_id |date      |question_created|answer_created|question_edited|answer_edited|
---------+----------+----------------+--------------+---------------+-------------+
-16366214|2021-07-25|               0|             1|              2|            0|
-16366214|2021-07-18|               1|             0|              0|            0|
-16366214|2021-07-01|               1|             0|              0|            0|
-16366214|2021-07-20|               1|             0|              0|            0|
+user_id|activity_date|activity_type|post_type|
+-------+-------------+-------------+---------+
+4603670|   2021-12-01|edited       |answer   |
+4603670|   2021-12-01|created      |answer   |
+4603670|   2021-12-02|edited       |answer   |
+4603670|   2021-12-02|edited       |answer   |
+4603670|   2021-12-02|created      |answer   |
+4603670|   2021-12-02|edited       |answer   |
+4603670|   2021-12-02|edited       |question |
+4603670|   2021-12-03|created      |answer   |
+4603670|   2021-12-03|edited       |answer   |
+4603670|   2021-12-03|created      |answer   |
 
 Table 3.2
 ```
 
-How do we go from *Table 3.1* to *Table 3.2*? If you recall from **Chapter 2**, we can use aggregation and pivoting:
+The final result should look like this:
 ```sql
---code snippet will not actually run
+user_id|activity_date|question_created|answer_created|question_edited|answer_edited|
+-------+-------------+----------------+--------------+---------------+-------------+
+4603670|   2021-12-01|               0|             1|              0|            1|
+4603670|   2021-12-02|               0|             1|              1|            3|
+4603670|   2021-12-03|               0|             3|              1|            5|
+4603670|   2021-12-04|               0|             2|              0|            6|
+4603670|   2021-12-05|               0|             2|              0|            3|
+4603670|   2021-12-06|               0|             3|              2|            9|
+4603670|   2021-12-07|               0|             2|              3|            2|
+4603670|   2021-12-08|               0|             2|              2|            6|
+4603670|   2021-12-09|               0|             0|              1|            0|
+4603670|   2021-12-10|               0|             1|              1|            1|
+
+Table 3.3
+```
+
+How do we go from *Table 3.2* to *Table 3.3*? If you recall from **Chapter 2**, we can use aggregation and pivoting:
+```sql
+--listing 3.3
+WITH post_activity AS (
+    SELECT
+        ph.post_id,
+        ph.user_id,
+        u.display_name AS user_name,
+        ph.creation_date AS activity_date,
+        CASE WHEN ph.post_history_type_id IN (1,2,3) THEN 'created'
+             WHEN ph.post_history_type_id IN (4,5,6) THEN 'edited' 
+        END AS activity_type
+    FROM
+        post_history ph
+        INNER JOIN users u 
+			ON u.id = ph.user_id
+    WHERE
+        TRUE
+        AND ph.post_history_type_id BETWEEN 1 AND 6
+        AND user_id > 0 --exclude automated processes
+        AND user_id IS NOT NULL --exclude deleted accounts
+    GROUP BY
+        1,2,3,4,5
+),
+post_types AS (
+    SELECT
+        id AS post_id,
+        'question' AS post_type,
+    FROM
+        posts_questions
+    UNION ALL
+    SELECT
+        id AS post_id,
+        'answer' AS post_type,
+    FROM
+        posts_answers
+)
 SELECT
     user_id,
     CAST(pa.activity_date AS DATE) AS activity_date,
@@ -314,10 +348,9 @@ SELECT
         AND post_type = 'answer'   THEN 1 ELSE 0 END) AS answer_edited  
 FROM post_activity pa
      JOIN post_types pt ON pt.post_id = pa.post_id
-WHERE user_id = 16366214
+WHERE user_id = 4603670
 GROUP BY 1,2
 ```
-This query will not run and is only shown for demonstration purposes.
 
 ### Sub-problem 2
 Calculate comments metrics. There are two types of comments: 
@@ -327,19 +360,18 @@ Calculate comments metrics. There are two types of comments:
 The query and final result should look like this:
 ```sql
 --code snippet will not actually run
+--listing 3.4
 , comments_on_user_post AS (
     SELECT
         pa.user_id,
         CAST(c.creation_date AS DATE) AS activity_date,
         COUNT(*) as total_comments
     FROM
-        bigquery-public-data.stackoverflow.comments c
+        comments c
         INNER JOIN post_activity pa ON pa.post_id = c.post_id
     WHERE
         TRUE
         AND pa.activity_type = 'created'
-        AND c.creation_date >= '2021-06-01' 
-        AND c.creation_date <= '2021-09-30'
     GROUP BY
         1,2
 )
@@ -349,11 +381,7 @@ The query and final result should look like this:
         CAST(creation_date AS DATE) AS activity_date,
         COUNT(*) as total_comments
     FROM
-        bigquery-public-data.stackoverflow.comments
-    WHERE
-        TRUE
-        AND creation_date >= '2021-06-01' 
-        AND creation_date <= '2021-09-30'
+        comments
     GROUP BY
         1,2
 )
@@ -367,19 +395,26 @@ FROM comments_by_user c1
         ON c1.user_id = c2.user_id
         AND c1.activity_date = c2.activity_date 
 WHERE 
-    c1.user_id = 16366214
+    c1.user_id = 4603670
+LIMIT 10;
 ```
 
 Here's the output:
 ```sql
+user_id|activity_date|comments_by_user|comments_on_user_post|
+-------+-------------+----------------+---------------------+
+4603670|   2021-12-03|               3|                    7|
+4603670|   2021-12-05|               7|                    1|
+4603670|   2021-12-06|               9|                    6|
+4603670|   2021-12-08|               6|                    7|
+4603670|   2021-12-10|               4|                    2|
+4603670|   2021-12-11|               3|                    6|
+4603670|   2021-12-12|               2|                    4|
+4603670|   2021-12-13|               1|                    1|
+4603670|   2021-12-26|               1|                    3|
+4603670|   2021-12-24|               3|                    2|
 
-user_id |activity_date|comments_by_user|comments_on_user_post|
---------+-------------+----------------+---------------------+
-16366214|   2021-07-19|               1|                    2|
-16366214|   2021-07-21|               1|                 NULL|
-16366214|   2021-07-26|               3|                    4|
-
-Table 3.3
+Table 3.4
 ```
 
 ### Sub-problem 3
@@ -397,13 +432,11 @@ The query and final result should look like this:
         SUM(CASE WHEN vote_type_id = 2 THEN 1 ELSE 0 END) AS total_upvotes,
         SUM(CASE WHEN vote_type_id = 3 THEN 1 ELSE 0 END) AS total_downvotes,
     FROM
-        bigquery-public-data.stackoverflow.votes v
+        stackoverflow.votes v
         INNER JOIN post_activity pa ON pa.post_id = v.post_id
     WHERE
         TRUE
         AND pa.activity_type = 'created'
-        AND v.creation_date >= '2021-06-01' 
-        AND v.creation_date <= '2021-09-30'
     GROUP BY
         1,2
 )
@@ -415,7 +448,8 @@ SELECT
 FROM 
     votes_on_user_post v
 WHERE 
-    v.user_id = 16366214
+    v.user_id = 4603670
+LIMIT 10;
 ```
 
 Here's the output:
