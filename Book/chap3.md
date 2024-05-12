@@ -23,7 +23,7 @@ Have you ever written or debugged a really long SQL query? Did you get lost in t
 
 Whether you got lost or not depends a lot on whether the query was using CTEs to decompose a problem into logical modules that made it easy to understanding and debug.
 
-### Level 1 - Within the Same Query Using CTEs
+### Writing Modular SQL Using CTEs
 CTEs or Common Table Expressions are temporary views whose scope is limited to the current query. They are not stored in the database; they only exist while the query is running and are only accessible inside that query. They act like subqueries but are easier to understand and use.
 
 CTEs allow you to break down complex queries into simpler, smaller self-contained modules. By connecting them together we can solve any complex query.
@@ -139,11 +139,11 @@ SELECT *
 FROM cte6_name
 ```
 As you can see, there's an endless way in which you can chain or stack CTEs to solve complex queries.
-## Example
-Now that you've seen the 
-Getting our user data from the current form to the final form of one row per user is not something that can be done in a single step. Well you probably could hack something together that works but that will not be very easy to maintain. It's a complex query.
 
-In order to solve it, we need to decompose (break down) our complex query into smaller, easier to write pieces. Here's how to think about it:
+## Example
+Now that you've seen the basics of what CTEs are, let's apply them to our project. Getting our user data from the current form to the final form of one row per user is not something that can be done in a single step.
+
+Well you probably could hack something together that works but that will not be very easy to maintain. It's a complex query. So In order to solve it, we need to decompose (break down) our complex query into smaller, easier to write pieces. Here's how to think about it:
 
 We know that a user can perform any of the following activities on any given date:
 1. Post a question
@@ -165,6 +165,7 @@ To get there we first have to manipulate the granularity of the `post_history` t
 
 That would look like this:
 ```sql
+--listing 3.1
 WITH post_activity AS (
     SELECT
         ph.post_id,
@@ -175,16 +176,14 @@ WITH post_activity AS (
              WHEN ph.post_history_type_id IN (4,5,6) THEN 'edited' 
         END AS activity_type
     FROM
-        bigquery-public-data.stackoverflow.post_history ph
-        INNER JOIN bigquery-public-data.stackoverflow.users u 
+        post_history ph
+        INNER JOIN users u 
 			ON u.id = ph.user_id
     WHERE
         TRUE
         AND ph.post_history_type_id BETWEEN 1 AND 6
         AND user_id > 0 --exclude automated processes
         AND user_id IS NOT NULL --exclude deleted accounts
-        AND ph.creation_date >= '2021-06-01' 
-        AND ph.creation_date <= '2021-09-30'
     GROUP BY
         1,2,3,4,5
 )
