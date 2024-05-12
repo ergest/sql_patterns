@@ -1,7 +1,7 @@
 # Chapter 3: Query Composition
-In this chapter we're going to see how **modularity**, one of the most important system design principles applies to SQL. You will learn how to compose queries as a series of independent, simple "modules" whether they are 
+In this chapter we're going to see how **modularity**, one of the most important system design principles applies to SQL. You will learn how to compose queries as a series of independent, simple "modules" whether they are CTEs, views, user defined functions (UDFs) and so on.
 
-This pattern will help you solve very complex queries by systematically decomposing them into simpler ones. 
+Every complex system is made up of simple, self contained elements that can be designed, developed and tested independently. And that means you can take very complex queries and systematically break them down into much simpler elements.
 
 > **Definition**:  
 > A module is a unit whose elements are tightly connected to themselves but weakly connected to other units.
@@ -13,7 +13,6 @@ Modularity is one of the core principles of the design of operating systems. If 
 In this post we'll learn how we can apply it to SQL.
 
 ### Three Levels of Modularity
-
 In SQL we can apply modularity in 3 different levels:
 
 1. Within the same SQL query
@@ -22,20 +21,17 @@ In SQL we can apply modularity in 3 different levels:
 
 Have you ever written or debugged a really long SQL query? Did you get lost in trying to figure out what it was doing or was it really easy to follow?
 
-Whether you got lost or not depends a lot on whether the query was using CTEs to decompose a problem into logical modules that made solving it and understanding it really easy.
+Whether you got lost or not depends a lot on whether the query was using CTEs to decompose a problem into logical modules that made it easy to understanding and debug.
 
 ### Level 1 - Within the same SQL query
-
 CTEs or Common Table Expressions are temporary views whose scope is limited to the current query. They are not stored in the database; they only exist while the query is running and are only accessible in that query. They act like subqueries but are easier to understand and use.
 
 CTEs allow you to break down complex queries into simpler, smaller self-contained modules. By connecting them together we can solve any complex query.
 
 > _Side Note_:  
-> Even though CTEs have been part of the definition of the SQL standard since 1999, it has taken many years for database vendors to implement them. Some versions of older databases (like MySQL before 8.0, PostgreSQL before 8.4, SQL Server before 2005) do not have support for CTEs. All the modern cloud warehouse vendors support them.
+> Even though CTEs have been part of the definition of the SQL standard since 1999, it has taken many years for database vendors to implement them. Some versions of older databases (like MySQL before 8.0, PostgreSQL before 8.4, SQL Server before 2005) do not have support for them. All the modern cloud warehouse vendors support them.
 
-One of the best ways to visualize CTEs is through a DAG (directed a-cyclical graph). Here are some examples of how CTEs could be chained to solve a complex query.
-
-Here's the first diagram and its corresponding code.
+One of the best ways to visualize CTEs is through a DAG (aka Directed Acyclical Graph). Here are some examples of how CTEs could be chained to solve a complex query.
 
 In this example each CTE uses the results of the previous CTE to build upon its result set and take it further.
 
@@ -66,8 +62,6 @@ cte4_name AS (
 SELECT *
 FROM cte4_name
 ```
-
-Here's another diagram and the corresponding code.
 
 In this example, CTE 3 depends on CTE 1 and CTE 2 which are independent of each other and CTE 4 depends on CTE 3.
 
@@ -104,8 +98,6 @@ FROM cte4_name
 Finally here's something more complex and its corresponding code.
 
 ![](https://www.ergestx.com/content/images/2022/12/Example-Dag-Dag3.drawio.png)
-
-As you can see, there's an endless way in which you can chain or stack CTEs to solve complex queries.
 
 ```sql
 -- Define CTE 1
@@ -144,7 +136,7 @@ cte6_name AS (
 SELECT *
 FROM cte6_name
 ```
-
+As you can see, there's an endless way in which you can chain or stack CTEs to solve complex queries.
 ### Level 2- Across multiple queries
 
 When you find yourself copying and pasting CTEs across multiple queries it's time to refactor them into views, UDFs or stored procedures.
