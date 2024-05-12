@@ -53,13 +53,11 @@ As we go through the project, we'll cover each pattern when it arises. That will
 ## How this book is organized
 In **Chapter 1** we introduce the project we'll be working on throughout the book. We'll make sure you have access to the dataset and can run the queries. We also get a basic understanding of the dataset by looking at the ER diagram.
 
-In **Chapter 2** we cover *Core Concepts*. These patterns act as our basic building blocks that will serve us throughout the book. I explain each one using the StackOverflow dataset since we'll be using every one in our final query. The remaining patterns are grouped into four categories and each has its own chapter.
+In **Chapter 2** we cover *Data Transformation Core Concepts*. These patterns act as our basic building blocks that will serve us throughout the book. I explain each one using the StackOverflow dataset since we'll be using every one in our final query. The remaining patterns are grouped into four categories and each has its own chapter.
 
-In **Chapter 3** we cover *Query Modularization* patterns. We start off by learning how to decompose large queries into smaller, more modular and reusable pieces to make it easy to solve just about any complex problem. They are important to learn first because all the other patterns flow from them.
+In **Chapter 3** we cover *Modularization* patterns. We start off by learning how to decompose large queries into smaller, more modular and reusable pieces to make it easy to solve just about any complex problem. We cover how modularizing queries helps make your code easy to read, understand, maintain and extend.
 
-In **Chapter 4** we cover *Query Composition* patterns. These patterns teach you how to decompose a query and organize your code in ways that make it efficient. This will ensure your code is easier to read, understand and maintain in the future.
-
-In **Chapter 5** we cover *Query Performance* patterns. They teach you ways to make your code more faster without sacrificing clarity. It’s a delicate balance because performant code can sometimes look really messy.
+In **Chapter 4** we cover *Performance* patterns. They teach you ways to make your code faster without sacrificing functionality or clarity. It’s a delicate balance because performant code can sometimes look really messy. We don't cover any one platform specifically but rather
 
 In **Chapter 6** we cover *Query Robustness* patterns. They teach you ways to make your code resistant to messy data, such as duplicate rows, missing values, unexpected NULLs, etc.
 
