@@ -3,6 +3,7 @@ In this chapter we'll learn:
 - The Concept of Modularity
 - Single Responsibility Principle (SRP)
 - Don't Repeat Yourself Principle (DRY)
+- Self Documenting Code Principle (SDC)
 
 ## The Concept of Modularity
 Every complex system is made up of simple, self contained elements that can be designed, developed and tested independently. And that means you can take very complex queries and systematically break them down into much simpler elements.
@@ -14,8 +15,22 @@ Just about every modern system is modular. Your smartphone might seem like a sin
 
 Modular code has the following benefits:
 - When the modules are simple and self-contained the code is infinitely more readable, easy to understand, easy to debug and fix, easy to extend and easy to scale.
-- When the modules are carefully thought out, logical and with clean interfaces the code becomes much easier to write. You're mostly assembling code like LEGO (tm) blocks instead of writing it from scratch.
+- When the modules are carefully thought out, logical and with clean interfaces the code becomes much easier to write. You're mostly assembling code like "LEGO(tm)" blocks instead of writing it from scratch.
 - When a system is designed with modularity in mind, the modules can be developed by other parties in parallel so they can be assembled later. It also makes it easy to improve functionality by swapping out old modules for new ones as long as the interface is the same.
+
+Before we dive into the specifics of applying modularity to SQL, let's cover a couple of key principles you'll use repeatedly throughout the book. They will be illustrated later.
+### Don't Repeat Yourself Principle (DRY)
+The DRY principle dictates that a piece of code encapsulating some functionality must appear only once in a codebase. So ff you find yourself copying and pasting the same chunk of code everywhere your code is not DRY.
+
+Don't worry if you do this a lot. I've been writing SQL for 15+ years and still find myself repeating code. So I usually solve the problem first and clean up my code later. The main benefit of DRY code is maintainability. If you need to change your logic, and there's a lot of repetition, you have to change all the places where the logic appears instead of a single place.
+
+### Single Responsibility Principle (SRP)
+The SRP principle dictates that your modules should be small, self-contained and have a single responsibility or purpose. For example you don't expect the GPS chip on your phone to also handle WiFi connectivity.
+
+The main benefit of SRP is that it makes modules more composable and facilitates code reuse. By organizing your code into well thought out "LEGO(tm)" blocks, writing complex queries becomes infinitely easier.
+
+### Self Documenting Code Principle (SDC)
+The SDC principle dictates that your code be easy to read without needing comments. Data analysts and scientists are not usually trained to think about comments or documentation
 
 ### Three Levels of Modularity
 In SQL there are 3 ways to modularize your code:
@@ -24,19 +39,6 @@ In SQL there are 3 ways to modularize your code:
 3. Writing modular SQL using an external compiler (like *dbt* or *sqlmesh*)
 
 In this chapter we'll only cover the first two methods. The third level is more advanced and we cover it in the next chapter.
-
-Before we get into specifics let's cover 4 key patterns that you'll use repeatedly throughout the book:
-
-### Don't Repeat Yourself (DRY) Principle
-The DRY principle says that a piece of code encapsulating some functionality must appear only once in a codebase. So ff you find yourself copying and pasting the same chunk of code everywhere your code is not DRY.
-
-Don't worry if you do this a lot. I've been writing SQL for 15+ years and still find myself repeating code. So I usually solve the problem first and clean up my code later. The main benefit of DRY code is maintainability. If you need to change your logic, and there's a lot of repetition, you have to change all the places where the logic appears instead of a single place.
-
-### Single Responsibility Principle (SRP)
-The SRP principle dictates that your modules should be small, self-contained and have a single responsibility or purpose. For example you don't expect the GPS chip on your phone to also handle WiFi connectivity.
-
-The main benefit of SRP is that it makes modules more composable and facilitates code reuse
-
 ### Writing Modular SQL Using CTEs
 CTEs or Common Table Expressions are temporary views whose scope is limited to the current query. They are not stored in the database; they only exist while the query is running and are only accessible inside that query. They act like subqueries but are easier to understand and use.
 
