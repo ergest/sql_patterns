@@ -1,14 +1,12 @@
 # Chapter 3: Modularity
 In this chapter we'll learn:
-- The Principle of Modularity
-- Writing modular SQL using CTEs
-- Writing modular SQL using views
+- The Concept of Modularity
 - Single Responsibility Principle (SRP)
 - Reusability Principle
 - Don't Repeat Yourself Principle (DRY)
 - Self Documenting Code Principle (intention revealing names)
 
-## The Principle of Modularity
+## The Concept of Modularity
 Every complex system is made up of simple, self contained elements that can be designed, developed and tested independently. And that means you can take very complex queries and systematically break them down into much simpler elements.
 
 Just about every modern system is modular. Your smartphone might seem like a single piece of hardware but in reality all its components (the screen, CPU, memory, battery, speaker, GPU, accelerometer, GPS chip, etc. were designed independently and assembled.
@@ -19,20 +17,15 @@ Just about every modern system is modular. Your smartphone might seem like a sin
 Modular code has the following benefits:
 - When the modules are simple and self-contained the code is infinitely more readable, easy to understand, easy to debug and fix, easy to extend and easy to scale.
 - When the modules are carefully thought out, logical and with clean interfaces the code becomes much easier to write. You're mostly assembling code like LEGO (tm) blocks instead of writing it from scratch.
-- The modules become swappable
-When a system is designed with modularity in mind, it makes it very easy for independent parties to build these components in parallel so they can be assembled later. It also makes it easy to debug and fix the system when it's in production.
-
+- When a system is designed with modularity in mind, the modules can be developed by other parties in parallel so they can be assembled later. It also makes it easy to improve functionality by swapping out old modules for new ones as long as the interface is the same.
 
 ### Three Levels of Modularity
-In SQL we can apply modularity in 3 different levels:
+In SQL there are 3 ways to modularize your code:
+1. Writing modular SQL using CTEs
+2. Writing modular SQL using views
+3. Writing modular SQL using an external compiler (like *dbt* or *sqlmesh*)
 
-1. Within the same SQL query using CTEs
-2. Across multiple SQL queries
-3. Beyond SQL queries
-
-Have you ever written or debugged a really long SQL query? Did you get lost in trying to figure out what it was doing or was it really easy to follow?
-
-Whether you got lost or not depends a lot on whether the query was using CTEs to decompose a problem into logical modules that made it easy to understanding and debug.
+In this chapter we'll only cover the first two methods. The third level is more advanced and we cover it in the next chapter.
 
 ### Writing Modular SQL Using CTEs
 CTEs or Common Table Expressions are temporary views whose scope is limited to the current query. They are not stored in the database; they only exist while the query is running and are only accessible inside that query. They act like subqueries but are easier to understand and use.
