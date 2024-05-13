@@ -1,20 +1,25 @@
 # Chapter 3: Modularity
 In this chapter we'll learn:
-- Principle of Modularity
-- Writing Modular SQL Using CTEs
+- The Principle of Modularity
+- Writing modular SQL using CTEs
+- Writing modular SQL using views
 - Single Responsibility Principle (SRP)
 - Reusability Principle
 - Don't Repeat Yourself Principle (DRY)
 - Self Documenting Code Principle (intention revealing names)
 
-In this chapter we're going to see how **modularity**, one of the most important system design principles applies to SQL. You will learn how to compose queries as a series of independent, simple "modules" whether they are CTEs, views, user defined functions (UDFs) and so on.
-
+## The Principle of Modularity
 Every complex system is made up of simple, self contained elements that can be designed, developed and tested independently. And that means you can take very complex queries and systematically break them down into much simpler elements.
+
+Just about every modern system is modular. Your smartphone might seem like a single piece of hardware but in reality all its components (the screen, CPU, memory, battery, speaker, GPU, accelerometer, GPS chip, etc. were designed independently and assembled.
 
 > **Definition**:  
 > A module is a unit whose elements are tightly connected to themselves but weakly connected to other units.
 
-Modular 
+Modular code has the following benefits:
+- When the modules are simple and self-contained the code is infinitely more readable, easy to understand, easy to debug and fix, easy to extend and easy to scale.
+- When the modules are carefully thought out, logical and with clean interfaces the code becomes much easier to write. You're mostly assembling code like LEGO (tm) blocks instead of writing it from scratch.
+- The modules become swappable
 When a system is designed with modularity in mind, it makes it very easy for independent parties to build these components in parallel so they can be assembled later. It also makes it easy to debug and fix the system when it's in production.
 
 
@@ -842,3 +847,5 @@ CREATE OR REPLACE VIEW v_post_types AS
 *Note: In BigQuery views are considered like CTEs so they count towards the maximum level of nesting. That is if you call a view from inside a CTE, that's two levels of nesting and if you then join that CTE in another CTE that's three levels of nesting. BigQuery has a hard limitation on how deep nesting can go beyond which you can no longer run your query. At that point, perhaps the view is best materialized into a table.
 
 So far we've talked about how to optimize queries so they're easy to read, write, understand and maintain. In the next chapter we tackle patterns regarding query performance.
+
+In this chapter we're going to see how **modularity**, one of the most important system design principles applies to SQL. You will learn how to compose queries as a series of independent, simple "modules" whether they are CTEs, views, user defined functions (UDFs) and so on.
