@@ -558,15 +558,11 @@ Views can be put inside of CTEs or can themselves contain CTEs, thus creating mu
 
 A great application of SRP is to use a view to rename the columns of an external table or present several joined tables as a single object thus providing a safe *interface* to the rest of your downstream code.
 #### User Defined Functions (UDFs)
-Similar to views you can also put commonly used logic into UDFs (user-defined functions) Pretty much all databases allow you to create UDFs but they each use different programming languages to do so.
+Similar to views you can also put commonly used logic into UDFs (user-defined functions) Pretty much all databases allow you to create UDFs but they each use different programming languages to do so. Different database systems use different programming languages to allow for UDF creation. DuckDB offers Python for such functionality. You can read about it [here](https://duckdb.org/docs/api/python/function.html)
 
-SQL Server uses T-SQL to create functions. PostgreSQL uses PL/pgsql or Python (with the right extension) BigQuery and Snowflake use Javascript, Python, etc.
+Functions allow for a lot more flexibility in data processing. While tables and views use set based logic (set algebra) for operating on data, functions allow you to work on a single row at a time, use conditional flow of logic (if-then-else), variables and loops which makes it easy to implement complex logic.
 
-Functions allow for conditional flow of logic and variables which makes it easy to implement complex logic.
-
-UDFs can return a single scalar value or a table. A single scalar value can be used for example to parse certain strings via regular expressions.
-
-Table valued functions return a table instead of a single value. They behave exactly like views but the main difference is that they can take input parameters and return different tables based on that. Very useful.
+They can return a single scalar value or a table. A single scalar value can be used for example to parse JSON formatted strings via regular expressions. Table valued functions return a table instead of a single value. They behave exactly like views but the main difference is that they can take input parameters and return different result sets based on that. Very useful.
 
 In the next chapter we'll extend these patterns and see how they help us with query maintainability.
 
