@@ -517,10 +517,12 @@ GROUP BY
 
 
 ## Writing modular SQL using views/UDFs
-When you find yourself copying and pasting CTEs across multiple queries it's time to turn them into views or UDFs. Views are 
-Views are great for encapsulating business logic accross queries. They're also used in security applications to limit the rows or columns exposed to the end user based on their permissions.
+When you find yourself copying and pasting CTEs across multiple queries it's time to turn them into views or UDFs.
 
 #### Views
+Views are database objects that can be queried with SQL just like a table. The difference between the two is that views typically don't contain any data. They store a query that gets executed every time the view is queried (just like a CTE).
+
+There are however certain types of views that do contain data (known as materialized views) which are used for keeping the data fresh but we won't cover them here.
 
 Creating a view is easy:
 
@@ -544,11 +546,11 @@ Views can be put inside of CTEs or can themselves contain CTEs, thus creating mu
 
 ![](https://www.ergestx.com/content/images/2022/12/Example-Dag-Dag4.drawio.png)
 
-> Side Note:  
+> **Side Note:**
 > By combining views and CTEs, you're nesting many queries within others. Not only does this negatively impact performance but some databases have limits to how many levels of nesting you can have.
 
-#### UDFs
-
+A great application of SRP is to use a view to rename the columns of an external table or present several joined tables as a single object thus providing a safe *interface* to the rest of your downstream code.
+#### User Defined Functions (UDFs)
 Similar to views you can also put commonly used logic into UDFs (user-defined functions) Pretty much all databases allow you to create UDFs but they each use different programming languages to do so.
 
 SQL Server uses T-SQL to create functions. PostgreSQL uses PL/pgsql or Python (with the right extension) BigQuery and Snowflake use Javascript, Python, etc.
