@@ -3,7 +3,8 @@ In this chapter we'll learn:
 - The Concept of Modularity
 - Single Responsibility Principle (SRP)
 - Don't Repeat Yourself Principle (DRY)
-- Self Documenting Code Principle (SDC)
+- Self Documenting Code Principle
+- Move Logic Upstream Principle
 
 ## The Concept of Modularity
 Every complex system is made up of simple, self contained elements that can be designed, developed and tested independently. And that means you can take very complex queries and systematically break them down into much simpler elements.
@@ -25,8 +26,14 @@ The DRY principle dictates that a piece of code encapsulating some functionality
 ### Single Responsibility Principle (SRP)
 The SRP principle dictates that your modules should be small, self-contained and have a single responsibility or purpose. For example you don't expect the GPS chip on your phone to also handle WiFi connectivity. The main benefit of SRP is that it makes modules more composable and facilitates code reuse. By organizing your code into well thought out "LEGO(tm)" blocks, writing complex queries becomes infinitely easier.
 
-### Self Documenting Code Principle (SDC)
-The SDC principle dictates that your code be easy to read without needing comments. Data analysts and scientists are not usually trained to think about comments or documentation. They want to solve the problem at hand and move on. But if you name your CTEs and views in ways that describe exactly what they do, even if it's a long description, your code will be infinitely easier to read, understand and maintain.
+### Self Documenting Code Principle
+The self-documenting code principle dictates that your code be easy to read without needing comments. When you name your CTEs and views in ways that describe exactly what they do, even if it's a long description, your code will be infinitely easier to read, understand and maintain. For example `cte_user_agg` doesn't mean much while `cte_user_agg_by_region` is far more useful.
+
+### Move Logic Upstream Principle
+When you find yourself implementing very specific logic in a model that might be used elsewhere, move that logic upstream *closer to the source* of data. In the world of DAGs, upstream has a very precise meaning. It means to move potentially common logic onto earlier nodes in the graph because you never know which downstream models might use it.
+
+![[Pasted image 20240512211849.png]]
+(Models here represent dbt models which will be covered in a separate chapter)
 
 With these principles out of the way let's dive into applying modularity to SQL.
 ### Three Levels of SQL Modularity
