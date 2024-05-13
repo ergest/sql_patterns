@@ -20,25 +20,22 @@ Modular code has the following benefits:
 
 Before we dive into the specifics of applying modularity to SQL, let's cover a couple of key principles you'll use repeatedly throughout the book. They will be illustrated later.
 ### Don't Repeat Yourself Principle (DRY)
-The DRY principle dictates that a piece of code encapsulating some functionality must appear only once in a codebase. So ff you find yourself copying and pasting the same chunk of code everywhere your code is not DRY.
-
-Don't worry if you do this a lot. I've been writing SQL for 15+ years and still find myself repeating code. So I usually solve the problem first and clean up my code later. The main benefit of DRY code is maintainability. If you need to change your logic, and there's a lot of repetition, you have to change all the places where the logic appears instead of a single place.
+The DRY principle dictates that a piece of code encapsulating some functionality must appear only once in a codebase. So ff you find yourself copying and pasting the same chunk of code everywhere your code is not DRY. The main benefit of DRY code is maintainability. If you need to change your logic, and there's a lot of repetition, you have to change all the places where the code repeats instead of a single place.
 
 ### Single Responsibility Principle (SRP)
-The SRP principle dictates that your modules should be small, self-contained and have a single responsibility or purpose. For example you don't expect the GPS chip on your phone to also handle WiFi connectivity.
-
-The main benefit of SRP is that it makes modules more composable and facilitates code reuse. By organizing your code into well thought out "LEGO(tm)" blocks, writing complex queries becomes infinitely easier.
+The SRP principle dictates that your modules should be small, self-contained and have a single responsibility or purpose. For example you don't expect the GPS chip on your phone to also handle WiFi connectivity. The main benefit of SRP is that it makes modules more composable and facilitates code reuse. By organizing your code into well thought out "LEGO(tm)" blocks, writing complex queries becomes infinitely easier.
 
 ### Self Documenting Code Principle (SDC)
-The SDC principle dictates that your code be easy to read without needing comments. Data analysts and scientists are not usually trained to think about comments or documentation
+The SDC principle dictates that your code be easy to read without needing comments. Data analysts and scientists are not usually trained to think about comments or documentation. They want to solve the problem at hand and move on. But if you name your CTEs and views in ways that describe exactly what they do, even if it's a long description, your code will be infinitely easier to read, understand and maintain.
 
-### Three Levels of Modularity
+With these principles out of the way let's dive into applying modularity to SQL.
+### Three Levels of SQL Modularity
 In SQL there are 3 ways to modularize your code:
 1. Writing modular SQL using CTEs
-2. Writing modular SQL using views
+2. Writing modular SQL using views/UDFs
 3. Writing modular SQL using an external compiler (like *dbt* or *sqlmesh*)
 
-In this chapter we'll only cover the first two methods. The third level is more advanced and we cover it in the next chapter.
+In this chapter we'll only cover the first two levels. The third level is more advanced so we'll cover it in its own separate chapter.
 ### Writing Modular SQL Using CTEs
 CTEs or Common Table Expressions are temporary views whose scope is limited to the current query. They are not stored in the database; they only exist while the query is running and are only accessible inside that query. They act like subqueries but are easier to understand and use.
 
@@ -156,7 +153,6 @@ FROM cte6_name
 ```
 As you can see, there's an endless way in which you can chain or stack CTEs to solve complex queries.
 
-## Example
 Now that you've seen the basics of what CTEs are, let's apply them to our project. Getting our user data from the current form to the final form of one row per user is not something that can be done in a single step.
 
 Well you probably could hack something together that works but that will not be very easy to maintain. It's a complex query. So In order to solve it, we need to decompose (break down) our complex query into smaller, easier to write pieces. Here's how to think about it:
@@ -520,11 +516,9 @@ GROUP BY
 ```
 
 
-### Level 2- Across multiple queries
-
-When you find yourself copying and pasting CTEs across multiple queries it's time to refactor them into views, UDFs or stored procedures.
-
-Views are great for encapsulating business logic that applies to many queries. They're also used in security applications to limit the rows or columns exposed to the end user based on their permissions.
+## Writing modular SQL using views/UDFs
+When you find yourself copying and pasting CTEs across multiple queries it's time to turn them into views or UDFs. Views are 
+Views are great for encapsulating business logic accross queries. They're also used in security applications to limit the rows or columns exposed to the end user based on their permissions.
 
 #### Views
 
