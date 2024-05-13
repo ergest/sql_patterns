@@ -1,4 +1,12 @@
 # Chapter 3: Modularity
+In this chapter we'll learn:
+- Principle of Modularity
+- Writing Modular SQL Using CTEs
+- Single Responsibility Principle (SRP)
+- Reusability Principle
+- Don't Repeat Yourself Principle (DRY)
+- Self Documenting Code Principle (intention revealing names)
+
 In this chapter we're going to see how **modularity**, one of the most important system design principles applies to SQL. You will learn how to compose queries as a series of independent, simple "modules" whether they are CTEs, views, user defined functions (UDFs) and so on.
 
 Every complex system is made up of simple, self contained elements that can be designed, developed and tested independently. And that means you can take very complex queries and systematically break them down into much simpler elements.
@@ -6,16 +14,9 @@ Every complex system is made up of simple, self contained elements that can be d
 > **Definition**:  
 > A module is a unit whose elements are tightly connected to themselves but weakly connected to other units.
 
+Modular 
 When a system is designed with modularity in mind, it makes it very easy for independent parties to build these components in parallel so they can be assembled later. It also makes it easy to debug and fix the system when it's in production.
 
-In this chapter we'll learn:
-- Composition Patterns
-	- Single Responsibility Principle (SRP)
-	- Self Documenting Code Principle (intention revealing names)
-	- Reusability Principle
-- Maintainability Patterns
-	- Don't Repeat Yourself Principle (DRY)
-	- Wrapping
 
 ### Three Levels of Modularity
 In SQL we can apply modularity in 3 different levels:
