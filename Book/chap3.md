@@ -2,9 +2,7 @@
 In this chapter we'll learn:
 - The Concept of Modularity
 - Single Responsibility Principle (SRP)
-- Reusability Principle
 - Don't Repeat Yourself Principle (DRY)
-- Self Documenting Code Principle (intention revealing names)
 
 ## The Concept of Modularity
 Every complex system is made up of simple, self contained elements that can be designed, developed and tested independently. And that means you can take very complex queries and systematically break them down into much simpler elements.
@@ -30,11 +28,14 @@ In this chapter we'll only cover the first two methods. The third level is more 
 Before we get into specifics let's cover 4 key patterns that you'll use repeatedly throughout the book:
 
 ### Don't Repeat Yourself (DRY) Principle
-The DRY principle says that a piece of code encapsulating some functionality must appear only once in a codebase. So ff you find yourself copying and pasting the same chunk of code everywhere your code is not "dry."
+The DRY principle says that a piece of code encapsulating some functionality must appear only once in a codebase. So ff you find yourself copying and pasting the same chunk of code everywhere your code is not DRY.
 
-Don't worry if you do this a lot. I've been writing SQL for 15+ years and still find myself repeating code. So I usually solve the problem first and clean up my code later. The main benefit of "dry" code is maintainability. If you need to change something
+Don't worry if you do this a lot. I've been writing SQL for 15+ years and still find myself repeating code. So I usually solve the problem first and clean up my code later. The main benefit of DRY code is maintainability. If you need to change your logic, and there's a lot of repetition, you have to change all the places where the logic appears instead of a single place.
 
-for doing this is that it makes the queries more readable. In that same vein, the DRY (Don't Repeat Yourself) principle ensures that your query is clean from unnecessary repetition.
+### Single Responsibility Principle (SRP)
+The SRP principle dictates that your modules should be small, self-contained and have a single responsibility or purpose. For example you don't expect the GPS chip on your phone to also handle WiFi connectivity.
+
+The main benefit of SRP is that it makes modules more composable and facilitates code reuse
 
 ### Writing Modular SQL Using CTEs
 CTEs or Common Table Expressions are temporary views whose scope is limited to the current query. They are not stored in the database; they only exist while the query is running and are only accessible inside that query. They act like subqueries but are easier to understand and use.
@@ -43,7 +44,7 @@ CTEs allow you to break down complex queries into simpler, smaller self-containe
 
 When you use CTEs you can read a query top to bottom and easily understand what's going on. When you use sub-queries it's a lot harder to trace the logic and figure out which column is defined where and what scope it has. You have to read the innermost subquery first and then remember each of the definitions.
 
-> _Side Note_:  
+> **Side Note**: 
 > Even though CTEs have been part of the definition of the SQL standard since 1999, it has taken many years for database vendors to implement them. Some versions of older databases (like MySQL before 8.0, PostgreSQL before 8.4, SQL Server before 2005) do not have support for them. All the modern cloud warehouse vendors support them.
 
 One of the best ways to visualize CTEs is to think of them as a DAG (aka Directed Acyclical Graph) where each node handles a single processing step. Here are some examples of how CTEs could be chained to solve a complex query.
