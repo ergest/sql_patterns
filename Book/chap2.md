@@ -390,9 +390,13 @@ WHERE
 	AND u.id IS NULL;
 ```
 
-**Trick of the Trade: Start with a LEFT JOIN**
+
+#### Pattern: Start with a LEFT JOIN
 Since we're on the subject of LEFT JOINS, one of my most used rules of thumb is to always use a `LEFT JOIN` when I'm not sure if one table is a subset of the other. For example in the query above, there's definitely users that have a valid `user_id` in the `users` table but have never had any activity.
 
 This often happens in the real world when data is deleted from a table and there's no foreign key constraints to ensure referential integrity (i.e. the database ensures you can't delete a row if it's referenced in another table. These types of constraints don't exist in data warehouses hence my general rule of thumb of always starting with a `LEFT JOIN.`
 
 Now that we have covered the basic concepts, it's time to dive into the patterns.
+
+#### Talk about deduping rows via row_number() and qualify
+#### Talk about rank() and dense_rank() applications
