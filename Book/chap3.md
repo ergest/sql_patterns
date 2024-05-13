@@ -27,6 +27,15 @@ In SQL there are 3 ways to modularize your code:
 
 In this chapter we'll only cover the first two methods. The third level is more advanced and we cover it in the next chapter.
 
+Before we get into specifics let's cover 4 key patterns that you'll use repeatedly throughout the book:
+
+### Don't Repeat Yourself (DRY) Principle
+The DRY principle says that a piece of code encapsulating some functionality must appear only once in a codebase. So ff you find yourself copying and pasting the same chunk of code everywhere your code is not "dry."
+
+Don't worry if you do this a lot. I've been writing SQL for 15+ years and still find myself repeating code. So I usually solve the problem first and clean up my code later. The main benefit of "dry" code is maintainability. If you need to change something
+
+for doing this is that it makes the queries more readable. In that same vein, the DRY (Don't Repeat Yourself) principle ensures that your query is clean from unnecessary repetition.
+
 ### Writing Modular SQL Using CTEs
 CTEs or Common Table Expressions are temporary views whose scope is limited to the current query. They are not stored in the database; they only exist while the query is running and are only accessible inside that query. They act like subqueries but are easier to understand and use.
 
