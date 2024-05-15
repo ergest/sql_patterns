@@ -566,10 +566,9 @@ They can return a single scalar value or a table. A single scalar value can be u
 
 In the next chapter we'll extend these patterns and see how they help us with query maintainability.
 
-# Chapter 4: Query Maintainability
-In this chapter we're going to extend the pattern of decomposition into the realm of query maintainability. Breaking down large queries into small pieces doesn't only make them easier to read, write and understand, it also makes them easier to maintain.
+## Patterns in Practice
 
-## Reusability Principle
+### Reusability Principle
 We start off with a very important principle that rarely gets talked about in SQL. When you're designing a query and breaking it up into CTEs, there is one principle to keep in mind. The CTEs should be constructed in such a way that they can be reused if needed later. This principle makes code easier to maintain and compact.
 
 Let's take a look at the example from the previous chapter:
