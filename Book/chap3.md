@@ -654,7 +654,7 @@ and to join with comments and votes to user level data via the `post_id`
 )
 ```
 
-This is at the heart of well-designed CTE. Notice here that we're being very careful about granularity multiplication! If we simply joined with `post_activity` on post_id without specifying the `activity_type` we'd get at least two times the number of rows. Since a post can only be created once, we're pretty safe in getting a single row by filtering.
+This is at the heart of well-designed CTE. Notice here that we're being very careful about granularity multiplication! If we simply joined with `post_activity` on post_id without specifying the `activity_type` we'd get duplication. By filtering to just created posts, since a post can only be created once, we're pretty safe in getting a single row per post.
 
 ## DRY Principle
 In the previous section we saw how we can decompose a large complex query into multiple smaller components. The main benefit for doing this is that it makes the queries more readable. In that same vein, the DRY (Don't Repeat Yourself) principle ensures that your query is clean from unnecessary repetition.
@@ -663,6 +663,7 @@ The DRY principle states that if you find yourself copy-pasting the same chunk o
 
 To illustrate let's rewrite the query from the previous chapter so that it still produces the same result but it clearly shows repeating code
 ```sql
+--listing 3.7
 WITH post_activity AS (
     SELECT
         ph.post_id,
@@ -673,15 +674,13 @@ WITH post_activity AS (
              WHEN ph.post_history_type_id IN (4,5,6) THEN 'edited' 
         END AS activity_type
     FROM
-        bigquery-public-data.stackoverflow.post_history ph
-        INNER JOIN `bigquery-public-data.stackoverflow.users` u on u.id = ph.user_id
+        post_history ph
+        INNER JOIN users u on u.id = ph.user_id
     WHERE
         TRUE 
         AND ph.post_history_type_id BETWEEN 1 AND 6
         AND user_id > 0 --exclude automated processes
         AND user_id IS NOT NULL --exclude deleted accounts
-        AND ph.creation_date >= '2021-06-01' 
-        AND ph.creation_date <= '2021-09-30'
     GROUP BY
         1,2,3,4,5
 )
@@ -694,12 +693,8 @@ WITH post_activity AS (
         pa.activity_date,
         pa.activity_type
     FROM
-        bigquery-public-data.stackoverflow.posts_questions q
+        posts_questions q
         INNER JOIN post_activity pa ON q.id = pa.post_id
-    WHERE
-        TRUE
-        AND creation_date >= '2021-06-01' 
-        AND creation_date <= '2021-09-30'
 )
 , answers AS (
      SELECT
@@ -710,12 +705,8 @@ WITH post_activity AS (
         pa.activity_date,
         pa.activity_type
     FROM
-        bigquery-public-data.stackoverflow.posts_answers q
+        posts_answers q
         INNER JOIN post_activity pa ON q.id = pa.post_id
-    WHERE
-        TRUE
-        AND creation_date >= '2021-06-01' 
-        AND creation_date <= '2021-09-30'
 )
 SELECT
     user_id,
@@ -733,11 +724,25 @@ FROM
      UNION ALL
      SELECT * FROM answers) AS p
 WHERE 
-    user_id = 16366214
+    user_id = 4603670
 GROUP BY 1,2;
 ```
 
-This query will get you the same results as table 3.1 in the previous chapter but as you can see the `questions` and `answers` CTEs both have almost identical code. Imagine if you had to do this for all question types. You'd be copying and pasting a lot of code. Also, the subquery that handles the UNION is not ideal. I'm not a fan of subqueries
+```sql
+user_id|activity_date|question_created|answer_created|question_edited|answer_edited|
+-------+-------------+----------------+--------------+---------------+-------------+
+4603670|   2021-12-01|               0|             1|              0|            1|
+4603670|   2021-12-02|               0|             1|              1|            3|
+4603670|   2021-12-03|               0|             3|              1|            5|
+4603670|   2021-12-04|               0|             2|              0|            6|
+4603670|   2021-12-05|               0|             2|              0|            3|
+4603670|   2021-12-06|               0|             3|              2|            9|
+4603670|   2021-12-07|               0|             2|              3|            2|
+4603670|   2021-12-08|               0|             2|              2|            6|
+4603670|   2021-12-09|               0|             0|              1|            0|
+4603670|   2021-12-10|               0|             1|              1|            1|
+```
+This query will get you the same results as table 3.3 in the previous section but as you can see the `questions` and `answers` CTEs both have almost identical code. Imagine if you had to do this for all question types. You'd be copying and pasting a lot of code. Also, the subquery that handles the UNION is not ideal. I'm not a fan of subqueries
 
 Since both questions and answers tables have the exact same schema, a great way to deal with the above problem is by appending their rows using the `UNION` operator like this:
 ```sql
