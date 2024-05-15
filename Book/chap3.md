@@ -564,13 +564,14 @@ They can return a single scalar value or a table. A single scalar value can be u
 In the next chapter we'll extend these patterns and see how they help us with query maintainability.
 
 ## Patterns in Practice
-In this section we'll see how to apply the SRP and DRY principles in practice
+In this section we'll see how to apply the SRP and DRY principles in practice.
 
-### Reusability Principle
-We start off with a very important principle that rarely gets talked about in SQL. When you're designing a query and breaking it up into CTEs, there is one principle to keep in mind. The CTEs should be constructed in such a way that they can be reused if needed later. This principle makes code easier to maintain and compact.
+### Single Responsibility Principle (SRP)
+When you're designing a query and breaking it up into CTEs, there is one principle to keep in mind. As much as possible construct CTEs in such a way that they can be reused in the query later.
 
-Let's take a look at the example from the previous chapter:
+Let's take a look at the example from earlier:
 ```sql
+--listing 3.6
 WITH post_activity AS (
     SELECT
         ph.post_id,
@@ -581,24 +582,24 @@ WITH post_activity AS (
              WHEN ph.post_history_type_id IN (4,5,6) THEN 'edited' 
         END AS activity_type
     FROM
-        bigquery-public-data.stackoverflow.post_history ph
-        INNER JOIN bigquery-public-data.stackoverflow.users u 
+        post_history ph
+        INNER JOIN users u 
 			ON u.id = ph.user_id
     WHERE
         TRUE
         AND ph.post_history_type_id BETWEEN 1 AND 6
         AND user_id > 0 --exclude automated processes
         AND user_id IS NOT NULL --exclude deleted accounts
-        AND ph.creation_date >= '2021-06-01' 
-        AND ph.creation_date <= '2021-09-30'
     GROUP BY
         1,2,3,4,5
 )
+SELECT *
+FROM post_activity;
 ```
 
-This CTE performs several operations like aggregation, to decrease granularity of the underlying data, and filtering. Its main purpose is to get a mapping between `user_id` and `post_id` at the right level of granularity so it can be used later.
+This CTE performs several operations like aggregation -- to decrease granularity of the underlying data -- joining and filtering. Its main purpose is to get a mapping between `user_id` and `post_id` at the right level of granularity so it can be used later.
 
-What's great about this CTE is that we can use it both for generating user metrics as shown here: 
+What's great about this CTE is that we can also use it for generating user metrics:
 ```sql
 --code snippet will not actually run
 SELECT
