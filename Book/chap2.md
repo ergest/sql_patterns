@@ -398,5 +398,39 @@ This often happens in the real world when data is deleted from a table and there
 
 Now that we have covered the basic concepts, it's time to dive into the patterns.
 
+## Talk about UNION vs UNION ALL
+There are two types of unions, `UNION ALL` and `UNION` (distinct) 
+
+`UNION ALL` will append two tables without checking if they have the same exact row. This might cause duplicates but it's really fast. If you know for sure your tables don't contain duplicates, this is the preferred way to append them. 
+
+`UNION` (distinct) will append the tables but remove all duplicates from the final result thus guaranteeing unique rows. This is slower because of the extra operations to find and remove duplicates. Use this only when you're not sure if the tables contain duplicates or you cannot remove duplicates beforehand.
+
+Most SQL flavors only use `UNION` keyword for the distinct version, but BigQuery forces you to use `UNION DISTINCT` in order to make the query far more explicit
+
+Appending rows to a table also has two requirements:
+1. The number of the columns from all tables has to be the same
+2. The data types of the columns from all the tables has to line up 
+
+You can achieve the first requirement by using `SELECT` to choose only the columns that match across multiple tables or if you know the tables have the same exact schema. Note that when you union tables with different schemas, you have to line up all the columns in the right order. This is useful when two tables have the same column named differently.
+
+For example:
+```sql
+SELECT
+	col1 as column_name
+FROM
+	table1
+
+UNION ALL
+
+SELECT
+	col2 as column_name
+FROM
+	table2
+```
+
+As a rule of thumb, when you append tables, it's a good idea to add a constant column to indicate the source table or some kind of type. This is helpful when appending say activity tables to create a long, time-series table and you want to identify each activity type in the final result set.
+
+You'll notice in my query above I create a `post_type` column indicating where the data is coming from.
+
 #### Talk about deduping rows via row_number() and qualify
 #### Talk about rank() and dense_rank() applications

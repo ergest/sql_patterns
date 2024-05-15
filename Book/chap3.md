@@ -741,66 +741,27 @@ user_id|activity_date|question_created|answer_created|question_edited|answer_edi
 4603670|   2021-12-08|               0|             2|              2|            6|
 4603670|   2021-12-09|               0|             0|              1|            0|
 4603670|   2021-12-10|               0|             1|              1|            1|
-```
-This query will get you the same results as table 3.3 in the previous section but as you can see the `questions` and `answers` CTEs both have almost identical code. Imagine if you had to do this for all question types. You'd be copying and pasting a lot of code. Also, the subquery that handles the UNION is not ideal. I'm not a fan of subqueries
 
-Since both questions and answers tables have the exact same schema, a great way to deal with the above problem is by appending their rows using the `UNION` operator like this:
+Table 3.6
+```
+This query will get you the same results as table 3.3 you saw earlier but notice that the `questions` and `answers` CTEs both have almost identical code. What if we had 10 different post types? You'd be copying and pasting a lot of code thus repeating yourself. Also, the subquery that handles the `UNION` is not ideal. I'm not a fan of subqueries.
+
+Since both questions and answers tables have the exact same schema, a great way to deal with the above problem is by appending their rows using the `UNION` operator like this in a single CTE:
 ```sql
 SELECT
 	id AS post_id,
 	'question' AS post_type,
 FROM
 	bigquery-public-data.stackoverflow.posts_questions
-WHERE
-	TRUE
-	AND creation_date >= '2021-06-01' 
-	AND creation_date <= '2021-09-30'
-
 UNION ALL
-
 SELECT
 	id AS post_id,
 	'answer' AS post_type,
 FROM
 	bigquery-public-data.stackoverflow.posts_answers
-WHERE
-	TRUE
-	AND creation_date >= '2021-06-01' 
-	AND creation_date <= '2021-09-30'
  ```
 
-There are two types of unions, `UNION ALL` and `UNION` (distinct) 
 
-`UNION ALL` will append two tables without checking if they have the same exact row. This might cause duplicates but it's really fast. If you know for sure your tables don't contain duplicates, this is the preferred way to append them. 
-
-`UNION` (distinct) will append the tables but remove all duplicates from the final result thus guaranteeing unique rows. This is slower because of the extra operations to find and remove duplicates. Use this only when you're not sure if the tables contain duplicates or you cannot remove duplicates beforehand.
-
-Most SQL flavors only use `UNION` keyword for the distinct version, but BigQuery forces you to use `UNION DISTINCT` in order to make the query far more explicit
-
-Appending rows to a table also has two requirements:
-1. The number of the columns from all tables has to be the same
-2. The data types of the columns from all the tables has to line up 
-
-You can achieve the first requirement by using `SELECT` to choose only the columns that match across multiple tables or if you know the tables have the same exact schema. Note that when you union tables with different schemas, you have to line up all the columns in the right order. This is useful when two tables have the same column named differently.
-
-For example:
-```sql
-SELECT
-	col1 as column_name
-FROM
-	table1
-
-UNION ALL
-
-SELECT
-	col2 as column_name
-FROM
-	table2
-```
-
-As a rule of thumb, when you append tables, it's a good idea to add a constant column to indicate the source table or some kind of type. This is helpful when appending say activity tables to create a long, time-series table and you want to identify each activity type in the final result set.
-
-You'll notice in my query above I create a `post_type` column indicating where the data is coming from.
 
 ### Creating Views
 One of the benefits of building reusable CTEs is that if you find yourself copying and pasting the same CTE in multiple places, you can turn it into a view and store it in the database.
