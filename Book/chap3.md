@@ -525,7 +525,7 @@ When you find yourself copying and pasting CTEs across multiple queries it's tim
 
 Views are database objects that can be queried with SQL just like a table. The difference between the two is that views typically don't contain any data. They store a query that gets executed every time the view is queried (just like a CTE).
 
-There are however certain types of views that do contain data (known as materialized views) which are used for keeping the data fresh but we won't cover them here.
+I say "typically" because there are certain types of views that do contain data (known as *materialized views* but we won't cover them here.
 
 Creating a view is easy:
 ```sql
@@ -573,11 +573,6 @@ CREATE OR REPLACE VIEW v_post_types AS
 ;
  ```
 
-*Note: In many databases views are considered like CTEs so they count towards the maximum level of nesting. That is if you call a view from inside a CTE, that's two levels of nesting and if you then join that CTE in another CTE that's three levels of nesting. They has a hard limitation on how deep nesting can go beyond which you can no longer run your query. At that point, perhaps the view is best materialized into a table.
-
-So far we've talked about how to optimize queries so they're easy to read, write, understand and maintain. In the next chapter we tackle patterns regarding query performance.
-
-In this chapter we're going to see how **modularity**, one of the most important system design principles applies to SQL. You will learn how to compose queries as a series of independent, simple "modules" whether they are CTEs, views, user defined functions (UDFs) and so on.
 #### User Defined Functions (UDFs)
 Similar to views you can also put commonly used logic into UDFs (user-defined functions) Pretty much all databases allow you to create UDFs but they each use different programming languages to do so. Different database systems use different programming languages to allow for UDF creation. DuckDB offers Python for such functionality. You can read about it [here](https://duckdb.org/docs/api/python/function.html)
 
@@ -585,11 +580,8 @@ Functions allow for a lot more flexibility in data processing. While tables and 
 
 They can return a single scalar value or a table. A single scalar value can be used for example to parse JSON formatted strings via regular expressions. Table valued functions return a table instead of a single value. They behave exactly like views but the main difference is that they can take input parameters and return different result sets based on that. Very useful.
 
-In the next chapter we'll extend these patterns and see how they help us with query maintainability.
-
 ## Patterns in Practice
 In this section we'll see how to apply the SRP and DRY principles in practice.
-
 ### Single Responsibility Principle (SRP)
 When you're designing a query and breaking it up into CTEs, there is one principle to keep in mind. As much as possible construct CTEs in such a way that they can be reused in the query later.
 
