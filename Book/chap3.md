@@ -761,8 +761,6 @@ FROM
 	bigquery-public-data.stackoverflow.posts_answers
  ```
 
-
-
 ### Creating Views
 One of the benefits of building reusable CTEs is that if you find yourself copying and pasting the same CTE in multiple places, you can turn it into a view and store it in the database.
 
@@ -792,21 +790,14 @@ CREATE OR REPLACE VIEW v_post_types AS
         id AS post_id,
         'question' AS post_type,
     FROM
-        bigquery-public-data.stackoverflow.posts_questions
-    WHERE
-        TRUE
-        AND creation_date >= '2021-06-01' 
-        AND creation_date <= '2021-09-30'
+        posts_questions
     UNION ALL
     SELECT
         id AS post_id,
         'answer' AS post_type,
     FROM
-        bigquery-public-data.stackoverflow.posts_answers
-    WHERE
-        TRUE
-        AND creation_date >= '2021-06-01' 
-        AND creation_date <= '2021-09-30';
+        posts_answers
+;
  ```
 
 *Note: In BigQuery views are considered like CTEs so they count towards the maximum level of nesting. That is if you call a view from inside a CTE, that's two levels of nesting and if you then join that CTE in another CTE that's three levels of nesting. BigQuery has a hard limitation on how deep nesting can go beyond which you can no longer run your query. At that point, perhaps the view is best materialized into a table.
