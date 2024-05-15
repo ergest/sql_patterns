@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "book/chap6.md",
+                "file": "book/chap3.md",
                 "mode": "source",
                 "source": false
               }
@@ -85,7 +85,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "book/chap6.md",
+                "file": "book/chap3.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -124,10 +124,11 @@
   },
   "active": "8e6b0d89cccb8f39",
   "lastOpenFiles": [
-    "book/chap7.md",
-    "book/chap6.md",
+    "book/chap2.md",
     "book/chap3.md",
     "book/chap4.md",
+    "book/chap6.md",
+    "book/chap7.md",
     "book/chap5.md",
     "book/img/Example-Dag-Dag5.drawio.png",
     "book/img/Example-Dag-Dag4.drawio.png",
@@ -136,7 +137,6 @@
     "book/img/Example-Dag-Dag1.drawio.png",
     "book/chap1.md",
     "book/img/sql_dag4.png",
-    "book/chap2.md",
     "book/chap0.md",
     "book/cover.md",
     "build",
