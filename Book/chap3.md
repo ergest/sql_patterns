@@ -32,7 +32,7 @@ The self-documenting code principle dictates that your code be easy to read with
 ### Move Logic Upstream Principle
 When you find yourself implementing very specific logic in a model that might be used elsewhere, move that logic upstream *closer to the source* of data. In the world of DAGs, upstream has a very precise meaning. It means to move potentially common logic onto earlier nodes in the graph because you never know which downstream models might use it.
 
-![[Pasted image 20240512211849.png]]
+![[sql_dag4.png]]
 (Models here represent dbt models which will be covered in a separate chapter)
 
 With these principles out of the way let's dive into applying modularity to SQL.
@@ -57,8 +57,7 @@ One of the best ways to visualize CTEs is to think of them as a DAG (aka Directe
 
 In this example each CTE uses the results of the previous CTE to build upon its result set and take it further.
 
-![](https://www.ergestx.com/content/images/2022/12/Example-Dag-Dag1.drawio-2.png)
-
+![[Example-Dag-Dag1.drawio.png]]
 ```sql
 -- Define CTE 1
 WITH cte1_name AS (
@@ -87,8 +86,7 @@ FROM cte4_name
 
 In this example, CTE 3 depends on CTE 1 and CTE 2 which are independent of each other and CTE 4 depends on CTE 3.
 
-![](https://www.ergestx.com/content/images/2022/12/Example-Dag-Dag2.drawio.png)
-
+![[Example-Dag-Dag2.drawio.png]]
 ```sql
 -- Define CTE 1
 WITH cte1_name AS (
@@ -119,8 +117,7 @@ FROM cte4_name
 
 Finally here's something more complex and its corresponding code.
 
-![](https://www.ergestx.com/content/images/2022/12/Example-Dag-Dag3.drawio.png)
-
+![[Example-Dag-Dag3.drawio.png]]
 ```sql
 -- Define CTE 1
 WITH cte1_name AS (
@@ -551,7 +548,7 @@ This view is now stored in the database but it doesn't take up any space (unless
 
 Views can be put inside of CTEs or can themselves contain CTEs, thus creating multiple layers of modularity. Here's an example of what that would look like.
 
-![](https://www.ergestx.com/content/images/2022/12/Example-Dag-Dag4.drawio.png)
+![[Example-Dag-Dag4.drawio.png]]
 
 > **Side Note:**
 > By combining views and CTEs, you're nesting many queries within others. Not only does this negatively impact performance but some databases have limits to how many levels of nesting you can have.
@@ -566,7 +563,7 @@ They can return a single scalar value or a table. A single scalar value can be u
 
 In the next chapter we'll extend these patterns and see how they help us with query maintainability.
 
-## Patterns in Practice
+## Patterns in Practice (TBD)
 
 ### Reusability Principle
 We start off with a very important principle that rarely gets talked about in SQL. When you're designing a query and breaking it up into CTEs, there is one principle to keep in mind. The CTEs should be constructed in such a way that they can be reused if needed later. This principle makes code easier to maintain and compact.
