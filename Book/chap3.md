@@ -523,13 +523,11 @@ GROUP BY
 ## Writing modular SQL using views/UDFs
 When you find yourself copying and pasting CTEs across multiple queries it's time to turn them into views or UDFs.
 
-#### Views
 Views are database objects that can be queried with SQL just like a table. The difference between the two is that views typically don't contain any data. They store a query that gets executed every time the view is queried (just like a CTE).
 
 There are however certain types of views that do contain data (known as materialized views) which are used for keeping the data fresh but we won't cover them here.
 
 Creating a view is easy:
-
 ```sql
 CREATE OR REPLACE VIEW <view_name> AS
 	SELECT col1
@@ -538,7 +536,6 @@ CREATE OR REPLACE VIEW <view_name> AS
 ```
 
 Once created you can run:
-
 ```sql
 SELECT *
 FROM <view_name>
@@ -554,6 +551,33 @@ Views can be put inside of CTEs or can themselves contain CTEs, thus creating mu
 > By combining views and CTEs, you're nesting many queries within others. Not only does this negatively impact performance but some databases have limits to how many levels of nesting you can have.
 
 A great application of SRP is to use a view to rename the columns of an external table or present several joined tables as a single object thus providing a safe *interface* to the rest of your downstream code.
+
+One of the benefits of building reusable CTEs is that if you find yourself copying and pasting the same CTE in multiple places, you can turn it into a view and store it in the database.
+
+What could be made into a view in our specific query?
+
+I think the `post_types` CTE would be a good candidate. That way whenever you have to combine all the post types you don't have to use that CTE everywhere.
+```sql
+CREATE OR REPLACE VIEW v_post_types AS
+    SELECT
+        id AS post_id,
+        'question' AS post_type,
+    FROM
+        posts_questions
+    UNION ALL
+    SELECT
+        id AS post_id,
+        'answer' AS post_type,
+    FROM
+        posts_answers
+;
+ ```
+
+*Note: In many databases views are considered like CTEs so they count towards the maximum level of nesting. That is if you call a view from inside a CTE, that's two levels of nesting and if you then join that CTE in another CTE that's three levels of nesting. They has a hard limitation on how deep nesting can go beyond which you can no longer run your query. At that point, perhaps the view is best materialized into a table.
+
+So far we've talked about how to optimize queries so they're easy to read, write, understand and maintain. In the next chapter we tackle patterns regarding query performance.
+
+In this chapter we're going to see how **modularity**, one of the most important system design principles applies to SQL. You will learn how to compose queries as a series of independent, simple "modules" whether they are CTEs, views, user defined functions (UDFs) and so on.
 #### User Defined Functions (UDFs)
 Similar to views you can also put commonly used logic into UDFs (user-defined functions) Pretty much all databases allow you to create UDFs but they each use different programming languages to do so. Different database systems use different programming languages to allow for UDF creation. DuckDB offers Python for such functionality. You can read about it [here](https://duckdb.org/docs/api/python/function.html)
 
@@ -760,48 +784,3 @@ SELECT
 FROM
 	bigquery-public-data.stackoverflow.posts_answers
  ```
-
-### Creating Views
-One of the benefits of building reusable CTEs is that if you find yourself copying and pasting the same CTE in multiple places, you can turn it into a view and store it in the database.
-
-Views are great for encapsulating business logic that applies to many queries. They're also used in security applications
-
-Creating a view is easy:
-```sql
-CREATE OR REPLACE VIEW <view_name> AS
-	SELECT col1
-	FROM table1
-	WHERE col1 > x;
-```
-
-Once created you can run:
-```sql
-SELECT col1
-FROM <view_name>
-```
-This view is now stored in the database but it doesn't take up any space (unless it's materialized) It only stores the query which is executed each time you select from the view or join the view in a query. 
-
-What could be made into a view in our specific query?
-
-I think the `post_types` CTE would be a good candidate. That way whenever you have to combine all the post types you don't have to use that CTE everywhere.
-```sql
-CREATE OR REPLACE VIEW v_post_types AS
-    SELECT
-        id AS post_id,
-        'question' AS post_type,
-    FROM
-        posts_questions
-    UNION ALL
-    SELECT
-        id AS post_id,
-        'answer' AS post_type,
-    FROM
-        posts_answers
-;
- ```
-
-*Note: In BigQuery views are considered like CTEs so they count towards the maximum level of nesting. That is if you call a view from inside a CTE, that's two levels of nesting and if you then join that CTE in another CTE that's three levels of nesting. BigQuery has a hard limitation on how deep nesting can go beyond which you can no longer run your query. At that point, perhaps the view is best materialized into a table.
-
-So far we've talked about how to optimize queries so they're easy to read, write, understand and maintain. In the next chapter we tackle patterns regarding query performance.
-
-In this chapter we're going to see how **modularity**, one of the most important system design principles applies to SQL. You will learn how to compose queries as a series of independent, simple "modules" whether they are CTEs, views, user defined functions (UDFs) and so on.
