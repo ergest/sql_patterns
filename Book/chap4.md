@@ -1,14 +1,12 @@
 # Chapter 4: Query Performance (TBD)
-In this chapter we're going to talk about query performance, aka how to make your queries run faster. Why do we care about making queries run faster? Faster queries get you results faster, while consuming fewer resources, making them cheaper on modern data warehouses.
+In this chapter we're going to talk about query performance, aka how to make your queries run faster. Why do we care about making queries run faster? Faster queries get you results faster, obviously, but they also consume fewer resources, making them cheaper on modern data warehouses.
 
-This chapter isn't only about speed. You can make your queries run really fast with a few clever hacks, but that might make your code unreadable and unmaintainable. We need to strike a balance between the performance, accuracy and maintainability.
+This chapter isn't just about speed. There are many clever hacks to make your queries run really fast, but many of them will make your code unreadable and unmaintainable. We need to strike a balance between performance, accuracy and maintainability.
 
 ## Reducing Rows
-The most important pattern that improves query performance is reducing data as much as possible before you join it.
+The most important pattern that improves query performance is reducing data as much as possible before you do anything else. What does that mean?
 
-What does that mean?
-
-So far we've learned that decomposing (aka breaking down) a query via CTEs is the best way to tackle complex queries. But what kinds of operations should your perform in the CTE? We've already seen aggregation and calculation of metrics that can be used later. One of the best uses for CTEs is filtering.
+So far we've learned that using modularity via CTEs and views is the best way to tackle complex queries. But what kinds of operations should your perform in the CTE? We've already seen aggregation and calculation of metrics that can be used later. One of the best uses for CTEs is filtering.
 
 You might have noticed this little snipped in every CTE:
 ```sql

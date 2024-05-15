@@ -776,3 +776,5 @@ SELECT
 FROM
 	bigquery-public-data.stackoverflow.posts_answers
  ```
+
+With that out of the way let's now look at performance patterns.
