@@ -599,7 +599,7 @@ FROM post_activity;
 
 This CTE performs several operations like aggregation -- to decrease granularity of the underlying data -- joining and filtering. Its main purpose is to get a mapping between `user_id` and `post_id` at the right level of granularity so it can be used later.
 
-What's great about this CTE is that we can also use it for generating user metrics:
+What's great it is that we can also use it for generating user metrics:
 ```sql
 --code snippet will not actually run
 SELECT
@@ -613,10 +613,11 @@ SELECT
         AND post_type = 'question' THEN 1 ELSE 0 END) AS question_edited,
     SUM(CASE WHEN activity_type = 'edited'
         AND post_type = 'answer'   THEN 1 ELSE 0 END) AS answer_edited  
-FROM post_activity pa
-     JOIN post_types pt ON pt.post_id = pa.post_id
-WHERE user_id = 16366214
-GROUP BY 1,2
+FROM
+	post_activity pa
+    JOIN post_types pt ON pt.post_id = pa.post_id
+GROUP BY
+	1,2
 ```
 
 and to join with comments and votes to user level data via the `post_id`
@@ -628,13 +629,11 @@ and to join with comments and votes to user level data via the `post_id`
         CAST(c.creation_date AS DATE) AS activity_date,
         COUNT(*) as total_comments
     FROM
-        bigquery-public-data.stackoverflow.comments c
+        comments c
         INNER JOIN post_activity pa ON pa.post_id = c.post_id
     WHERE
         TRUE
         AND pa.activity_type = 'created'
-        AND c.creation_date >= '2021-06-01' 
-        AND c.creation_date <= '2021-09-30'
     GROUP BY
         1,2
 )
@@ -645,13 +644,11 @@ and to join with comments and votes to user level data via the `post_id`
         SUM(CASE WHEN vote_type_id = 2 THEN 1 ELSE 0 END) AS total_upvotes,
         SUM(CASE WHEN vote_type_id = 3 THEN 1 ELSE 0 END) AS total_downvotes,
     FROM
-        bigquery-public-data.stackoverflow.votes v
+        votes v
         INNER JOIN post_activity pa ON pa.post_id = v.post_id
     WHERE
         TRUE
         AND pa.activity_type = 'created'
-        AND v.creation_date >= '2021-06-01' 
-        AND v.creation_date <= '2021-09-30'
     GROUP BY
         1,2
 )
