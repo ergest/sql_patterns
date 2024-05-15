@@ -1,5 +1,5 @@
-# Chapter 4: Query Maintainability
-In this chapter we're going to extend the pattern of decomposition into the realm of query maintainability. Breaking down large queries into small pieces doesn't only make them easier to read, write and understand, it also makes them easier to maintain.
+# Chapter 6: DBT Patterns
+In this chapter we're going to use all the patterns we've seen to simplify our final query from the project we just saw.
 
 ## Reusability Principle
 We start off with a very important principle that rarely gets talked about in SQL. When you're designing a query and breaking it up into CTEs, there is one principle to keep in mind. The CTEs should be constructed in such a way that they can be reused if needed later. This principle makes code easier to maintain and compact.

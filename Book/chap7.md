@@ -14,8 +14,8 @@ WITH post_activity AS (
              WHEN ph.post_history_type_id IN (4,5,6) THEN 'edited' 
         END AS activity_type
     FROM
-        bigquery-public-data.stackoverflow.post_history ph
-        INNER JOIN bigquery-public-data.stackoverflow.users u 
+        post_history ph
+        INNER JOIN users u 
             ON u.id = ph.user_id
     WHERE
         TRUE 
@@ -33,7 +33,7 @@ WITH post_activity AS (
         id AS post_id,
         'question' AS post_type,
     FROM
-        bigquery-public-data.stackoverflow.posts_questions
+        posts_questions
     WHERE
         TRUE
         AND creation_date >= '2021-06-01' 
@@ -43,7 +43,7 @@ WITH post_activity AS (
         id AS post_id,
         'answer' AS post_type,
     FROM
-        bigquery-public-data.stackoverflow.posts_answers
+        posts_answers
     WHERE
         TRUE
         AND creation_date >= '2021-06-01' 
@@ -77,7 +77,7 @@ WITH post_activity AS (
         CAST(creation_date AS DATE) AS activity_date,
         COUNT(*) as total_comments
     FROM
-        bigquery-public-data.stackoverflow.comments
+        comments
     WHERE
         TRUE
         AND creation_date >= '2021-06-01' 
@@ -91,7 +91,7 @@ WITH post_activity AS (
         CAST(c.creation_date AS DATE) AS activity_date,
         COUNT(*) as total_comments
     FROM
-        bigquery-public-data.stackoverflow.comments c
+        comments c
         INNER JOIN post_activity pa ON pa.post_id = c.post_id
     WHERE
         TRUE
@@ -108,13 +108,11 @@ WITH post_activity AS (
         SUM(CASE WHEN vote_type_id = 2 THEN 1 ELSE 0 END) AS total_upvotes,
         SUM(CASE WHEN vote_type_id = 3 THEN 1 ELSE 0 END) AS total_downvotes,
     FROM
-        bigquery-public-data.stackoverflow.votes v
+        votes v
         INNER JOIN post_activity pa ON pa.post_id = v.post_id
     WHERE
         TRUE
         AND pa.activity_type = 'created'
-        AND v.creation_date >= '2021-06-01' 
-        AND v.creation_date <= '2021-09-30'
     GROUP BY
         1,2
 )
