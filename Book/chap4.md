@@ -3,7 +3,7 @@ In this chapter we're going to talk about query performance, aka how to make you
 
 This chapter isn't just about speed. There are many clever hacks to make your queries run really fast, but many of them will make your code unreadable and unmaintainable. We need to strike a balance between performance, accuracy and maintainability.
 
-## Reducing Rows
+## Reduce Rows as Early as Possible
 The most important pattern that improves query performance is reducing data as much as possible before you do anything else. What does that mean?
 
 So far we've learned that using modularity via CTEs and views is the best way to tackle complex queries. We also learned to keep our modules small and single purpose to ensure maximum composability. We've already seen CTEs that do aggregation and calculation of metrics that can be used later. Another great operation to do inside a CTEs is filtering.
@@ -37,13 +37,39 @@ FROM post_activity
 WHERE activity_date BETWEEN '2021-12-14' AND '2021-12-21';
 ```
 
-This is one correct way to filter the results and it may even be performant in our cause given our small database and the really fast DuckDB engine. But there's something better we can do here and it's the pattern 
+This is one correct way to filter the results and it may even be performant in our cause given our small database and the really fast DuckDB engine. But there's and even better way we can write it  if we know we need to filter to a subset of the entire table.
 
-What we're doing here is filtering each table to only 90 days so we can both to keep costs down and make the query faster. This is what I mean by reducing the dataset before joining.
+```sql
+--listing 4.2
+WITH post_activity AS (
+    SELECT
+        ph.post_id,
+        ph.user_id,
+        u.display_name AS user_name,
+        ph.creation_date AS activity_date,
+        CASE WHEN ph.post_history_type_id IN (1,2,3) THEN 'created'
+             WHEN ph.post_history_type_id IN (4,5,6) THEN 'edited' 
+        END AS activity_type
+    FROM
+        post_history ph
+        INNER JOIN users u 
+			ON u.id = ph.user_id
+    WHERE
+        TRUE
+        AND ph.post_history_type_id BETWEEN 1 AND 6
+        AND user_id > 0 --exclude automated processes
+        AND user_id IS NOT NULL --exclude deleted accounts
+        AND activity_date BETWEEN '2021-12-14' AND '2021-12-21'
+    GROUP BY
+        1,2,3,4,5
+)
+SELECT *
+FROM post_activity;
+```
 
-In this case we actually only want to work with 90 days worth of data. if we needed all historical data, we couldn't reduce it beforehand and we'd have to work with the full table. 
+Did you notice the difference? We moved the date filter inside the CTE vs outside. Now of course I know that many modern database will automatically do "predicate pushdown", which means they will see the `WHERE` clause outside the CTE but still apply it inside. They will filter the rows before doing anything else.
 
-Let's look at some implications of this pattern.
+But it doesn't always happen. I've seen many cases where due to the table setup, query 4.1 took 10 hours and query 4.2 took 10 minutes!! Rather than relying on databases to do the right thing, we can ensure that we do the right thing for it.
 
 **Don't use functions in WHERE**
 In case you didn't know, you can put anything in the where clause. You already know about filtering on dates, numbers and strings of course but you can also filter calculations, functions, `CASE` statements, etc.
