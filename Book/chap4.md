@@ -6,15 +6,38 @@ This chapter isn't just about speed. There are many clever hacks to make your qu
 ## Reducing Rows
 The most important pattern that improves query performance is reducing data as much as possible before you do anything else. What does that mean?
 
-So far we've learned that using modularity via CTEs and views is the best way to tackle complex queries. But what kinds of operations should your perform in the CTE? We've already seen aggregation and calculation of metrics that can be used later. One of the best uses for CTEs is filtering.
+So far we've learned that using modularity via CTEs and views is the best way to tackle complex queries. We also learned to keep our modules small and single purpose to ensure maximum composability. We've already seen CTEs that do aggregation and calculation of metrics that can be used later. Another great operation to do inside a CTEs is filtering.
 
-You might have noticed this little snipped in every CTE:
+Let's take a look at an example from the last chapter but let's add a filter for only the activity that occurred in the second week of December 2021.
 ```sql
-WHERE
-	TRUE
-	AND creation_date >= '2021-06-01' 
-	AND creation_date <= '2021-09-30'
+--listing 4.1
+WITH post_activity AS (
+    SELECT
+        ph.post_id,
+        ph.user_id,
+        u.display_name AS user_name,
+        ph.creation_date AS activity_date,
+        CASE WHEN ph.post_history_type_id IN (1,2,3) THEN 'created'
+             WHEN ph.post_history_type_id IN (4,5,6) THEN 'edited' 
+        END AS activity_type
+    FROM
+        post_history ph
+        INNER JOIN users u 
+			ON u.id = ph.user_id
+    WHERE
+        TRUE
+        AND ph.post_history_type_id BETWEEN 1 AND 6
+        AND user_id > 0 --exclude automated processes
+        AND user_id IS NOT NULL --exclude deleted accounts
+    GROUP BY
+        1,2,3,4,5
+)
+SELECT *
+FROM post_activity
+WHERE activity_date BETWEEN '2021-12-14' AND '2021-12-21';
 ```
+
+This is one correct way to filter the results and it may even be performant in our cause given our small database and the really fast DuckDB engine. But there's something better we can do here and it's the pattern 
 
 What we're doing here is filtering each table to only 90 days so we can both to keep costs down and make the query faster. This is what I mean by reducing the dataset before joining.
 
