@@ -9,4 +9,7 @@ This chapter contains a varied selection of useful patterns that didn't fit in a
 
 ## Generating fake data with SQL
 
-## Comparing tables
+## Comparing tables row by row
+
+## Table Subtraction
+(joining tables on row hash)
