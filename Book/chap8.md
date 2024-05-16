@@ -3,8 +3,7 @@ This chapter contains a varied selection of useful patterns that didn't fit in a
 
 ## Crosstab
 ## Deduping Data Deliberately
-(choosing the top/bottom row)
-
+(by using row_number() with qualify())
 ## Filling in missing dates from time series
 
 ## Generating fake data with SQL
