@@ -329,3 +329,5 @@ ORDER BY
 This query is also looking at the last 90 days worth of data but unlike the query above, the lower boundary is fixed. This query's performance will get worse over time.
 
 That wraps up query performance. There's a lot more to learn about improving query performance but that's not the purpose of this book. In the next chapter we'll cover how to make your queries robust against unexpected changes in the underlying data.
+
+## Avoid Using DISTINCT (if possible)
