@@ -13,3 +13,6 @@ This chapter contains a varied selection of useful patterns that didn't fit in a
 
 ## Table Subtraction
 (joining tables on row hash)
+
+## Generating SQL with SQL
+(Applying repeating SQL through information_schema)
