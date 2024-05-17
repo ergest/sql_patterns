@@ -69,7 +69,7 @@ FROM post_activity;
 
 Did you notice the difference? We moved the date filter inside the CTE vs outside. Now of course I know that many modern database will automatically do "predicate pushdown", which means they will see the `WHERE` clause outside the CTE but still apply it inside. They will filter the rows before doing anything else.
 
-But it doesn't always happen. I've seen many cases where due to the table setup, query 4.1 took 10 hours and query 4.2 took 10 minutes!! Rather than relying on databases to do the right thing, we can ensure that we do the right thing for it.
+But it doesn't always happen. I've seen cases where due to the table setup, a query like `4.1` took 10 hours and changing it to the query in `4.2` reduced execution time to 10 minutes!! Rather than relying on databases to do the right thing, we can ensure that we do the right thing for it.
 
 **Don't use functions in WHERE**
 In case you didn't know, you can put anything in the where clause. You already know about filtering on dates, numbers and strings of course but you can also filter calculations, functions, `CASE` statements, etc.
