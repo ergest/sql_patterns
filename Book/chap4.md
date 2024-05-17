@@ -332,3 +332,5 @@ That wraps up query performance. There's a lot more to learn about improving que
 
 ## Avoid Using DISTINCT (if possible)
 Watch out for UNION vs UNION ALL
+
+## Avoid using OR in the WHERE clause
