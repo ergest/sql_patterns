@@ -153,60 +153,55 @@ For example, the following is unnecessary and slows down performance because the
 ## Avoid Using Functions in the WHERE Clause
 In case you didn't know, you can put anything in the where clause. You already know about filtering on dates, numbers and strings of course but you can also filter calculations, functions, `CASE` statements, etc.
 
-Here's a rule of thumb when it comes to making queries faster. Always try to make the `wHERE` clause simple. Compare a column to another column or to a fixed value and avoid using functions.
-
-When you use compare a column to a fixed value or to another column, the query optimizer can filter down to the relevant rows much faster. When you use a function or a complicated formula, the optimizer needs to scan the entire table to do the filtering. This is negligible for small tables but when dealing with millions of rows query performance will suffer.
+When you use compare a column to a fixed value or to another column, the query optimizer can filter down to the relevant rows much faster. When you use a function or a complicated formula, the optimizer needs to scan the entire table before doing the filtering. This is negligible for small tables but when dealing with millions of rows query performance will suffer.
 
 Let's see some examples:
 
 The `tags` column in both questions and answers is a collection of strings separated by `|` character as you see here:
 ```sql
+--listing 4.4
 SELECT 
     q.id AS post_id,
     q.creation_date,
     q.tags
 FROM
-    bigquery-public-data.stackoverflow.posts_questions q
-WHERE
-    TRUE
-    AND creation_date >= '2021-06-01' 
-    AND creation_date <= '2021-09-30'
-LIMIT 10
+    posts_questions q
+LIMIT 10;
 ```
 
-Here's the output:
+Here's a sample output (yours might differ):
 ```sql
+post_id |creation_date          |tags                                 |
+--------+-----------------------+-------------------------------------+
+70177589|2021-12-01 00:02:03.777|blockchain|nearprotocol|near|nearcore|
+70177596|2021-12-01 00:02:52.657|google-oauth|google-workspace        |
+70177598|2021-12-01 00:03:16.373|python|graph|networkx                |
+70177601|2021-12-01 00:03:32.413|elasticsearch                        |
+70177623|2021-12-01 00:06:16.950|python|tkinter                       |
+70177624|2021-12-01 00:06:19.537|c#                                   |
+70177627|2021-12-01 00:07:50.607|flutter                              |
+70177629|2021-12-01 00:08:02.943|python|python-3.x|pexpect            |
+70177630|2021-12-01 00:08:16.173|sql|sql-server|tsql                  |
+70177633|2021-12-01 00:08:46.233|sql|sql-server|tsql                  |
 
-post_id |creation_date          |tags                                  |
---------+-----------------------+--------------------------------------+
-67781287|2021-05-31 20:00:59.663|python|selenium|screen-scraping|      |
-67781291|2021-05-31 20:01:48.593|python                                |
-67781295|2021-05-31 20:02:38.043|html|css|bootstrap-4                  |
-67781298|2021-05-31 20:03:01.413|xpages|lotus-domino                   |
-67781300|2021-05-31 20:03:12.987|bash|awk|sed                          |
-67781306|2021-05-31 20:03:54.117|c                                     |
-67781310|2021-05-31 20:04:33.980|php|html|navbar                       |
-67781313|2021-05-31 20:04:57.957|java|spring|dependencies              |
-67781314|2021-05-31 20:05:12.723|python|qml|kde                        |
-67781315|2021-05-31 20:05:15.703|javascript|reactjs|redux|react-router||
+Table 4.1
 ```
 
 The tags pertain to the list of topics or subjects that a post is about. One of the tricky things about storing tags like this is that you don't have to worry about the order in which they appear. There's no categorization system here. A tag can appear anywhere in the string.
 
 How would you go about filtering all the posts that are about SQL? Since the tag `|sql|` can appear anywhere in the string, you'll need a way to search the entire string. One way to do that is to use the `INSTR()` function like this:
 ```sql
+--listing 
 SELECT 
     q.id AS post_id,
     q.creation_date,
     q.tags
 FROM
-    bigquery-public-data.stackoverflow.posts_questions q
+    posts_questions q
 WHERE
     TRUE
-    AND creation_date >= '2021-06-01' 
-    AND creation_date <= '2021-09-30'
-    AND INSTR(tags, "|sql|") > 0
-LIMIT 10
+    AND INSTR(tags, "sql") > 0
+LIMIT 10;
 ```
 
 Here's the output:
