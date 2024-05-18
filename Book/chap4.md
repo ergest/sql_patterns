@@ -189,9 +189,7 @@ Table 4.1
 
 The tags pertain to the list of topics or subjects that a post is about. One of the tricky things about storing tags like this is that you don't have to worry about the order in which they appear. There's no categorization system here. A tag can appear anywhere in the string.
 
-Suppose we're looking for posts mentioning SQL. How would we do it? I'm pretty sure you're familiar with pattern matching in SQL using the keyword `LIKE` But since we don't know if the string is capitalized (i.e. it could be SQL, sql, Sql, etc) and since matching patterns 
-
-Since the tag `|sql|` can appear anywhere in the string, you'll need a way to search the entire string. One way to do that is to use the `INSTR()` function like this:
+Suppose we're looking for posts mentioning SQL. How would we do it? I'm pretty sure you're familiar with pattern matching in SQL using the keyword `LIKE` But since we don't know if the string is capitalized (i.e. it could be SQL, sql, Sql, etc) and we want to match all of them, it's common to use the function `LOWER()` before matching the pattern.
 ```sql
 --listing 4.5
 SELECT
@@ -224,38 +222,39 @@ post_id |creation_date          |tags                                  |
 Table 4.2
 ```
 
-This should be pretty simple to understand. We're searching for the substring `sql` anywhere in the `tags` column. The `INSTR()` searches for a sub-string within a string and returns the position of the first character found. Since we don't care about that, we only care that it's found our condition is > 0. While this particular query might be fast, in general this pattern is not advised. So what can you do instead?
+In our small database this query will be quite fast, however by using the function `LOWER()` in the `WHERE` clause, you're inadvertently causing the database engine to scan the entire table, perform the lowercase operation and then perform the filtering.
 
-Use the `LIKE` keyword to look for patterns. Many query optimizers perform much better with `LIKE` then with using a function:
+The same thing happens when you perform any other operations in the `WHERE` clause like addition, multiplication or any other math or date functions:
 ```sql
 --listing 4.6
 SELECT
     q.id AS post_id,
     q.creation_date,
-    q.tags
+    q.answer_count + q.comment_count as total_activity
 FROM
     posts_questions q
 WHERE
     TRUE
-    AND tags like '%sql%'
+    AND answer_count + comment_count >= 10
 LIMIT 10;
 ```
 
 Here's the output:
 ```sql
+post_id |creation_date          |total_activity|
+--------+-----------------------+--------------+
+70270242|2021-12-08 05:09:48.113|            10|
+70255288|2021-12-07 05:19:45.337|            12|
+70256716|2021-12-07 08:04:30.497|            10|
+70318632|2021-12-11 20:10:08.213|            12|
+70334900|2021-12-13 12:45:37.097|            11|
+70333905|2021-12-13 11:29:00.117|            14|
+70237681|2021-12-05 19:13:40.890|            10|
+70257087|2021-12-07 08:38:39.263|            10|
+70281346|2021-12-08 20:29:31.357|            13|
+70190971|2021-12-01 20:43:14.507|            12|
 
-post_id |creation_date          |tags                           |
---------+-----------------------+-------------------------------+
-67941534|2021-06-11 13:55:08.693|mysql|sql|database|datatable   |
-67810767|2021-06-02 14:40:44.110|mysql|sql|sqlite               |
-67814136|2021-06-02 20:55:41.193|mysql|sql|where-clause         |
-67849335|2021-06-05 07:58:09.493|php|mysql|sql|double|var-dump  |
-68074104|2021-06-21 16:08:25.487|php|sql|postgresql|mdb2        |
-67920305|2021-06-10 07:32:21.393|python|sql|pandas|pyodbc       |
-68015950|2021-06-17 04:47:27.713|c#|sql|.net|forms|easy-modbus  |
-68058413|2021-06-20 13:28:00.980|java|sql|spring|kotlin|jpa     |
-68060567|2021-06-20 18:39:04.150|mysql|sql|ruby-on-rails|graphql|
-68103046|2021-06-23 11:40:56.087|php|mysql|sql|stored-procedures|
+Table 4.3
 ```
 ## Avoid Using DISTINCT (if possible)
 Watch out for UNION vs UNION ALL
