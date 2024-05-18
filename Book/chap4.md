@@ -225,21 +225,28 @@ In our small database this query will be quite fast, however by using the functi
 
 Alternatively you can perform the `LOWER()` operator beforehand in a CTE or view like this:
 ```sql
+--listing 4.6
 WITH cte_lowercase_tags AS (
 	SELECT
 	    q.id AS post_id,
 	    q.creation_date,
 	    LOWER(q.tags) as tags
 	FROM
-	    posts_questions
+	    posts_questions q
 )
 SELECT *
-FROM 
+FROM cte_lowercase_tags
+WHERE tags LIKE '%sql%'
+LIMIT 10;
 ```
+I mentioned earlier that this is not advisable but in this case, if you really need to lowercase tags it's another option. You can use this option with a tool like dbt where you can materialize the lowercase tags into a table to make downstream querying much easier.
 
-The same thing happens when you perform any other operations in the `WHERE` clause like addition, multiplication or any other math or date functions:
+Let's look at a few more examples.
+
+Here's we're trying to filter by performing a math operation in the `WHERE` clause. Same thing applies. The database performs a full table scan
+any other operations in the `WHERE` clause like addition, multiplication or any other math or date functions:
 ```sql
---listing 4.6
+--listing 4.7
 SELECT
     q.id AS post_id,
     q.creation_date,
@@ -252,22 +259,21 @@ WHERE
 LIMIT 10;
 ```
 
-Here's the output:
+We can do the same thing here:
 ```sql
-post_id |creation_date          |total_activity|
---------+-----------------------+--------------+
-70270242|2021-12-08 05:09:48.113|            10|
-70255288|2021-12-07 05:19:45.337|            12|
-70256716|2021-12-07 08:04:30.497|            10|
-70318632|2021-12-11 20:10:08.213|            12|
-70334900|2021-12-13 12:45:37.097|            11|
-70333905|2021-12-13 11:29:00.117|            14|
-70237681|2021-12-05 19:13:40.890|            10|
-70257087|2021-12-07 08:38:39.263|            10|
-70281346|2021-12-08 20:29:31.357|            13|
-70190971|2021-12-01 20:43:14.507|            12|
-
-Table 4.3
+--listing 4.8
+WITH cte_lowercase_tags AS (
+	SELECT
+	    q.id AS post_id,
+	    q.creation_date,
+	    q.answer_count + q.comment_count as total_activity
+	FROM
+	    posts_questions q
+)
+SELECT *
+FROM cte_lowercase_tags
+WHERE total_activity >= 10
+LIMIT 10;
 ```
 
 Here's another common example:
