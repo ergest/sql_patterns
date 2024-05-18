@@ -1,14 +1,14 @@
 # Chapter 4: Query Performance (TBD)
 In this chapter we're going to talk about query performance, aka how to make your queries run faster. Why do we care about making queries run faster? Faster queries get you results faster, obviously, but they also consume fewer resources, making them cheaper on modern data warehouses.
 
-This chapter isn't just about speed. There are many clever hacks to make your queries run really fast, but many of them will make your code unreadable and unmaintainable. We need to strike a balance between performance, accuracy and maintainability.
+This chapter isn't just about speed. There are many clever hacks to make your queries run really fast, but many of them will make your code unreadable and unmaintainable. We need to strike a balance between performance and maintainability.
 
 ## Reduce Rows as Early as Possible
-The most important pattern that improves query performance is reducing data as much as possible before you do anything else. What does that mean?
+The most important pattern that improves query performance is reducing data as much as possible as early as possible. What does that mean?
 
-So far we've learned that using modularity via CTEs and views is the best way to tackle complex queries. We also learned to keep our modules small and single purpose to ensure maximum composability. We've already seen CTEs that do aggregation and calculation of metrics that can be used later. Another great operation to do inside a CTEs is filtering.
+So far we've learned that using modularity via CTEs and views is the best way to tackle complex queries. We also learned to keep our modules small and single purpose to ensure maximum composability. CTEs are great for aggregation and calculation of metrics but they can also be used to filter data as early as possible.
 
-Let's take a look at an example from the last chapter but let's add a filter for only the activity that occurred in the second week of December 2021.
+Let's take a look at the example from the last chapter but now let's add a filter for only the activity that occurred in the second week of December 2021.
 ```sql
 --listing 4.1
 WITH post_activity AS (
@@ -37,8 +37,7 @@ FROM post_activity
 WHERE activity_date BETWEEN '2021-12-14' AND '2021-12-21';
 ```
 
-This is one correct way to filter the results and it may even be performant in our cause given our small database and the really fast DuckDB engine. But there's and even better way we can write it  if we know we need to filter to a subset of the entire table.
-
+This is a correct way to filter the results and it may even be performant in our case given our small database and the really fast DuckDB engine. But there's an even better way to write it if we know we need to filter data before using it. For example we might want a rolling window of justa the current week's post activity.
 ```sql
 --listing 4.2
 WITH post_activity AS (
