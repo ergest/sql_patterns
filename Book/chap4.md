@@ -137,13 +137,12 @@ For example, the following is unnecessary and slows down performance because the
         SUM(CASE WHEN vote_type_id = 2 THEN 1 ELSE 0 END) AS total_upvotes,
         SUM(CASE WHEN vote_type_id = 3 THEN 1 ELSE 0 END) AS total_downvotes,
     FROM
-        bigquery-public-data.stackoverflow.votes v
+        votes v
         INNER JOIN post_activity pa ON pa.post_id = v.post_id
     WHERE
         TRUE
         AND pa.activity_type = 'created'
-    	AND v.creation_date >= '2021-06-01' 
-    	AND v.creation_date <= '2021-09-30'
+		AND v.creation_date BETWEEN '2021-12-14' AND '2021-12-21'
 	GROUP BY
         1,2
     ORDER BY
@@ -151,87 +150,7 @@ For example, the following is unnecessary and slows down performance because the
 )
 ```
 
-## Bounded Time Windows
-Many analytical queries need to go back a certain number of days/weeks/months in order to calculate trend-based metrics. These are known as "lookback windows." You specify a period of time to look back (e.g. 30 days ago, 90 days ago, a week ago, etc) and you aggregate data to today's date.
-
-If you don't specify a bounded or sliding time window, your query performance will get worse over time as more data is considered.
-
-What makes this problem hard to detect is that initially your query could be very fast at first. Since there isn't a lot of data in the table performance doesn't suffer. As data gets added to the table however your query will start to get slower.
-
-Let's take the above example to illustrate. In this query I'm specifying a fixed time window, from Jun 1st to Sep 30th. No matter how big the table gets, my query performance will remain the same.
-```sql
--- code snippet will not run
-SELECT
-	pa.user_id,
-	CAST(DATE_TRUNC(v.creation_date, DAY) AS DATE) AS activity_date,
-	SUM(CASE WHEN vote_type_id = 2 THEN 1 ELSE 0 END) AS total_upvotes,
-	SUM(CASE WHEN vote_type_id = 3 THEN 1 ELSE 0 END) AS total_downvotes,
-FROM
-	bigquery-public-data.stackoverflow.votes v
-	INNER JOIN post_activity pa ON pa.post_id = v.post_id
-WHERE
-	TRUE
-	AND pa.activity_type = 'created'
-	AND v.creation_date >= '2021-06-01' 
-	AND v.creation_date <= '2021-09-30'
-GROUP BY
-	1,2
-ORDER BY
-	v.creation_date
-```
-
-A more common pattern is the sliding time window where the period under consideration is always fixed but it's dynamically based on when it's being run.
-```sql
--- code snippet will not run
-SELECT
-	pa.user_id,
-	CAST(DATE_TRUNC(v.creation_date, DAY) AS DATE) AS activity_date,
-	SUM(CASE WHEN vote_type_id = 2 THEN 1 ELSE 0 END) AS total_upvotes,
-	SUM(CASE WHEN vote_type_id = 3 THEN 1 ELSE 0 END) AS total_downvotes,
-FROM
-	bigquery-public-data.stackoverflow.votes v
-	INNER JOIN post_activity pa ON pa.post_id = v.post_id
-WHERE
-	TRUE
-	AND pa.activity_type = 'created'
-	AND v.creation_date >= DATE_ADD(CURRENT_DATE(), INTERVAL -90 DAY)
-GROUP BY
-	1,2
-ORDER BY
-	v.creation_date
-```
-
-As you can see, the query is always looking at the last 90 days worth of data but the specific days it's looking into are not fixed. If you run it today, the results will be different from yesterday.
-
-Let's now change this slightly and see what happens:
-```sql
--- code snippet will not run
-SELECT
-	pa.user_id,
-	CAST(DATE_TRUNC(v.creation_date, DAY) AS DATE) AS activity_date,
-	SUM(CASE WHEN vote_type_id = 2 THEN 1 ELSE 0 END) AS total_upvotes,
-	SUM(CASE WHEN vote_type_id = 3 THEN 1 ELSE 0 END) AS total_downvotes,
-FROM
-	bigquery-public-data.stackoverflow.votes v
-	INNER JOIN post_activity pa ON pa.post_id = v.post_id
-WHERE
-	TRUE
-	AND pa.activity_type = 'created'
-	AND v.creation_date >= CAST('2021-12-15' as TIMESTAMP) 
-GROUP BY
-	1,2
-ORDER BY
-	v.creation_date
-```
-
-This query is also looking at the last 90 days worth of data but unlike the query above, the lower boundary is fixed. This query's performance will get worse over time.
-
-That wraps up query performance. There's a lot more to learn about improving query performance but that's not the purpose of this book. In the next chapter we'll cover how to make your queries robust against unexpected changes in the underlying data.
-
-## Query Performance Antipatterns
-Now that we've seen some good patterns of what to do to improve query performance, let's look at what NOT to do (aka antipatterns)
-
-### Avoid using functions in WHERE
+## Avoid Using Functions in the WHERE Clause
 In case you didn't know, you can put anything in the where clause. You already know about filtering on dates, numbers and strings of course but you can also filter calculations, functions, `CASE` statements, etc.
 
 Here's a rule of thumb when it comes to making queries faster. Always try to make the `wHERE` clause simple. Compare a column to another column or to a fixed value and avoid using functions.
@@ -347,3 +266,6 @@ post_id |creation_date          |tags                           |
 Watch out for UNION vs UNION ALL
 
 ## Avoid using OR in the WHERE clause
+
+
+That wraps up query performance. There's a lot more to learn about improving query performance but that's not the purpose of this book. In the next chapter we'll cover how to make your queries robust against unexpected changes in the underlying data.
