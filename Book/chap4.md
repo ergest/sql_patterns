@@ -243,8 +243,7 @@ I mentioned earlier that this is not advisable but in this case, if you really n
 
 Let's look at a few more examples.
 
-Here's we're trying to filter by performing a math operation in the `WHERE` clause. Same thing applies. The database performs a full table scan
-any other operations in the `WHERE` clause like addition, multiplication or any other math or date functions:
+Here's we're trying to filter by performing a math operation in the `WHERE` clause. Same thing applies. The database performs a full table scan before filtering.
 ```sql
 --listing 4.7
 SELECT
@@ -276,9 +275,9 @@ WHERE total_activity >= 10
 LIMIT 10;
 ```
 
-Here's another common example:
+Let's look at another common example with date functions where we can avoid CTEs altogether:
 ```sql
---listing 4.7
+--listing 4.9
 SELECT
     q.id AS post_id,
     q.creation_date,
@@ -290,22 +289,18 @@ WHERE
 LIMIT 10;
 ```
 
-And here's some sample output:
+With dates we can be a little cleverer and avoid using CTEs:
 ```sql
-post_id |creation_date          |week_of_year|
---------+-----------------------+------------+
-70337022|2021-12-13 15:25:08.903|          50|
-70338059|2021-12-13 16:46:16.940|          50|
-70348470|2021-12-14 11:56:02.373|          50|
-70347796|2021-12-14 11:02:31.563|          50|
-70347279|2021-12-14 10:24:40.953|          50|
-70337072|2021-12-13 15:28:32.317|          50|
-70328850|2021-12-13 00:35:38.387|          50|
-70332341|2021-12-13 09:22:07.927|          50|
-70333562|2021-12-13 11:00:05.760|          50|
-70341363|2021-12-13 21:50:42.510|          50|
-
-Table 4.4
+--listing 4.10
+SELECT
+    q.id AS post_id,
+    q.creation_date,
+    date_part('week', creation_date) as week_of_year
+FROM
+    posts_questions q
+WHERE
+    date_part('week', creation_date) = 50
+LIMIT 10;
 ```
 ## Avoid Using DISTINCT (if possible)
 Watch out for UNION vs UNION ALL
