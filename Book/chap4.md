@@ -1,4 +1,4 @@
-# Chapter 4: Query Performance (TBD)
+# Chapter 4: Query Performance
 In this chapter we're going to talk about query performance, aka how to make your queries run faster. Why do we care about making queries run faster? Faster queries get you results faster, obviously, but they also consume fewer resources, making them cheaper on modern data warehouses.
 
 This chapter isn't just about speed. There are many clever hacks to make your queries run really fast, but many of them will make your code unreadable and unmaintainable. We need to strike a balance between performance and maintainability.
@@ -37,7 +37,7 @@ FROM post_activity
 WHERE activity_date BETWEEN '2021-12-14' AND '2021-12-21';
 ```
 
-This is a correct way to filter the results and it may even be performant in our case given our small database and the really fast DuckDB engine. But there's an even better way to write it if we know we need to filter data before using it. For example we might want a rolling window of justa the current week's post activity.
+This is a correct way to filter the results and it may even be performant in our case given our small database and the really fast DuckDB engine. But there's an even better way to write it if we know we need to filter data before using it. For example we might want a rolling window of just the current week's post activity.
 ```sql
 --listing 4.2
 WITH post_activity AS (
@@ -66,134 +66,20 @@ SELECT *
 FROM post_activity;
 ```
 
-Did you notice the difference? We moved the date filter inside the CTE vs outside. Now of course I know that many modern database will automatically do "predicate pushdown", which means they will see the `WHERE` clause outside the CTE but still apply it inside. They will filter the rows before doing anything else.
+Did you notice the difference? We moved the date filter inside the CTE vs outside. Now of course I know that many modern database will automatically do "predicate pushdown" which means they will see the `WHERE` clause outside the CTE but still apply it inside. They will filter the rows before doing anything else.
 
-But it doesn't always happen. I've seen cases where due to the table setup, a query like `4.1` took 10 hours and changing it to the query in `4.2` reduced execution time to 10 minutes!! Rather than relying on databases to do the right thing, we can ensure that we do the right thing for it.
-
-**Don't use functions in WHERE**
-In case you didn't know, you can put anything in the where clause. You already know about filtering on dates, numbers and strings of course but you can also filter calculations, functions, `CASE` statements, etc.
-
-Here's a rule of thumb when it comes to making queries faster. Always try to make the `wHERE` clause simple. Compare a column to another column or to a fixed value and avoid using functions.
-
-When you use compare a column to a fixed value or to another column, the query optimizer can filter down to the relevant rows much faster. When you use a function or a complicated formula, the optimizer needs to scan the entire table to do the filtering. This is negligible for small tables but when dealing with millions of rows query performance will suffer.
-
-Let's see some examples:
-
-The `tags` column in both questions and answers is a collection of strings separated by `|` character as you see here:
-```sql
-SELECT 
-    q.id AS post_id,
-    q.creation_date,
-    q.tags
-FROM
-    bigquery-public-data.stackoverflow.posts_questions q
-WHERE
-    TRUE
-    AND creation_date >= '2021-06-01' 
-    AND creation_date <= '2021-09-30'
-LIMIT 10
-```
-
-Here's the output:
-```sql
-
-post_id |creation_date          |tags                                  |
---------+-----------------------+--------------------------------------+
-67781287|2021-05-31 20:00:59.663|python|selenium|screen-scraping|      |
-67781291|2021-05-31 20:01:48.593|python                                |
-67781295|2021-05-31 20:02:38.043|html|css|bootstrap-4                  |
-67781298|2021-05-31 20:03:01.413|xpages|lotus-domino                   |
-67781300|2021-05-31 20:03:12.987|bash|awk|sed                          |
-67781306|2021-05-31 20:03:54.117|c                                     |
-67781310|2021-05-31 20:04:33.980|php|html|navbar                       |
-67781313|2021-05-31 20:04:57.957|java|spring|dependencies              |
-67781314|2021-05-31 20:05:12.723|python|qml|kde                        |
-67781315|2021-05-31 20:05:15.703|javascript|reactjs|redux|react-router||
-```
-
-The tags pertain to the list of topics or subjects that a post is about. One of the tricky things about storing tags like this is that you don't have to worry about the order in which they appear. There's no categorization system here. A tag can appear anywhere in the string.
-
-How would you go about filtering all the posts that are about SQL? Since the tag `|sql|` can appear anywhere in the string, you'll need a way to search the entire string. One way to do that is to use the `INSTR()` function like this:
-```sql
-SELECT 
-    q.id AS post_id,
-    q.creation_date,
-    q.tags
-FROM
-    bigquery-public-data.stackoverflow.posts_questions q
-WHERE
-    TRUE
-    AND creation_date >= '2021-06-01' 
-    AND creation_date <= '2021-09-30'
-    AND INSTR(tags, "|sql|") > 0
-LIMIT 10
-```
-
-Here's the output:
-```sql
-
-post_id |creation_date          |tags                           |
---------+-----------------------+-------------------------------+
-67941534|2021-06-11 13:55:08.693|mysql|sql|database|datatable   |
-67810767|2021-06-02 14:40:44.110|mysql|sql|sqlite               |
-67814136|2021-06-02 20:55:41.193|mysql|sql|where-clause         |
-67849335|2021-06-05 07:58:09.493|php|mysql|sql|double|var-dump  |
-68074104|2021-06-21 16:08:25.487|php|sql|postgresql|mdb2        |
-67920305|2021-06-10 07:32:21.393|python|sql|pandas|pyodbc       |
-68015950|2021-06-17 04:47:27.713|c#|sql|.net|forms|easy-modbus  |
-68058413|2021-06-20 13:28:00.980|java|sql|spring|kotlin|jpa     |
-68060567|2021-06-20 18:39:04.150|mysql|sql|ruby-on-rails|graphql|
-68103046|2021-06-23 11:40:56.087|php|mysql|sql|stored-procedures|
-```
-
-This should be pretty simple to understand. We're searching for the sub-string `|sql|` anywhere in the `tags` column. The `INSTR()` searches for a sub-string within a string and returns the position of the character where it's found. Since we don't care about that, we only care that it's found our condition is > 0.
-
-This is a very typical example of using functions in the `WHERE` clause. This particular query might be fast but in general this pattern is not advised. So what can you do instead?
-
-Use the `LIKE` keyword to look for patterns. Many query optimizers perform much better with `LIKE` then with using a function:
-```sql
-SELECT 
-    q.id AS post_id,
-    q.creation_date,
-    q.tags
-FROM
-    bigquery-public-data.stackoverflow.posts_questions q
-WHERE
-    TRUE
-    AND creation_date >= '2021-06-01' 
-    AND creation_date <= '2021-09-30'
-    AND tags LIKE "%|sql|%"
-LIMIT 10
-```
-
-Here's the output:
-```sql
-
-post_id |creation_date          |tags                           |
---------+-----------------------+-------------------------------+
-67941534|2021-06-11 13:55:08.693|mysql|sql|database|datatable   |
-67810767|2021-06-02 14:40:44.110|mysql|sql|sqlite               |
-67814136|2021-06-02 20:55:41.193|mysql|sql|where-clause         |
-67849335|2021-06-05 07:58:09.493|php|mysql|sql|double|var-dump  |
-68074104|2021-06-21 16:08:25.487|php|sql|postgresql|mdb2        |
-67920305|2021-06-10 07:32:21.393|python|sql|pandas|pyodbc       |
-68015950|2021-06-17 04:47:27.713|c#|sql|.net|forms|easy-modbus  |
-68058413|2021-06-20 13:28:00.980|java|sql|spring|kotlin|jpa     |
-68060567|2021-06-20 18:39:04.150|mysql|sql|ruby-on-rails|graphql|
-68103046|2021-06-23 11:40:56.087|php|mysql|sql|stored-procedures|
-```
+But it doesn't always happen. I've seen cases where due to the table setup, a query like `4.1` took 10 hours and changing it to the query in `4.2` reduced execution time to 10 minutes!! Rather than relying on databases to do the right thing, we can ensure that we do the right thing for it. Filtering data inside a CTE is a great application of "filtering rows as early as possible."
 
 ## Reducing Columns
 Almost every book or course will tell you to start exploring a table by doing:
 ```sql
+--listing 4.3
 SELECT *
-FROM bigquery-public-data.stackoverflow.posts_questions
-LIMIT 10
+FROM posts_questions
+LIMIT 10;
 ```
 
-This may be ok in a traditional RDBMS, but with modern data warehouses things are different. Because they store data in columns vs rows `SELECT *` will scan the entire table and your query will be slower.
-
-In addition to that, in BigQuery you get charged by how many bytes of a table you scan. Doing a `SELECT *` on a very large table will be just as expensive if you return 10 rows or 10 million rows.
+This may be ok in a traditional RDBMS, but with modern data warehouses things are different. Because they store data in columns vs rows `SELECT *` will scan the entire table and your query will be slower. Imagine running `SELECT * FROM table` where the table has 300 columns. You don't have to know anything about databases 
 
 By selecting only the columns you need you ensure that your query is as efficient as it needs to be.
 
@@ -329,6 +215,121 @@ This query is also looking at the last 90 days worth of data but unlike the quer
 
 That wraps up query performance. There's a lot more to learn about improving query performance but that's not the purpose of this book. In the next chapter we'll cover how to make your queries robust against unexpected changes in the underlying data.
 
+## Query Performance Antipatterns
+Now that we've seen some good patterns of what to do to improve query performance, let's look at what NOT to do (aka antipatterns)
+
+### Avoid using functions in WHERE
+In case you didn't know, you can put anything in the where clause. You already know about filtering on dates, numbers and strings of course but you can also filter calculations, functions, `CASE` statements, etc.
+
+Here's a rule of thumb when it comes to making queries faster. Always try to make the `wHERE` clause simple. Compare a column to another column or to a fixed value and avoid using functions.
+
+When you use compare a column to a fixed value or to another column, the query optimizer can filter down to the relevant rows much faster. When you use a function or a complicated formula, the optimizer needs to scan the entire table to do the filtering. This is negligible for small tables but when dealing with millions of rows query performance will suffer.
+
+Let's see some examples:
+
+The `tags` column in both questions and answers is a collection of strings separated by `|` character as you see here:
+```sql
+SELECT 
+    q.id AS post_id,
+    q.creation_date,
+    q.tags
+FROM
+    bigquery-public-data.stackoverflow.posts_questions q
+WHERE
+    TRUE
+    AND creation_date >= '2021-06-01' 
+    AND creation_date <= '2021-09-30'
+LIMIT 10
+```
+
+Here's the output:
+```sql
+
+post_id |creation_date          |tags                                  |
+--------+-----------------------+--------------------------------------+
+67781287|2021-05-31 20:00:59.663|python|selenium|screen-scraping|      |
+67781291|2021-05-31 20:01:48.593|python                                |
+67781295|2021-05-31 20:02:38.043|html|css|bootstrap-4                  |
+67781298|2021-05-31 20:03:01.413|xpages|lotus-domino                   |
+67781300|2021-05-31 20:03:12.987|bash|awk|sed                          |
+67781306|2021-05-31 20:03:54.117|c                                     |
+67781310|2021-05-31 20:04:33.980|php|html|navbar                       |
+67781313|2021-05-31 20:04:57.957|java|spring|dependencies              |
+67781314|2021-05-31 20:05:12.723|python|qml|kde                        |
+67781315|2021-05-31 20:05:15.703|javascript|reactjs|redux|react-router||
+```
+
+The tags pertain to the list of topics or subjects that a post is about. One of the tricky things about storing tags like this is that you don't have to worry about the order in which they appear. There's no categorization system here. A tag can appear anywhere in the string.
+
+How would you go about filtering all the posts that are about SQL? Since the tag `|sql|` can appear anywhere in the string, you'll need a way to search the entire string. One way to do that is to use the `INSTR()` function like this:
+```sql
+SELECT 
+    q.id AS post_id,
+    q.creation_date,
+    q.tags
+FROM
+    bigquery-public-data.stackoverflow.posts_questions q
+WHERE
+    TRUE
+    AND creation_date >= '2021-06-01' 
+    AND creation_date <= '2021-09-30'
+    AND INSTR(tags, "|sql|") > 0
+LIMIT 10
+```
+
+Here's the output:
+```sql
+
+post_id |creation_date          |tags                           |
+--------+-----------------------+-------------------------------+
+67941534|2021-06-11 13:55:08.693|mysql|sql|database|datatable   |
+67810767|2021-06-02 14:40:44.110|mysql|sql|sqlite               |
+67814136|2021-06-02 20:55:41.193|mysql|sql|where-clause         |
+67849335|2021-06-05 07:58:09.493|php|mysql|sql|double|var-dump  |
+68074104|2021-06-21 16:08:25.487|php|sql|postgresql|mdb2        |
+67920305|2021-06-10 07:32:21.393|python|sql|pandas|pyodbc       |
+68015950|2021-06-17 04:47:27.713|c#|sql|.net|forms|easy-modbus  |
+68058413|2021-06-20 13:28:00.980|java|sql|spring|kotlin|jpa     |
+68060567|2021-06-20 18:39:04.150|mysql|sql|ruby-on-rails|graphql|
+68103046|2021-06-23 11:40:56.087|php|mysql|sql|stored-procedures|
+```
+
+This should be pretty simple to understand. We're searching for the sub-string `|sql|` anywhere in the `tags` column. The `INSTR()` searches for a sub-string within a string and returns the position of the character where it's found. Since we don't care about that, we only care that it's found our condition is > 0.
+
+This is a very typical example of using functions in the `WHERE` clause. This particular query might be fast but in general this pattern is not advised. So what can you do instead?
+
+Use the `LIKE` keyword to look for patterns. Many query optimizers perform much better with `LIKE` then with using a function:
+```sql
+SELECT 
+    q.id AS post_id,
+    q.creation_date,
+    q.tags
+FROM
+    bigquery-public-data.stackoverflow.posts_questions q
+WHERE
+    TRUE
+    AND creation_date >= '2021-06-01' 
+    AND creation_date <= '2021-09-30'
+    AND tags LIKE "%|sql|%"
+LIMIT 10
+```
+
+Here's the output:
+```sql
+
+post_id |creation_date          |tags                           |
+--------+-----------------------+-------------------------------+
+67941534|2021-06-11 13:55:08.693|mysql|sql|database|datatable   |
+67810767|2021-06-02 14:40:44.110|mysql|sql|sqlite               |
+67814136|2021-06-02 20:55:41.193|mysql|sql|where-clause         |
+67849335|2021-06-05 07:58:09.493|php|mysql|sql|double|var-dump  |
+68074104|2021-06-21 16:08:25.487|php|sql|postgresql|mdb2        |
+67920305|2021-06-10 07:32:21.393|python|sql|pandas|pyodbc       |
+68015950|2021-06-17 04:47:27.713|c#|sql|.net|forms|easy-modbus  |
+68058413|2021-06-20 13:28:00.980|java|sql|spring|kotlin|jpa     |
+68060567|2021-06-20 18:39:04.150|mysql|sql|ruby-on-rails|graphql|
+68103046|2021-06-23 11:40:56.087|php|mysql|sql|stored-procedures|
+```
 ## Avoid Using DISTINCT (if possible)
 Watch out for UNION vs UNION ALL
 
