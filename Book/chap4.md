@@ -289,7 +289,7 @@ WHERE
 LIMIT 10;
 ```
 
-With dates we can be a little cleverer and avoid using CTEs:
+With dates we can be a little cleverer and avoid using CTEs. Since our date is from 2021, we can have to hard-code the start of the year and cast it to date (`2021-01-01::date`) in order calculate the start date and end date of the 50th week of 2021. You can use a function like `CURRENT_DATE()` instead to get the current year's date.
 ```sql
 --listing 4.10
 SELECT
@@ -299,10 +299,15 @@ SELECT
 FROM
     posts_questions q
 WHERE
-    date_part('week', creation_date) = 50
+    creation_date >= DATE_TRUNC('week', '2021-01-01'::date + INTERVAL 49 WEEK)
+    AND creation_date < DATE_TRUNC('week', '2021-01-01'::date + INTERVAL 50 WEEK)
 LIMIT 10;
 ```
+What's clever about this pattern is that invoking the function calls on fixed data, like current date, does NOT cause full table scans. Only when the function is applied to a column does the query performance suffer.
+
 ## Avoid Using DISTINCT (if possible)
+The keyword `DISTINCT` is a code smell for me. Whenever I see it, I suspect 
+
 Watch out for UNION vs UNION ALL
 
 ## Avoid using OR in the WHERE clause
