@@ -312,8 +312,11 @@ What's clever about this pattern is that invoking the function calls on fixed da
 
 `SELECT DISTINCT` might fix your data problems but used liberally in your code will cause many performance degradations, especially when it's coded inside of views and those views are used multiple times downstream. So is there an alternative?
 
+The most insidious application of `DISTINCT` I have personally dealt with is when combining multiple tables via the `UNION` operator. Not many SQL users know that there's a difference between `UNION` and `UNION ALL`
 
-Watch out for UNION vs UNION ALL
+`UNION` will ensure there's no duplicates in the final result by performing `DISTINCT` behind the scenes while `UNION ALL` will simply append the two results without deduping. I had inadvertently used `UNION` and when I fixed it, query execuution went from 15 minutes down to 1 minute while the result was identical!
+
+Here's an example with our database
 
 ## Avoid using OR in the WHERE clause
 
