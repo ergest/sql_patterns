@@ -189,10 +189,12 @@ Table 4.1
 
 The tags pertain to the list of topics or subjects that a post is about. One of the tricky things about storing tags like this is that you don't have to worry about the order in which they appear. There's no categorization system here. A tag can appear anywhere in the string.
 
-How would you go about filtering all the posts that are about SQL? Since the tag `|sql|` can appear anywhere in the string, you'll need a way to search the entire string. One way to do that is to use the `INSTR()` function like this:
+Suppose we're looking for posts mentioning SQL. How would we do it? I'm pretty sure you're familiar with pattern matching in SQL using the keyword `LIKE` But since we don't know if the string is capitalized (i.e. it could be SQL, sql, Sql, etc) and since matching patterns 
+
+Since the tag `|sql|` can appear anywhere in the string, you'll need a way to search the entire string. One way to do that is to use the `INSTR()` function like this:
 ```sql
---listing 
-SELECT 
+--listing 4.5
+SELECT
     q.id AS post_id,
     q.creation_date,
     q.tags
@@ -200,45 +202,43 @@ FROM
     posts_questions q
 WHERE
     TRUE
-    AND INSTR(tags, "sql") > 0
+    AND lower(tags) like '%sql%'
 LIMIT 10;
 ```
 
-Here's the output:
+Here's the output (your output might differ):
 ```sql
+post_id |creation_date          |tags                                  |
+--------+-----------------------+--------------------------------------+
+70177630|2021-12-01 00:08:16.173|sql|sql-server|tsql                   |
+70177633|2021-12-01 00:08:46.233|sql|sql-server|tsql                   |
+70177648|2021-12-01 00:11:28.343|sql|sqlite|flask|sqlalchemy           |
+70177674|2021-12-01 00:16:31.970|python|sqlalchemy|flask-sqlalchemy    |
+70177724|2021-12-01 00:25:22.740|python|python-3.x|database|list|sqlite|
+70177774|2021-12-01 00:33:26.190|sql|case|correlated-subquery          |
+70177849|2021-12-01 00:44:40.033|mysql|sql|database|function           |
+70177873|2021-12-01 00:49:10.603|python|flask|sqlalchemy               |
+70177932|2021-12-01 01:00:45.843|html|css|mysql|nginx|webserver        |
+70177942|2021-12-01 01:02:07.960|sql|oracle|join|select|average        |
 
-post_id |creation_date          |tags                           |
---------+-----------------------+-------------------------------+
-67941534|2021-06-11 13:55:08.693|mysql|sql|database|datatable   |
-67810767|2021-06-02 14:40:44.110|mysql|sql|sqlite               |
-67814136|2021-06-02 20:55:41.193|mysql|sql|where-clause         |
-67849335|2021-06-05 07:58:09.493|php|mysql|sql|double|var-dump  |
-68074104|2021-06-21 16:08:25.487|php|sql|postgresql|mdb2        |
-67920305|2021-06-10 07:32:21.393|python|sql|pandas|pyodbc       |
-68015950|2021-06-17 04:47:27.713|c#|sql|.net|forms|easy-modbus  |
-68058413|2021-06-20 13:28:00.980|java|sql|spring|kotlin|jpa     |
-68060567|2021-06-20 18:39:04.150|mysql|sql|ruby-on-rails|graphql|
-68103046|2021-06-23 11:40:56.087|php|mysql|sql|stored-procedures|
+Table 4.2
 ```
 
-This should be pretty simple to understand. We're searching for the sub-string `|sql|` anywhere in the `tags` column. The `INSTR()` searches for a sub-string within a string and returns the position of the character where it's found. Since we don't care about that, we only care that it's found our condition is > 0.
-
-This is a very typical example of using functions in the `WHERE` clause. This particular query might be fast but in general this pattern is not advised. So what can you do instead?
+This should be pretty simple to understand. We're searching for the substring `sql` anywhere in the `tags` column. The `INSTR()` searches for a sub-string within a string and returns the position of the first character found. Since we don't care about that, we only care that it's found our condition is > 0. While this particular query might be fast, in general this pattern is not advised. So what can you do instead?
 
 Use the `LIKE` keyword to look for patterns. Many query optimizers perform much better with `LIKE` then with using a function:
 ```sql
-SELECT 
+--listing 4.6
+SELECT
     q.id AS post_id,
     q.creation_date,
     q.tags
 FROM
-    bigquery-public-data.stackoverflow.posts_questions q
+    posts_questions q
 WHERE
     TRUE
-    AND creation_date >= '2021-06-01' 
-    AND creation_date <= '2021-09-30'
-    AND tags LIKE "%|sql|%"
-LIMIT 10
+    AND tags like '%sql%'
+LIMIT 10;
 ```
 
 Here's the output:
