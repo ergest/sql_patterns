@@ -306,7 +306,12 @@ LIMIT 10;
 What's clever about this pattern is that invoking the function calls on fixed data, like current date, does NOT cause full table scans. Only when the function is applied to a column does the query performance suffer.
 
 ## Avoid Using DISTINCT (if possible)
-The keyword `DISTINCT` is a code smell for me. Whenever I see it, I suspect 
+`SELECT DISTINCT` is a code smell for me. Whenever I see it, I suspect the programmer is trying to hide data problems without fixing them. It's so common as a catchall fix that this meme exploded both on Twitter/X and LinkedIn
+
+![[select_distinct.jpeg]]
+
+`SELECT DISTINCT` might fix your data problems but used liberally in your code will cause many performance degradations, especially when it's coded inside of views and those views are used multiple times downstream. So is there an alternative?
+
 
 Watch out for UNION vs UNION ALL
 
