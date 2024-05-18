@@ -190,6 +190,8 @@ Table 4.1
 The tags pertain to the list of topics or subjects that a post is about. One of the tricky things about storing tags like this is that you don't have to worry about the order in which they appear. There's no categorization system here. A tag can appear anywhere in the string.
 
 Suppose we're looking for posts mentioning SQL. How would we do it? I'm pretty sure you're familiar with pattern matching in SQL using the keyword `LIKE` But since we don't know if the string is capitalized (i.e. it could be SQL, sql, Sql, etc) and we want to match all of them, it's common to use the function `LOWER()` before matching the pattern.
+
+Here's an example of what NOT to do (unless you're doing ad-hoc querying)
 ```sql
 --listing 4.5
 SELECT
@@ -204,25 +206,36 @@ WHERE
 LIMIT 10;
 ```
 
-Here's the output (your output might differ):
+Here's how to get the same result without using functions in `WHERE`
 ```sql
-post_id |creation_date          |tags                                  |
---------+-----------------------+--------------------------------------+
-70177630|2021-12-01 00:08:16.173|sql|sql-server|tsql                   |
-70177633|2021-12-01 00:08:46.233|sql|sql-server|tsql                   |
-70177648|2021-12-01 00:11:28.343|sql|sqlite|flask|sqlalchemy           |
-70177674|2021-12-01 00:16:31.970|python|sqlalchemy|flask-sqlalchemy    |
-70177724|2021-12-01 00:25:22.740|python|python-3.x|database|list|sqlite|
-70177774|2021-12-01 00:33:26.190|sql|case|correlated-subquery          |
-70177849|2021-12-01 00:44:40.033|mysql|sql|database|function           |
-70177873|2021-12-01 00:49:10.603|python|flask|sqlalchemy               |
-70177932|2021-12-01 01:00:45.843|html|css|mysql|nginx|webserver        |
-70177942|2021-12-01 01:02:07.960|sql|oracle|join|select|average        |
-
-Table 4.2
+--listing 4.6
+SELECT
+    q.id AS post_id,
+    q.creation_date,
+    q.tags
+FROM
+    posts_questions q
+WHERE
+    TRUE
+    AND tags ilike '%sql%'
+LIMIT 10;
 ```
 
-In our small database this query will be quite fast, however by using the function `LOWER()` in the `WHERE` clause, you're inadvertently causing the database engine to scan the entire table, perform the lowercase operation and then perform the filtering.
+In our small database this query will be quite fast, however by using the function `LOWER()` in the `WHERE` clause, you're inadvertently causing the database engine to scan the entire table, perform the lowercase operation and then perform the filtering. By using the keyword `ILIKE` which makes the search case-insensitive and avoids using `LOWER()`
+
+Alternatively you can perform the `LOWER()` operator beforehand in a CTE or view like this:
+```sql
+WITH cte_lowercase_tags AS (
+	SELECT
+	    q.id AS post_id,
+	    q.creation_date,
+	    LOWER(q.tags) as tags
+	FROM
+	    posts_questions
+)
+SELECT *
+FROM 
+```
 
 The same thing happens when you perform any other operations in the `WHERE` clause like addition, multiplication or any other math or date functions:
 ```sql
@@ -255,6 +268,38 @@ post_id |creation_date          |total_activity|
 70190971|2021-12-01 20:43:14.507|            12|
 
 Table 4.3
+```
+
+Here's another common example:
+```sql
+--listing 4.7
+SELECT
+    q.id AS post_id,
+    q.creation_date,
+    date_part('week', creation_date) as week_of_year
+FROM
+    posts_questions q
+WHERE
+    date_part('week', creation_date) = 50
+LIMIT 10;
+```
+
+And here's some sample output:
+```sql
+post_id |creation_date          |week_of_year|
+--------+-----------------------+------------+
+70337022|2021-12-13 15:25:08.903|          50|
+70338059|2021-12-13 16:46:16.940|          50|
+70348470|2021-12-14 11:56:02.373|          50|
+70347796|2021-12-14 11:02:31.563|          50|
+70347279|2021-12-14 10:24:40.953|          50|
+70337072|2021-12-13 15:28:32.317|          50|
+70328850|2021-12-13 00:35:38.387|          50|
+70332341|2021-12-13 09:22:07.927|          50|
+70333562|2021-12-13 11:00:05.760|          50|
+70341363|2021-12-13 21:50:42.510|          50|
+
+Table 4.4
 ```
 ## Avoid Using DISTINCT (if possible)
 Watch out for UNION vs UNION ALL
