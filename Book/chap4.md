@@ -79,9 +79,9 @@ FROM posts_questions
 LIMIT 10;
 ```
 
-This may be ok in a traditional RDBMS, but with modern data warehouses things are different. Because they store data in columns vs rows `SELECT *` will scan the entire table and your query will be slower. Imagine running `SELECT * FROM table` where the table has 300 columns. You don't have to know anything about databases 
+This may be ok in a traditional RDBMS, but with modern data warehouses things are different. Because they store data in columns vs rows `SELECT *` will scan the entire table and your query will be slower. Imagine running `SELECT * FROM table` where the table has 300 columns.
 
-By selecting only the columns you need you ensure that your query is as efficient as it needs to be.
+You don't have to know anything about databases to know that the query will be much slower than if you selected a subset of columns.
 
 Here's an example you've seen before. In the `post_activity` CTE we select only the `id` column which is the only one we need to join with `post_activity` on. The `post_type` is a static value which is negligible when it comes to performance.
 ```sql
@@ -91,30 +91,43 @@ Here's an example you've seen before. In the `post_activity` CTE we select only 
 		id AS post_id,
         'question' AS post_type,
     FROM
-        bigquery-public-data.stackoverflow.posts_questions
-    WHERE
-        TRUE
-    	AND creation_date >= '2021-06-01' 
-    	AND creation_date <= '2021-09-30'
+        posts_questions
     UNION ALL
     SELECT
         id AS post_id,
         'answer' AS post_type,
     FROM
-        bigquery-public-data.stackoverflow.posts_answers
-    WHERE
-        TRUE
-    	AND creation_date >= '2021-06-01' 
-    	AND creation_date <= '2021-09-30'
+        posts_answers
  )
  ```
 
-## Delaying Ordering
-As a rule of thumb you should leave ordering until the very end, if it is at all necessary. Sorting data is generally an expensive operation in databases so it should be reserved for when you really need it. Window functions for example sometimes necessitate ordering. We'll cover them in chapter 8.
+Compared to:
+```sql
+-- code snippet will not run
+,post_types AS (
+    SELECT
+	    pq.*,
+		id AS post_id,
+        'question' AS post_type,
+    FROM
+        posts_questions pq
+    UNION ALL
+    SELECT
+	    pa.*,
+        id AS post_id,
+        'answer' AS post_type,
+    FROM
+        posts_answers pa
+ )
+ ```
 
-If you know that your data will be used by a business intelligence tool like Looker or Tableau then you should leave the ordering up to the tool itself so the user can sort data any way they see fit.
+It may seem innocent at first, but if any of those tables contained 300 columns, now you'll be selecting them everytime you join on those CTEs.
+## Delaying Sorting
+As a rule of thumb you should AVOID any kind of sorting inside production level queries. Sorting is a very expensive operation, especially for really large tables and it wll dramatically slow down your queries. If you add an `ORDER BY` operation in your CTEs or views, anytime you join with that CTE or view, the database engine will be forced to sort data in memory.
 
-For example, the following is unnecessary and slows down performance because the query is inside a CTE. You don't need to sort your data yet.
+Sorting is best left to reporting and BI tools if it's not needed, or done at the very end, if it is at all necessary. You can't always avoid it though. Window functions for example sometimes necessitate sorting in order to choose the top row. We'll see an example of this later.
+
+For example, the following is unnecessary and slows down performance because the sorting is done is inside a CTE. You don't need to sort your data yet.
 ```sql
 -- code snippet will not run
 , votes_on_user_post AS (
