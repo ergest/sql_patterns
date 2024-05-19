@@ -121,7 +121,7 @@ Compared to:
  )
  ```
 
-It may seem innocent at first, but if any of those tables contained 300 columns, now you'll be selecting them everytime you join on those CTEs.
+It may seem innocent at first, but if any of those tables contained 300 columns, now you'll be selecting all 300 of them every time you join on those CTEs.
 ## Delaying Sorting
 As a rule of thumb you should AVOID any kind of sorting inside production level queries. Sorting is a very expensive operation, especially for really large tables and it wll dramatically slow down your queries. If you add an `ORDER BY` operation in your CTEs or views, anytime you join with that CTE or view, the database engine will be forced to sort data in memory.
 

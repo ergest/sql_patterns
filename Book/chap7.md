@@ -22,8 +22,6 @@ WITH post_activity AS (
         AND ph.post_history_type_id BETWEEN 1 AND 6
         AND user_id > 0 --exclude automated processes
         AND user_id IS NOT NULL --exclude deleted accounts
-        AND ph.creation_date >= '2021-06-01' 
-        AND ph.creation_date <= '2021-09-30'
     GROUP BY
         1,2,3,4,5
 )
@@ -34,20 +32,12 @@ WITH post_activity AS (
         'question' AS post_type,
     FROM
         posts_questions
-    WHERE
-        TRUE
-        AND creation_date >= '2021-06-01' 
-        AND creation_date <= '2021-09-30'
     UNION ALL
     SELECT
         id AS post_id,
         'answer' AS post_type,
     FROM
         posts_answers
-    WHERE
-        TRUE
-        AND creation_date >= '2021-06-01' 
-        AND creation_date <= '2021-09-30'
  )
  -- Finally calculate the post metrics 
 , user_post_metrics AS (
@@ -67,8 +57,9 @@ WITH post_activity AS (
                 THEN 1 ELSE 0 END) AS posts_created,
         SUM(CASE WHEN activity_type = 'edited'
                 THEN 1 ELSE 0 END)  AS posts_edited
-    FROM post_types pt
-         JOIN post_activity pa ON pt.post_id = pa.post_id
+    FROM 
+	    post_types pt
+        JOIN post_activity pa ON pt.post_id = pa.post_id
     GROUP BY 1,2,3
 )
 , comments_by_user AS (
@@ -80,8 +71,6 @@ WITH post_activity AS (
         comments
     WHERE
         TRUE
-        AND creation_date >= '2021-06-01' 
-        AND creation_date <= '2021-09-30'
     GROUP BY
         1,2
 )
@@ -96,8 +85,6 @@ WITH post_activity AS (
     WHERE
         TRUE
         AND pa.activity_type = 'created'
-        AND c.creation_date >= '2021-06-01' 
-        AND c.creation_date <= '2021-09-30'
     GROUP BY
         1,2
 )
