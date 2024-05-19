@@ -318,7 +318,8 @@ The most insidious application of `DISTINCT` I have personally dealt with is whe
 
 Here's an example with our database. Suppose I'm trying to get the total user activity (i.e. posts created, edited and commented on) My original query looked like this.
 ```sql
-WITH cte_user_activity_per_date AS (
+--listing 4.11
+WITH cte_user_activity_by_type AS (
     SELECT
         user_id,
         CASE WHEN post_history_type_id IN (1,2,3) THEN 'created'
@@ -326,7 +327,7 @@ WITH cte_user_activity_per_date AS (
         END AS activity_type,
         COUNT(*) as total_activity
     FROM
-        main.post_history
+        post_history
     GROUP BY
         1,2
     UNION
@@ -335,7 +336,7 @@ WITH cte_user_activity_per_date AS (
         'commented' AS activity_type,
         COUNT(*) as total_activity
     FROM
-        main.comments
+        comments
     GROUP BY
         1,2
 )
@@ -343,12 +344,38 @@ SELECT
     user_id,
     sum(total_activity) as total_activity
 FROM
-    cte_user_activity_per_date
-GROUP BY 1;
-
+    cte_user_activity_by_type
+GROUP BY 1
+LIMIT 10;
 ```
 
-Notice how I'm using two CTEs for aggregation and how I append them using `UNION` vs `UNION ALL.` While the final result is correct because I sum the total activity, the aggregation inside the CTEs is unnecessary. We could rewrite the query using `UNION ALL` while simultaneously avoid
+Notice how I'm using two CTEs for aggregation and how I append them using `UNION` vs `UNION ALL.` While the final result is correct because I sum the total activity, the aggregation inside the CTEs is unnecessary.
+
+We could rewrite the query using `UNION ALL` while simultaneously avoiding expensive aggregation like this:
+```sql
+--listing 4.12
+WITH cte_user_activity_by_type AS (
+    SELECT
+        user_id,
+        CASE WHEN post_history_type_id IN (1,2,3) THEN 'created'
+             WHEN post_history_type_id IN (4,5,6) THEN 'edited' 
+        END AS activity_type
+    FROM
+        post_history
+    UNION ALL
+    SELECT
+        user_id,
+        'commented' AS activity_type
+    FROM
+        comments
+)
+SELECT
+    user_id,
+    COUNT(*) as total_activity
+FROM
+    cte_user_activity_by_type
+LIMIT 10;
+```
 ## Avoid using OR in the WHERE clause
 
 
