@@ -316,24 +316,26 @@ The most insidious application of `DISTINCT` I have personally dealt with is whe
 
 `UNION` will ensure there's no duplicates in the final result by performing `DISTINCT` behind the scenes while `UNION ALL` will simply append the two results without deduping. I had inadvertently used `UNION` and when I fixed it, query execution went from 15 minutes down to 1 minute while the result was identical!
 
-Here's an example with our database. Suppose I'm trying to get the total user activity per day (i.e. posts created, edited and commented on) My original query looked like this.
+Here's an example with our database. Suppose I'm trying to get the total user activity (i.e. posts created, edited and commented on) My original query looked like this.
 ```sql
 WITH cte_user_activity_per_date AS (
     SELECT
         user_id,
-        CAST(creation_date AS DATE) AS activity_date,
+        CASE WHEN post_history_type_id IN (1,2,3) THEN 'created'
+             WHEN post_history_type_id IN (4,5,6) THEN 'edited' 
+        END AS activity_type,
         COUNT(*) as total_activity
     FROM
-        post_history
+        main.post_history
     GROUP BY
         1,2
     UNION
     SELECT
         user_id,
-        CAST(creation_date AS DATE) AS activity_date,
+        'commented' AS activity_type,
         COUNT(*) as total_activity
     FROM
-        comments
+        main.comments
     GROUP BY
         1,2
 )
@@ -343,9 +345,10 @@ SELECT
 FROM
     cte_user_activity_per_date
 GROUP BY 1;
+
 ```
 
-Notice how I'm doing two levels of aggregation and using `UNION` vs `UNION ALL.` This is a contrived example so don't read too much into it, just notice the pattern
+Notice how I'm using two CTEs for aggregation and how I append them using `UNION` vs `UNION ALL.` While the final result is correct because I sum the total activity, the aggregation inside the CTEs is unnecessary. We could rewrite the query using `UNION ALL` while simultaneously avoid
 ## Avoid using OR in the WHERE clause
 
 
