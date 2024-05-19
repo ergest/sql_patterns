@@ -314,10 +314,38 @@ What's clever about this pattern is that invoking the function calls on fixed da
 
 The most insidious application of `DISTINCT` I have personally dealt with is when combining multiple tables via the `UNION` operator. Not many SQL users know that there's a difference between `UNION` and `UNION ALL`
 
-`UNION` will ensure there's no duplicates in the final result by performing `DISTINCT` behind the scenes while `UNION ALL` will simply append the two results without deduping. I had inadvertently used `UNION` and when I fixed it, query execuution went from 15 minutes down to 1 minute while the result was identical!
+`UNION` will ensure there's no duplicates in the final result by performing `DISTINCT` behind the scenes while `UNION ALL` will simply append the two results without deduping. I had inadvertently used `UNION` and when I fixed it, query execution went from 15 minutes down to 1 minute while the result was identical!
 
-Here's an example with our database
+Here's an example with our database. Suppose I'm trying to get the total user activity per day (i.e. posts created, edited and commented on) My original query looked like this.
+```sql
+WITH cte_user_activity_per_date AS (
+    SELECT
+        user_id,
+        CAST(creation_date AS DATE) AS activity_date,
+        COUNT(*) as total_activity
+    FROM
+        post_history
+    GROUP BY
+        1,2
+    UNION
+    SELECT
+        user_id,
+        CAST(creation_date AS DATE) AS activity_date,
+        COUNT(*) as total_activity
+    FROM
+        comments
+    GROUP BY
+        1,2
+)
+SELECT
+    user_id,
+    sum(total_activity) as total_activity
+FROM
+    cte_user_activity_per_date
+GROUP BY 1;
+```
 
+Notice how I'm doing two levels of aggregation and using `UNION` vs `UNION ALL.` This is a contrived example so don't read too much into it, just notice the pattern
 ## Avoid using OR in the WHERE clause
 
 
