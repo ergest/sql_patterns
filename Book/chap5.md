@@ -123,9 +123,10 @@ date_field|
 2021-12-04|
 2021-12-05|
 ```
+
 So as you can see in this example, we took advantage of the regularity of the incorrect formatting to extract the important information (the year, month and day) and reconstruct the correct formatting by concatenating strings via the `||` operator.
 
-What if you have different types of irregularities in your data? In some cases if information is aggregated from multiple sources you might have to deal with multiple types of formatting.
+What if you have different types of irregularities in your data? In some cases if information is aggregated from multiple sources you might have to deal with mixed formatting.
 
 Let's take a look at an example:
 ```
@@ -137,6 +138,7 @@ dt         |
 12/04/2021 |
 12/05/2021 |
 ```
+
 Obviously we can't force the same formatting for all the dates here so we'll have to split this up and apply the pattern separately using the `CASE` statement:
 ```sql
 --listing 5.8
@@ -197,12 +199,18 @@ SELECT
 FROM weights;
 
 --sample output
-
+weight|unit|
+------+----+
+32.500|LB  |
+45.200|LB  |
+53.100|LB  |
+77.000|KG  |
+68.000|KG  |
 ```
 
 I'm using the `SUBSTRING()` function again to extract parts of a string, but this time I add the function `INSTR()` which searches for a string within another string and returns the first occurrence of it or 0 if not found. 
 
-### Pattern 3: Handling NULLs
+### Pattern 3: Handling NULLs Safely
 As a rule, you should always assume any column can be `NULL` at any point in time so it's a good idea to provide a default value for that column as part of your `SELECT`. This way you make sure that even if your data becomes `NULL` your query will not fail.
 
 `NULLs` in SQL represent unknown values. While the data may appear to be blank or empty in the results, it's not the same as an empty string or white space. You cannot compare `NULLs` to anything directly, for example you cannot say:
@@ -256,7 +264,7 @@ date_field|
 
 This is the same query we saw earlier but implemented using "defensive coding" where we replace malformed data with a fixed value of `1900-01-01`. This protects our query from failing and later we can investigate why the data was junk.
 
-### Handling Division by Zero
+### Pattern 4: Handling Division by Zero Safely
 Whenever you calculate ratios you always have to worry about division by zero. Your query might work when you first test it, but if the denominator ever becomes zero your query will fail.
 
 The easiest way to handle this is by excluding zero values in the where clause as we do in our query
