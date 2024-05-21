@@ -389,10 +389,67 @@ If you use `OR` to search for multiple values of the same column, there will be 
     FROM
         post_history
     WHERE
-	   post_history_type_id IN (1,2,3)
+	   post_history_type_id IN (1,2,3);
 ```
 
-But did you
+But did you know that the above is equivalent to this?
+```sql
+--listing 4.13
+    SELECT
+        post_id,
+        creation_date,
+        user_id
+    FROM
+        post_history
+    WHERE
+	   post_history_type_id = 1
+	   OR post_history_type_id = 2
+	   OR post_history_type_id = 3;
+```
 
+This is an example where using `OR` in the `WHERE` clause doesn't incur a performance penalty. You can even combine `OR` with `AND` (as long as you use parenthesis in the right place) and you'll still be ok because the `OR` is applying to a single column.
+```sql
+--listing 4.14
+    SELECT
+        post_id,
+        creation_date,
+        user_id
+    FROM
+        post_history
+    WHERE
+	    (
+		   post_history_type_id = 1
+		   OR post_history_type_id = 2
+		   OR post_history_type_id = 3
+		)
+	   AND
+	   (
+		   user_id = 17335553
+		   OR user_id = 17551873
+		   OR user_id = 15137025
+		);
+```
+
+However this query could be problematic:
+```sql
+--listing 4.15
+    SELECT
+        post_id,
+        creation_date,
+        user_id
+    FROM
+        post_history
+    WHERE
+	    post_history_type_id = 1
+		   OR post_history_type_id = 2
+		   OR post_history_type_id = 3
+		)
+	   AND
+	   (
+		   user_id = 17335553
+		   OR user_id = 17551873
+		   OR user_id = 15137025
+		);
+```
 
 That wraps up query performance. There's a lot more to learn about improving query performance but that's not the purpose of this book. In the next chapter we'll cover how to make your queries robust against unexpected changes in the underlying data.
