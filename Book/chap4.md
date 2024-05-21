@@ -17,8 +17,8 @@ WITH post_activity AS (
         ph.user_id,
         u.display_name AS user_name,
         ph.creation_date AS activity_date,
-        CASE WHEN ph.post_history_type_id IN (1,2,3) THEN 'created'
-             WHEN ph.post_history_type_id IN (4,5,6) THEN 'edited' 
+        CASE WHEN ph.post_history_type_id IN (1,2,3) THEN 'create'
+             WHEN ph.post_history_type_id IN (4,5,6) THEN 'edit' 
         END AS activity_type
     FROM
         post_history ph
@@ -174,7 +174,7 @@ For example, the following is unnecessary and slows down performance because the
         INNER JOIN post_activity pa ON pa.post_id = v.post_id
     WHERE
         TRUE
-        AND pa.activity_type = 'created'
+        AND pa.activity_type = 'create'
 		AND v.creation_date BETWEEN '2021-12-14' AND '2021-12-21'
 	GROUP BY
         1,2
@@ -332,7 +332,18 @@ WHERE total_activity >= 10
 LIMIT 10;
 
 --sample output
-
+post_id |creation_date          |total_activity|
+--------+-----------------------+--------------+
+70270242|2021-12-08 05:09:48.113|            10|
+70255288|2021-12-07 05:19:45.337|            12|
+70256716|2021-12-07 08:04:30.497|            10|
+70318632|2021-12-11 20:10:08.213|            12|
+70334900|2021-12-13 12:45:37.097|            11|
+70333905|2021-12-13 11:29:00.117|            14|
+70237681|2021-12-05 19:13:40.890|            10|
+70257087|2021-12-07 08:38:39.263|            10|
+70281346|2021-12-08 20:29:31.357|            13|
+70190971|2021-12-01 20:43:14.507|            12|
 ```
 
 Let's look at another common example with date functions where we can avoid CTEs altogether:
@@ -347,6 +358,20 @@ FROM
 WHERE
     date_part('week', creation_date) = 50
 LIMIT 10;
+
+--sample output
+post_id |creation_date          |week_of_year|
+--------+-----------------------+------------+
+70337022|2021-12-13 15:25:08.903|          50|
+70338059|2021-12-13 16:46:16.940|          50|
+70348470|2021-12-14 11:56:02.373|          50|
+70347796|2021-12-14 11:02:31.563|          50|
+70347279|2021-12-14 10:24:40.953|          50|
+70337072|2021-12-13 15:28:32.317|          50|
+70328850|2021-12-13 00:35:38.387|          50|
+70332341|2021-12-13 09:22:07.927|          50|
+70333562|2021-12-13 11:00:05.760|          50|
+70341363|2021-12-13 21:50:42.510|          50|
 ```
 
 With dates we can be a little cleverer and avoid using CTEs. Since our date is from 2021, we can have to hard-code the start of the year and cast it to date (`2021-01-01::date`) in order calculate the start date and end date of the 50th week of 2021. You can use a function like `CURRENT_DATE()` instead to get the current year's date.
@@ -359,9 +384,23 @@ SELECT
 FROM
     posts_questions q
 WHERE
-    creation_date >= DATE_TRUNC('week', '2021-01-01'::date + INTERVAL 49 WEEK)
-    AND creation_date < DATE_TRUNC('week', '2021-01-01'::date + INTERVAL 50 WEEK)
+    creation_date >= DATE_TRUNC('week', '2021-01-01'::date + INTERVAL 50 WEEK)
+    AND creation_date < DATE_TRUNC('week', '2021-01-01'::date + INTERVAL 51 WEEK)
 LIMIT 10;
+
+--sample output
+post_id |creation_date          |week_of_year|
+--------+-----------------------+------------+
+70337022|2021-12-13 15:25:08.903|          50|
+70338059|2021-12-13 16:46:16.940|          50|
+70348470|2021-12-14 11:56:02.373|          50|
+70347796|2021-12-14 11:02:31.563|          50|
+70347279|2021-12-14 10:24:40.953|          50|
+70337072|2021-12-13 15:28:32.317|          50|
+70328850|2021-12-13 00:35:38.387|          50|
+70332341|2021-12-13 09:22:07.927|          50|
+70333562|2021-12-13 11:00:05.760|          50|
+70341363|2021-12-13 21:50:42.510|          50|
 ```
 What's clever about this pattern is that invoking the function calls on fixed data, like current date, does NOT cause full table scans. Only when the function is applied to a column does the query performance suffer.
 
@@ -382,8 +421,8 @@ Here's an example with our database. Suppose I'm trying to get the total user ac
 WITH cte_user_activity_by_type AS (
     SELECT
         user_id,
-        CASE WHEN post_history_type_id IN (1,2,3) THEN 'created'
-             WHEN post_history_type_id IN (4,5,6) THEN 'edited' 
+        CASE WHEN post_history_type_id IN (1,2,3) THEN 'create'
+             WHEN post_history_type_id IN (4,5,6) THEN 'edit' 
         END AS activity_type,
         COUNT(*) as total_activity
     FROM
@@ -407,6 +446,20 @@ FROM
     cte_user_activity_by_type
 GROUP BY 1
 LIMIT 10;
+
+--sample output
+user_id |total_activity|
+--------+--------------+
+ 3690518|             2|
+ 3439894|            37|
+ 5454021|             4|
+14391494|            10|
+ 7069126|             9|
+  433351|             4|
+ 2186184|             6|
+12579274|            11|
+15821771|            22|
+  752843|            16|
 ```
 
 Notice how I'm using two CTEs for aggregation and how I append them using `UNION` vs `UNION ALL.` While the final result is correct because I sum the total activity, the aggregation inside the CTEs is unnecessary.
@@ -417,15 +470,15 @@ We could rewrite the query using `UNION ALL` while simultaneously avoiding expen
 WITH cte_user_activity_by_type AS (
     SELECT
         user_id,
-        CASE WHEN post_history_type_id IN (1,2,3) THEN 'created'
-             WHEN post_history_type_id IN (4,5,6) THEN 'edited' 
+        CASE WHEN post_history_type_id IN (1,2,3) THEN 'create'
+             WHEN post_history_type_id IN (4,5,6) THEN 'edit' 
         END AS activity_type
     FROM
         post_history
     UNION ALL
     SELECT
         user_id,
-        'commented' AS activity_type
+        'comment' AS activity_type
     FROM
         comments
 )

@@ -10,8 +10,8 @@ WITH post_activity AS (
         ph.user_id,
         u.display_name AS user_name,
         ph.creation_date AS activity_date,
-        CASE WHEN ph.post_history_type_id IN (1,2,3) THEN 'created'
-             WHEN ph.post_history_type_id IN (4,5,6) THEN 'edited' 
+        CASE WHEN ph.post_history_type_id IN (1,2,3) THEN 'create'
+             WHEN ph.post_history_type_id IN (4,5,6) THEN 'edit' 
         END AS activity_type
     FROM
         post_history ph
@@ -45,17 +45,17 @@ WITH post_activity AS (
         user_id,
         user_name,
         CAST(activity_date AS DATE) AS activity_date,
-        SUM(CASE WHEN activity_type = 'created' AND post_type = 'question' 
+        SUM(CASE WHEN activity_type = 'create' AND post_type = 'question' 
                 THEN 1 ELSE 0 END) AS questions_created,
-        SUM(CASE WHEN activity_type = 'created' AND post_type = 'answer' 
+        SUM(CASE WHEN activity_type = 'create' AND post_type = 'answer' 
                 THEN 1 ELSE 0 END) AS answers_created,
-        SUM(CASE WHEN activity_type = 'edited' AND post_type = 'question'
+        SUM(CASE WHEN activity_type = 'edit' AND post_type = 'question'
                 THEN 1 ELSE 0 END) AS questions_edited,
-        SUM(CASE WHEN activity_type = 'edited' AND post_type = 'answer'
+        SUM(CASE WHEN activity_type = 'edit' AND post_type = 'answer'
                 THEN 1 ELSE 0 END) AS answers_edited,
-        SUM(CASE WHEN activity_type = 'created'
+        SUM(CASE WHEN activity_type = 'create'
                 THEN 1 ELSE 0 END) AS posts_created,
-        SUM(CASE WHEN activity_type = 'edited'
+        SUM(CASE WHEN activity_type = 'edit'
                 THEN 1 ELSE 0 END)  AS posts_edited
     FROM 
 	    post_types pt
@@ -84,7 +84,7 @@ WITH post_activity AS (
         INNER JOIN post_activity pa ON pa.post_id = c.post_id
     WHERE
         TRUE
-        AND pa.activity_type = 'created'
+        AND pa.activity_type = 'create'
     GROUP BY
         1,2
 )
@@ -99,7 +99,7 @@ WITH post_activity AS (
         INNER JOIN post_activity pa ON pa.post_id = v.post_id
     WHERE
         TRUE
-        AND pa.activity_type = 'created'
+        AND pa.activity_type = 'create'
     GROUP BY
         1,2
 )

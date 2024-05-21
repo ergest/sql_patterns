@@ -69,8 +69,8 @@ SELECT
     ph.post_id,
     ph.user_id,
     ph.creation_date AS activity_date,
-    CASE WHEN ph.post_history_type_id IN (1,2,3) THEN 'created'
-         WHEN ph.post_history_type_id IN (4,5,6) THEN 'edited' 
+    CASE WHEN ph.post_history_type_id IN (1,2,3) THEN 'create'
+         WHEN ph.post_history_type_id IN (4,5,6) THEN 'edit' 
     END AS activity_type
 FROM
     post_history ph
@@ -85,16 +85,16 @@ WHERE
 GROUP BY
     1,2,3,4;
 
--- output
+--sample output
 post_id |user_id|activity_date          |activity_type|
 --------+-------+-----------------------+-------------+
-70182248|2230216|2021-12-01 13:07:56.327|edited       |
-70182248|2230216|2021-12-01 12:59:48.113|edited       |
-70182248|2230216|2021-12-02 07:46:22.630|edited       |
-70182248|2230216|2021-12-01 10:03:18.350|created      |
-70182248|2230216|2021-12-01 18:41:18.033|edited       |
-70182248|2230216|2021-12-01 11:04:12.603|edited       |
-70182248|2702894|2021-12-01 13:35:41.293|edited       |
+70182248|2702894|2021-12-01 13:35:41.293|edit         |
+70182248|2230216|2021-12-01 10:03:18.350|create       |
+70182248|2230216|2021-12-01 12:59:48.113|edit         |
+70182248|2230216|2021-12-02 07:46:22.630|edit         |
+70182248|2230216|2021-12-01 13:07:56.327|edit         |
+70182248|2230216|2021-12-01 11:04:12.603|edit         |
+70182248|2230216|2021-12-01 18:41:18.033|edit         |
 ```
 
 Notice that didn't use an aggregation function like `COUNT()` or `SUM()` when doing a `GROUP BY` and that's perfectly ok since we don't need it. You can see now how we're going to manipulate the granularity to get one row per user. We need the date in order to calculate all the date related metrics.
@@ -111,8 +111,8 @@ SELECT
     ph.post_id,
     ph.user_id,
     CAST(ph.creation_date AS DATE) AS activity_date,
-    CASE WHEN ph.post_history_type_id IN (1,2,3) THEN 'created'
-         WHEN ph.post_history_type_id IN (4,5,6) THEN 'edited' 
+    CASE WHEN ph.post_history_type_id IN (1,2,3) THEN 'create'
+         WHEN ph.post_history_type_id IN (4,5,6) THEN 'edit' 
     END AS activity_type,
     COUNT(*) AS total
 FROM
@@ -131,10 +131,10 @@ GROUP BY
 --sample output
 post_id |user_id|activity_date|activity_type|total|
 --------+-------+-------------+-------------+-----+
-70182248|2702894|   2021-12-01|edited       |    1|
-70182248|2230216|   2021-12-01|edited       |    5|
-70182248|2230216|   2021-12-02|edited       |    1|
-70182248|2230216|   2021-12-01|created      |    3|
+70182248|2230216|   2021-12-01|create       |    3|
+70182248|2230216|   2021-12-02|edit         |    1|
+70182248|2230216|   2021-12-01|edit         |    5|
+70182248|2702894|   2021-12-01|edit         |    1|
 ```
 
 In our case we only need to aggregate up to the day level, so we remove the time components by using `CAST(AS DATE)` 

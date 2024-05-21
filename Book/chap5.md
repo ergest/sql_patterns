@@ -139,6 +139,7 @@ dt         |
 ```
 Obviously we can't force the same formatting for all the dates here so we'll have to split this up and apply the pattern separately using the `CASE` statement:
 ```sql
+--listing 5.8
 WITH dates AS (
     SELECT '2021-12--01' AS dt
     UNION ALL 
@@ -174,6 +175,7 @@ You can repeat this pattern as many times as you want to handle each case.
 
 Here's an example using numbers
 ```sql
+--listing 5.9
 WITH weights AS (
     SELECT '32.5lb' AS wt
     UNION ALL 
@@ -192,15 +194,18 @@ SELECT
 	CASE WHEN wt LIKE '%lb' THEN 'LB'
 		 WHEN wt LIKE '%kg' THEN 'KG'
 	END AS unit
-FROM weights
+FROM weights;
+
+--sample output
+
 ```
 
 I'm using the `SUBSTRING()` function again to extract parts of a string, but this time I add the function `INSTR()` which searches for a string within another string and returns the first occurrence of it or 0 if not found. 
 
-### Dealing with NULLs
-As a rule, you should always assume any column can be NULL at any point in time so it's a good idea to provide a default value for that column as part of your SELECT. This way you make sure that even if your data becomes NULL your query will not fail.
+### Pattern 3: Handling NULLs
+As a rule, you should always assume any column can be `NULL` at any point in time so it's a good idea to provide a default value for that column as part of your `SELECT`. This way you make sure that even if your data becomes `NULL` your query will not fail.
 
-NULLs in SQL represent unknown values. While the data may appear to be blank or empty in the results, it's not the same as an empty string or white space. You cannot compare NULLs to anything directly, for example you cannot say:
+`NULLs` in SQL represent unknown values. While the data may appear to be blank or empty in the results, it's not the same as an empty string or white space. You cannot compare `NULLs` to anything directly, for example you cannot say:
 ```sql
 SELECT col1
 FROM table
@@ -226,7 +231,7 @@ WITH dates AS (
     UNION ALL 
     SELECT '13/05/2021' AS dt
 )
-SELECT COALESCE(SAFE_CAST(
+SELECT COALESCE(TRY_CAST(
             CASE WHEN dt LIKE '%-%--%'
             THEN SUBSTRING(dt, 1, 4) || '-' ||
                  SUBSTRING(dt, 6, 2) || '-' ||
@@ -237,12 +242,22 @@ SELECT COALESCE(SAFE_CAST(
                  SUBSTRING(dt, 4, 2)
             END AS DATE), '1900-01-01') AS date_field 
 FROM dates;
+
+--sample output
+date_field|
+----------+
+2021-12-01|
+2021-12-02|
+2021-12-03|
+2021-12-04|
+2021-12-05|
+1900-01-01|
 ```
 
 This is the same query we saw earlier but implemented using "defensive coding" where we replace malformed data with a fixed value of `1900-01-01`. This protects our query from failing and later we can investigate why the data was junk.
 
-### Dealing with division by zero
-Whenever you need to calculate ratios you always have to worry about division by zero. Your query might work when you first write it, but if the denominator ever becomes zero your query will fail.
+### Handling Division by Zero
+Whenever you calculate ratios you always have to worry about division by zero. Your query might work when you first test it, but if the denominator ever becomes zero your query will fail.
 
 The easiest way to handle this is by excluding zero values in the where clause as we do in our query
 ```sql
