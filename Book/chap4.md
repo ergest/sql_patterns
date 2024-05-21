@@ -1,4 +1,4 @@
-# Chapter 4: Query Performance
+# Chapter 4: Performance Patterns
 In this chapter we're going to talk about query performance, aka how to make your queries run faster. Why do we care about making queries run faster? Faster queries get you results faster, obviously, but they also consume fewer resources, making them cheaper on modern data warehouses.
 
 This chapter isn't just about speed. There are many clever hacks to make your queries run really fast, but many of them will make your code unreadable and unmaintainable. We need to strike a balance between performance and maintainability.
@@ -445,6 +445,33 @@ WHERE
    ph.post_history_type_id = 1 OR u.up_votes >= 100;
 ```
 
-When I see a query like this, I immediately know it will cause problems
+When I see a query like this, I immediately know it will cause problems. It might be fast in our tiny database with a fast engine like DuckDB but when you throw millions of rows at it, you will see performance degradation.
+
+But there's good news! You can rewrite the above query using `UNION ALL` get the same exact result while seeing 10x - 100x performance improvement. Here it is:
+```sql
+SELECT
+    post_id,
+    ph.creation_date,
+    user_id
+FROM
+    post_history ph
+    INNER JOIN users u 
+        ON u.id = ph.user_id
+WHERE
+   post_history_type_id = 1
+UNION ALL
+SELECT
+    post_id,
+    ph.creation_date,
+    user_id
+FROM
+    post_history ph
+    INNER JOIN users u 
+        ON u.id = ph.user_id
+WHERE
+   u.up_votes >= 100;
+```
+
+What we've done here is to separate the two filtering conditions into their own separate query then combine the results.
 
 That wraps up query performance. There's a lot more to learn about improving query performance but that's not the purpose of this book. In the next chapter we'll cover how to make your queries robust against unexpected changes in the underlying data.

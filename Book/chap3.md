@@ -1,4 +1,4 @@
-# Chapter 3: Modularity
+# Chapter 3: Modularity Patterns
 In this chapter we'll learn:
 - The Concept of Modularity
 - Single Responsibility Principle (SRP)

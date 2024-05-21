@@ -1,4 +1,4 @@
-# Chapter 2: Core Concepts
+# Chapter 2: Core Concepts and Patterns
 In this chapter we're going to cover some of the core concepts of querying data and building tables for analysis and data science. We'll start with the most important but underrated concept in SQL; granularity.
 
 ## Granularity

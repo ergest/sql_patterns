@@ -1,5 +1,5 @@
-# Chapter 5: Query Robustness (TBD)
-In this chapter we're going to talk about how to make your queries robust to most data problems you'll encounter. Spend enough time working with real world data and you'll eventually get burned by one of these unexpected data issues.
+# Chapter 5: Robustness Patterns
+In this chapter we're going to talk about how to make your queries robust to most data problems you'll encounter. Spend enough time working with real world data and you'll eventually get burned by one of these so it's important to know about them ahead of time and write defensive code. Which is why my alternative title for this chapter is *Defense Against Dark Arts of Dirty Data.*
 
 Robustness means that your query will not break if the underlying data changes in unpredictable ways.
 
@@ -31,16 +31,16 @@ Here's an example of how type conversion works:
 ```sql
 SELECT CAST('2021-12-01' as DATE);
 
-dt        |
-----------+
-2021-12-01|
+CAST('2021-12-01' AS DATE)|
+--------------------------+
+                2021-12-01|
 ```
 
 Suppose that for whatever reason the date was bad:
 ```sql
 SELECT CAST('2021-13-01' as DATE);
 
-Error: Could not cast literal "2021-13-01" to type DATE at [1:13]
+SQL Error: Conversion Error: date field value out of range: "2021-13-01", expected format is (YYYY-MM-DD)
 ```
 Obviously there's no 13th month so BigQuery throws an error.
 
