@@ -10,14 +10,12 @@ Here are some of the ways that data can change:
 4. The formatting of dates or numbers gets messed up and the type conversion fails.
 5. The denominator in a ratio calculation becomes zero
 
-Ideally these things should not happen but in reality they happen more often than we'd like. That's why 
-
 We'll break these patterns down into two three groups:
 1. Dealing with formatting issues
 3. Dealing with NULLs
 2. Dealing with division by zero
 
-## Dealing with formatting issues
+## Dealing with Formatting Issues
 SQL supports 3 primitive data types, strings, numbers and dates. They allow for mathematical operations with numbers and calendar operations with dates. Oftentimes you might see numbers and dates stored as strings.
 
 This makes it super easy to load data from text files into tables without worrying about formatting. However in order to operate on actual dates and numbers, you need to convert the strings to the native SQL type for number or date.
@@ -26,6 +24,7 @@ The standard function for converting data in SQL is `CAST()` Some other database
 
 Here's an example of how type conversion works:
 ```sql
+--listing 5.1
 SELECT CAST('2021-12-01' as DATE);
 
 CAST('2021-12-01' AS DATE)|
@@ -35,23 +34,31 @@ CAST('2021-12-01' AS DATE)|
 
 Suppose that for whatever reason the date was bad:
 ```sql
+--listing 5.2
 SELECT CAST('2021-13-01' as DATE);
 
-SQL Error: Conversion Error: date field value out of range: "2021-13-01", expected format is (YYYY-MM-DD)
+Conversion Error: date field value out of range: "2021-13-01", expected format is (YYYY-MM-DD)
 ```
-Obviously there's no 13th month so BigQuery throws an error.
 
-Same thing happens if the formatting was bad:
+Obviously there's no 13th month so we get an error. What if formatting was bad?
 ```sql
+--listing 5.3
 SELECT CAST('2021-12--01' as DATE);
 
-Message: Could not cast literal "2021-12--01" to type DATE at [1:13]
+Conversion Error: date field value out of range: "2021-12--01", expected format is (YYYY-MM-DD)
 ```
-The extra dash in this case messes up conversion.
 
-Same thing can happen if you try to convert a string to a number and the formatting is malformed or the data is not a number. So how do you deal with these issues?
+The extra dash in this case messes up conversion. Same thing can happen if you try to convert a string to a number and the formatting is malformed or the data is not a number.
+```sql
+--listing 5.4
+SELECT CAST('2o21' as INT);
 
-### Ignore Bad Data
+Conversion Error: Could not convert string '2o21' to INT32
+```
+
+So how do we deal with these issues?
+
+### Pattern1: Ignore Bad Data
 One of the easiest ways to deal with formatting issues when converting data is to simply ignore bad formatting. What this means is we simply skip the malformed rows and don't deal with them at all. This works great in cases when the error is unfixable or occurs very rarely. So if a few rows out of 10 million are malformed and can't be fixed we can skip them
 
 However the `CAST()` function will fail if it encounters an issue, as we just saw, and we want our query to be robust. To deal with this problem some databases introduce "safe" casting functions like `SAFE_CAST()` in BigQuery or `TRY_CAST()` in SQL Server. Not all servers provide this function though.

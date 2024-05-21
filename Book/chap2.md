@@ -1,7 +1,7 @@
 # Chapter 2: Core Concepts and Patterns (TBD)
 In this chapter we're going to cover some of the core concepts of querying data and building tables for analysis and data science. We'll start with the most important but underrated concept in SQL; granularity.
 
-## Granularity
+## Concept Granularity
 Granularity (also known as the grain of the tqable) is a measure of the level of detail that determines an individual row in a table or view. This is extremely important when it comes to joins or aggregating data. 
 
 Granularity comes in two flavors: *fine grain* and *coarse grain*.
