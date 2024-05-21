@@ -63,37 +63,42 @@ One of the easiest ways to deal with formatting issues when converting data is t
 
 However the `CAST()` function will fail if it encounters an issue, as we just saw, and we want our query to be robust. To deal with this problem some databases introduce "safe" casting functions like `SAFE_CAST()` or `TRY_CAST().`Not all servers provide this function. PostgreSQL for example doesn't have built-in safe casting but it can be custom built as a UDF.
 
-These functions will not fail when casting fails instead returning `NULL` which then can be handled by using  `IFNULL()` or `COALESCE()` to replace `NULL` with a sensible value.
+These functions will not fail when casting fails instead returning `NULL` which then can be handled by using  `IFNULL()` or `COALESCE()` to replace `NULLs` with a sensible value. DuckDB uses `TRY_CAST()` so let's see it in action. 
 
 Here's how that works:
 ```sql
-SELECT SAFE_CAST('2021-12--01' as DATE) AS dt;
+--listing 5.5
+SELECT TRY_CAST('2021-12--01' as DATE) AS dt;
 
     dt|
 ------+
  NULL |
 ```
+
 Now we can apply any of the functions that deal with `NULL` and replace it or just leave it. 
 ```sql
-SELECT COALESCE(SAFE_CAST('2021-' as INTEGER), 0) AS num;
+--listing 5.6
+SELECT COALESCE(TRY_CAST('2o21' as INT), 0) AS num;
 
 num|
 ---+
   0|
 ```
 
-### Force Formatting
-While ignoring incorrect data is easy, you can't always get away with it. Sometimes you need to extract the valuable data from the incorrect format. This is when you need to look for repeating patterns in the incorrect data and force the formatting.
+### Pattern 2: Force Formatting (if possible)
+While ignoring incorrect data is easy, you can't always get away with it. Sometimes you need to find patterns in how formatting is broken and fix them using string parsing functions. Let's see some examples
 
-Suppose that all dates had extra dashes like this:
+Suppose that some of the string dates had extra dashes like this:
 ```
 2021-12--01
 2021-12--02
 2021-12--03
 2021-12--04
 ```
-Since this is a regular pattern, we can extract the meaningful numbers and force the formatting like this:
+
+Since this is a regular pattern, we can parse them using string functions and then do our conversion like this:
 ```sql
+--listing 5.7
 WITH dates AS (
     SELECT '2021-12--01' AS dt
     UNION ALL 
@@ -110,13 +115,13 @@ SELECT CAST(SUBSTRING(dt, 1, 4) || '-' ||
 			SUBSTRING(dt, 10, 2) AS DATE) AS date_field 
 FROM dates;
 
-date_field
-----------
-2021-12-01
-2021-12-02
-2021-12-03
-2021-12-04
-2021-12-05
+date_field|
+----------+
+2021-12-01|
+2021-12-02|
+2021-12-03|
+2021-12-04|
+2021-12-05|
 ```
 So as you can see in this example, we took advantage of the regularity of the incorrect formatting to extract the important information (the year, month and day) and reconstruct the correct formatting by concatenating strings via the `||` operator.
 

@@ -6,9 +6,7 @@ Granularity (also known as the grain of the tqable) is a measure of the level of
 
 Granularity comes in two flavors: *fine grain* and *coarse grain*.
 
-A *finely grained* table means a high level of detail like one row per transaction at the millisecond level. 
-
-A *coarse grained* table means a low level of detail like count of all transactions per day, week or month.
+A *finely grained* table means a high level of detail like one row per transaction at the millisecond level. A *coarse grained* table means a low level of detail like count of all transactions per day, week or month.
 
 Granularity is usually expressed as the column (or combination of columns) that makes up a unique row.
 
@@ -36,15 +34,13 @@ SELECT
 FROM post_history
 GROUP BY 1,2,3,4
 HAVING COUNT(*) > 1;
-```
-So I'm aggregating by all the columns I expect to make up the unique row and filtering for any that invalidate my assumption. If my hunch is correct, I should get 0 rows from this query.
 
-But we don't! We get a duplicate row:
-```sql
+--output
 creation_date          |post_id |type_id|user_id|total|
 -----------------------+--------+-------+-------+-----+
 2021-12-10 14:09:36.950|70276799|      5|       |    2|
 ```
+So I'm aggregating by all the columns I expect to make up the unique row and filtering for any that invalidate my assumption. If my hunch is correct, I should get 0 rows from this query. But we don't! We get a duplicate row!
 
 This means we have to be careful when joining with this table on `post_id, user_id, creation_date, post_history_type_id` We have to deal with the duplicate issue first otherwise we'll get incorrect results.
 
@@ -88,10 +84,8 @@ WHERE
     AND ph.post_id = 70182248
 GROUP BY
     1,2,3,4;
-```
 
-Here's the output:
-```sql
+-- output
 post_id |user_id|activity_date          |activity_type|
 --------+-------+-----------------------+-------------+
 70182248|2230216|2021-12-01 13:07:56.327|edited       |
@@ -103,9 +97,7 @@ post_id |user_id|activity_date          |activity_type|
 70182248|2702894|2021-12-01 13:35:41.293|edited       |
 ```
 
-Notice that didn't use an aggregation function like `COUNT()` or `SUM()` when doing a `GROUP BY` and that's perfectly ok since we don't need it. 
-
-You can see now how we're going to manipulate the granularity to get one row per user. We need the date in order to calculate all the date related metrics.
+Notice that didn't use an aggregation function like `COUNT()` or `SUM()` when doing a `GROUP BY` and that's perfectly ok since we don't need it. You can see now how we're going to manipulate the granularity to get one row per user. We need the date in order to calculate all the date related metrics.
 
 ### Pattern 2: Date Granularity
 The timestamp column `creation_date` is a rich field with both the date and time information (hour, minute, second, microsecond). Timestamp fields are special when it comes to aggregation because they have many levels of granularities built in.
@@ -135,10 +127,8 @@ WHERE
     AND ph.post_id = 70182248
 GROUP BY
     1,2,3,4;
-```
 
-Here's the output:
-```sql
+--output
 post_id |user_id|activity_date|activity_type|total|
 --------+-------+-------------+-------------+-----+
 70182248|2702894|   2021-12-01|edited       |    1|
@@ -154,7 +144,7 @@ Pivoting is another form of granularity manipulation where you change the shape 
 
 Note that the counts here don't make sense since we already know that there are 3 different `post_history_type_id` for creation and editing. This is simply shown for demonstration purposes.
 
-This is the query:
+This is the query will take the above output and turn it into:
 ```sql
 --listing 2.4
 SELECT
@@ -177,20 +167,8 @@ WHERE
     AND ph.post_id = 70182248
 GROUP BY
     1,2,3;
-```
 
-It will take this type of output
-```sql
-post_id |user_id|activity_date|activity_type|total|
---------+-------+-------------+-------------+-----+
-70182248|2702894|   2021-12-01|edited       |    1|
-70182248|2230216|   2021-12-01|edited       |    5|
-70182248|2230216|   2021-12-02|edited       |    1|
-70182248|2230216|   2021-12-01|created      |    3|
-```
-
-and turn it into this
-```sql
+--output
 post_id |user_id|activity_date|created|edited|
 --------+-------+-------------+-------+------+
 70182248|2230216|   2021-12-01|      3|     5|
@@ -218,10 +196,8 @@ SELECT
 	reputation
 FROM users
 WHERE id = 2702894;
-```
 
-Here's the output:
-```sql
+--output
 id     |display_name  |creation_date          |reputation|
 -------+--------------+-----------------------+----------+
 2702894|Graham Ritchie|2013-08-21 09:07:23.133|     20218|
@@ -242,10 +218,8 @@ WHERE
 	TRUE
 	AND ph.user_id = 2702894
 LIMIT 10;
-```
 
-Here's the partial output:
-```sql
+--output
 id       |creation_date          |post_id |type_id|user_id|
 ---------+-----------------------+--------+-------+-------+
 260173419|2021-12-16 10:54:11.637|70377756|      2|2702894|
@@ -275,10 +249,8 @@ FROM
 WHERE
 	TRUE
 	AND ph.user_id = 2702894;
-```
 
-Here's the partial output:
-```sql
+--output
 post_id |user_id|user_name     |activity_date          |type_id|
 --------+-------+--------------+-----------------------+-------+
 70377756|2702894|Graham Ritchie|2021-12-16 10:54:11.637|      2|
@@ -318,6 +290,16 @@ WHERE
 	AND ph.post_id = 70286266
 ORDER BY
 	activity_date;
+
+--output
+post_id |user_id |user_name        |activity_date          |
+--------+--------+-----------------+-----------------------+
+70286266|11693691|M.hussnain Gujjar|2021-12-09 07:45:41.700|
+70286266|11693691|M.hussnain Gujjar|2021-12-09 07:45:41.700|
+70286266|11693691|M.hussnain Gujjar|2021-12-09 07:45:41.700|
+70286266|12221382|Aldin Bradaric   |2021-12-09 14:06:00.677|
+70286266|12410533|Andrew Halil     |2021-12-13 09:02:26.593|
+70286266|12410533|Andrew Halil     |2021-12-13 09:02:26.593|
 ```
 
 You'll see 6 rows. Now let's change the `INNER JOIN` to a `LEFT JOIN` and rerun the query:
@@ -337,6 +319,18 @@ WHERE
 	AND ph.post_id = 70286266
 ORDER BY
 	activity_date;
+
+--output
+post_id |user_id |user_name        |activity_date          |
+--------+--------+-----------------+-----------------------+
+70286266|11693691|M.hussnain Gujjar|2021-12-09 07:45:41.700|
+70286266|11693691|M.hussnain Gujjar|2021-12-09 07:45:41.700|
+70286266|11693691|M.hussnain Gujjar|2021-12-09 07:45:41.700|
+70286266|12221382|Aldin Bradaric   |2021-12-09 14:06:00.677|
+70286266|        |                 |2021-12-09 14:06:00.677|
+70286266|        |                 |2021-12-13 09:02:26.593|
+70286266|12410533|Andrew Halil     |2021-12-13 09:02:26.593|
+70286266|12410533|Andrew Halil     |2021-12-13 09:02:26.593|
 ```
 
 Now we get 8 rows! What happened?
