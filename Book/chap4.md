@@ -434,18 +434,17 @@ However a query like would very likely be problematic:
 ```sql
 --listing 4.15
 SELECT
-    post_id,
+    ph.post_id,
     ph.creation_date,
-    user_id
+    u.display_name
 FROM
     post_history ph
     INNER JOIN users u 
         ON u.id = ph.user_id
 WHERE
-   post_history_type_id = 1
-   OR u.up_votes >= 100;
+   ph.post_history_type_id = 1 OR u.up_votes >= 100;
 ```
 
-The query planner doesn't know how to solve this 
+When I see a query like this, I immediately know it will cause problems
 
 That wraps up query performance. There's a lot more to learn about improving query performance but that's not the purpose of this book. In the next chapter we'll cover how to make your queries robust against unexpected changes in the underlying data.
