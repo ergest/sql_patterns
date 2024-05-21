@@ -208,10 +208,8 @@ FROM post_activity
 WHERE user_id = 4603670
 ORDER BY activity_date
 LIMIT 10;
-```
 
-Here's the output:
-```sql
+--output:
 post_id |user_id|user_name       |activity_date          |activity_type|
 --------+-------+----------------+-----------------------+-------------+
 70192540|4603670|Barmak Shemirani|2021-12-01 23:30:38.057|created      |
@@ -224,8 +222,6 @@ post_id |user_id|user_name       |activity_date          |activity_type|
 70208753|4603670|Barmak Shemirani|2021-12-03 02:18:58.930|created      |
 70208753|4603670|Barmak Shemirani|2021-12-03 02:40:51.667|edited       |
 70212702|4603670|Barmak Shemirani|2021-12-03 11:40:09.240|edited       |
-
-Table 3.1
 ```
 
 We then join this with the `posts_questions` and `post_answers` on `post_id`. That would look like this:
@@ -238,8 +234,8 @@ WITH post_activity AS (
         ph.user_id,
         u.display_name AS user_name,
         ph.creation_date AS activity_date,
-        CASE WHEN ph.post_history_type_id IN (1,2,3) THEN 'created'
-             WHEN ph.post_history_type_id IN (4,5,6) THEN 'edited' 
+        CASE WHEN ph.post_history_type_id IN (1,2,3) THEN 'create'
+             WHEN ph.post_history_type_id IN (4,5,6) THEN 'edit' 
         END AS activity_type
     FROM
         post_history ph
@@ -275,43 +271,38 @@ FROM
     post_activity pa
     JOIN post_types pt ON pa.post_id = pt.post_id
 WHERE user_id = 4603670
-ORDER BY activity_date;
-```
+ORDER BY activity_date
+LIMIT 10;
 
-Here's the output:
-```sql
+--output:
 user_id|activity_date|activity_type|post_type|
 -------+-------------+-------------+---------+
-4603670|   2021-12-01|edited       |answer   |
-4603670|   2021-12-01|created      |answer   |
-4603670|   2021-12-02|edited       |answer   |
-4603670|   2021-12-02|edited       |answer   |
-4603670|   2021-12-02|created      |answer   |
-4603670|   2021-12-02|edited       |answer   |
-4603670|   2021-12-02|edited       |question |
-4603670|   2021-12-03|created      |answer   |
-4603670|   2021-12-03|edited       |answer   |
-4603670|   2021-12-03|created      |answer   |
-
-Table 3.2
+4603670|   2021-12-01|edit         |answer   |
+4603670|   2021-12-01|create       |answer   |
+4603670|   2021-12-02|edit         |answer   |
+4603670|   2021-12-02|edit         |answer   |
+4603670|   2021-12-02|create       |answer   |
+4603670|   2021-12-02|edit         |question |
+4603670|   2021-12-02|edit         |answer   |
+4603670|   2021-12-03|edit         |answer   |
+4603670|   2021-12-03|create       |answer   |
+4603670|   2021-12-03|edit         |question |
 ```
 
 The final result should look like this:
 ```sql
-user_id|activity_date|question_created|answer_created|question_edited|answer_edited|
--------+-------------+----------------+--------------+---------------+-------------+
-4603670|   2021-12-01|               0|             1|              0|            1|
-4603670|   2021-12-02|               0|             1|              1|            3|
-4603670|   2021-12-03|               0|             3|              1|            5|
-4603670|   2021-12-04|               0|             2|              0|            6|
-4603670|   2021-12-05|               0|             2|              0|            3|
-4603670|   2021-12-06|               0|             3|              2|            9|
-4603670|   2021-12-07|               0|             2|              3|            2|
-4603670|   2021-12-08|               0|             2|              2|            6|
-4603670|   2021-12-09|               0|             0|              1|            0|
-4603670|   2021-12-10|               0|             1|              1|            1|
-
-Table 3.3
+user_id|activity_dt|question_create|answer_create|question_edit|answer_edit|
+-------+-----------+---------------+-------------+-------------+-----------+
+4603670| 2021-12-01|              0|            1|            0|          1|
+4603670| 2021-12-02|              0|            1|            1|          3|
+4603670| 2021-12-03|              0|            3|            1|          5|
+4603670| 2021-12-04|              0|            2|            0|          6|
+4603670| 2021-12-05|              0|            2|            0|          3|
+4603670| 2021-12-06|              0|            3|            2|          9|
+4603670| 2021-12-07|              0|            2|            3|          2|
+4603670| 2021-12-08|              0|            2|            2|          6|
+4603670| 2021-12-09|              0|            0|            1|          0|
+4603670| 2021-12-10|              0|            1|            1|          1|
 ```
 
 How do we go from *Table 3.2* to *Table 3.3*? If you recall from **Chapter 2**, we can use aggregation and pivoting:
@@ -353,19 +344,34 @@ post_types AS (
 )
 SELECT
     user_id,
-    CAST(pa.activity_date AS DATE) AS activity_date,
+    CAST(pa.activity_date AS DATE) AS activity_dt,
     SUM(CASE WHEN activity_type = 'created'
-        AND post_type = 'question' THEN 1 ELSE 0 END) AS question_created,
+        AND post_type = 'question' THEN 1 ELSE 0 END) AS question_create,
     SUM(CASE WHEN activity_type = 'created'
-        AND post_type = 'answer'   THEN 1 ELSE 0 END) AS answer_created,
+        AND post_type = 'answer'   THEN 1 ELSE 0 END) AS answer_create,
     SUM(CASE WHEN activity_type = 'edited'
-        AND post_type = 'question' THEN 1 ELSE 0 END) AS question_edited,
+        AND post_type = 'question' THEN 1 ELSE 0 END) AS question_edit,
     SUM(CASE WHEN activity_type = 'edited'
-        AND post_type = 'answer'   THEN 1 ELSE 0 END) AS answer_edited  
+        AND post_type = 'answer'   THEN 1 ELSE 0 END) AS answer_edit  
 FROM post_activity pa
      JOIN post_types pt ON pt.post_id = pa.post_id
 WHERE user_id = 4603670
 GROUP BY 1,2
+LIMIT 10;
+
+--output
+user_id|activity_dt|question_create|answer_create|question_edit|answer_edit|
+-------+-----------+---------------+-------------+-------------+-----------+
+4603670| 2021-12-01|              0|            1|            0|          1|
+4603670| 2021-12-02|              0|            1|            1|          3|
+4603670| 2021-12-03|              0|            3|            1|          5|
+4603670| 2021-12-04|              0|            2|            0|          6|
+4603670| 2021-12-05|              0|            2|            0|          3|
+4603670| 2021-12-06|              0|            3|            2|          9|
+4603670| 2021-12-07|              0|            2|            3|          2|
+4603670| 2021-12-08|              0|            2|            2|          6|
+4603670| 2021-12-09|              0|            0|            1|          0|
+4603670| 2021-12-10|              0|            1|            1|          1|
 ```
 
 ### Sub-problem 2
@@ -375,8 +381,28 @@ Calculate comments metrics. There are two types of comments:
 
 The query and final result should look like this:
 ```sql
---code snippet will not actually run
 --listing 3.4
+WITH post_activity AS (
+    SELECT
+        ph.post_id,
+        ph.user_id,
+        u.display_name AS user_name,
+        ph.creation_date AS activity_date,
+        CASE WHEN ph.post_history_type_id IN (1,2,3) THEN 'created'
+             WHEN ph.post_history_type_id IN (4,5,6) THEN 'edited' 
+        END AS activity_type
+    FROM
+        post_history ph
+        INNER JOIN users u 
+			ON u.id = ph.user_id
+    WHERE
+        TRUE
+        AND ph.post_history_type_id BETWEEN 1 AND 6
+        AND user_id > 0 --exclude automated processes
+        AND user_id IS NOT NULL --exclude deleted accounts
+    GROUP BY
+        1,2,3,4,5
+)
 , comments_on_user_post AS (
     SELECT
         pa.user_id,
@@ -413,10 +439,8 @@ FROM comments_by_user c1
 WHERE 
     c1.user_id = 4603670
 LIMIT 10;
-```
 
-Here's the output:
-```sql
+--output
 user_id|activity_date|comments_by_user|comments_on_user_post|
 -------+-------------+----------------+---------------------+
 4603670|   2021-12-03|               3|                    7|
@@ -429,8 +453,6 @@ user_id|activity_date|comments_by_user|comments_on_user_post|
 4603670|   2021-12-13|               1|                    1|
 4603670|   2021-12-26|               1|                    3|
 4603670|   2021-12-24|               3|                    2|
-
-Table 3.4
 ```
 
 ### Sub-problem 3
@@ -440,8 +462,28 @@ Calculate votes metrics. There are two types of votes:
 
 The query and final result should look like this:
 ```sql
---code snippet will not actually run
 --listing 3.5
+WITH post_activity AS (
+    SELECT
+        ph.post_id,
+        ph.user_id,
+        u.display_name AS user_name,
+        ph.creation_date AS activity_date,
+        CASE WHEN ph.post_history_type_id IN (1,2,3) THEN 'created'
+             WHEN ph.post_history_type_id IN (4,5,6) THEN 'edited' 
+        END AS activity_type
+    FROM
+        post_history ph
+        INNER JOIN users u 
+			ON u.id = ph.user_id
+    WHERE
+        TRUE
+        AND ph.post_history_type_id BETWEEN 1 AND 6
+        AND user_id > 0 --exclude automated processes
+        AND user_id IS NOT NULL --exclude deleted accounts
+    GROUP BY
+        1,2,3,4,5
+)
 , votes_on_user_post AS (
       SELECT
         pa.user_id,

@@ -337,7 +337,7 @@ Now we get 8 rows! What happened?
 
 If you scan the results, you'll notice several where both the `user_name` and the `user_id` are `NULL` which means they're unknown. These could be people who made changes to that post and then deleted their accounts. Notice how the `INNER JOIN` was filtering them out? That's what I mean by data reduction which we discussed previously.
 
-Suppose we only want to see users with a reputation of  500,000 or higher. That's seems pretty straightforward just add the condition to the where clause
+Suppose we only want to see users with a reputation of  500,000 or higher. That's seems pretty straightforward just add the condition to the where clause.
 ```sql
 --listing 2.10
 SELECT
@@ -349,6 +349,11 @@ FROM
 WHERE
 	TRUE
 	AND u.reputation >= 500000;
+
+--output
+count_star()|
+------------+
+        7596|
 ```
 
 We get 7,596 rows. Fine you might say, that looks right. But it's not! Adding filters on the `WHERE` clause for tables that are left joined will **ALWAYS** perform an `INNER JOIN.`
@@ -365,6 +370,11 @@ FROM
 		AND u.reputation >= 500000
 WHERE
 	TRUE;
+
+--output
+count_star()|
+------------+
+      806608|
 ```
 
 Now we get 806,608 rows!
@@ -373,7 +383,7 @@ The ONLY time when putting a condition in the `WHERE` clause does NOT turn a `LE
 
 This is very useful when you want to see the missing data on the table that's being left joined. Here's an example
 ```sql
-listing 2.12
+--listing 2.12
 SELECT
 	COUNT(*)
 FROM
@@ -383,6 +393,11 @@ FROM
 WHERE
 	TRUE
 	AND u.id IS NULL;
+
+--output
+count_star()|
+------------+
+       15704|
 ```
 
 
@@ -411,16 +426,16 @@ You can achieve the first requirement by using `SELECT` to choose only the colum
 For example:
 ```sql
 SELECT
-	col1 as column_name
+	id AS post_id,
+	'question' AS post_type,
 FROM
-	table1
-
+	posts_questions
 UNION ALL
-
 SELECT
-	col2 as column_name
+	id AS post_id,
+	'answer' AS post_type,
 FROM
-	table2
+	posts_answers
 ```
 
 As a rule of thumb, when you append tables, it's a good idea to add a constant column to indicate the source table or some kind of type. This is helpful when appending say activity tables to create a long, time-series table and you want to identify each activity type in the final result set.
