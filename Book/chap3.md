@@ -739,40 +739,26 @@ FROM
      SELECT * FROM answers) AS p
 WHERE 
     user_id = 4603670
-GROUP BY 1,2;
+GROUP BY 1,2
+LIMIT 10;
 ```
 
 ```sql
-user_id|activity_dt|question_created|answer_creat|question_edit|answer_edited|
--------+-----------+----------------+--------------+---------------+-------------+
-4603670| 2021-12-01|               0|             1|              0|            1|
-4603670| 2021-12-02|               0|             1|              1|            3|
-4603670| 2021-12-03|               0|             3|              1|            5|
-4603670| 2021-12-04|               0|             2|              0|            6|
-4603670| 2021-12-05|               0|             2|              0|            3|
-4603670| 2021-12-06|               0|             3|              2|            9|
-4603670| 2021-12-07|               0|             2|              3|            2|
-4603670| 2021-12-08|               0|             2|              2|            6|
-4603670| 2021-12-09|               0|             0|              1|            0|
-4603670| 2021-12-10|               0|             1|              1|            1|
+user_id|activity_dt|question_create|answer_create|question_edit|answer_edit|
+-------+-----------+---------------+-------------+-------------+-----------+
+4603670| 2021-12-01|              0|            1|            0|          1|
+4603670| 2021-12-02|              0|            1|            1|          3|
+4603670| 2021-12-03|              0|            3|            1|          5|
+4603670| 2021-12-04|              0|            2|            0|          6|
+4603670| 2021-12-05|              0|            2|            0|          3|
+4603670| 2021-12-06|              0|            3|            2|          9|
+4603670| 2021-12-07|              0|            2|            3|          2|
+4603670| 2021-12-08|              0|            2|            2|          6|
+4603670| 2021-12-09|              0|            0|            1|          0|
+4603670| 2021-12-10|              0|            1|            1|          1|
 
 Table 3.6
 ```
 This query will get you the same results as table 3.3 you saw earlier but notice that the `questions` and `answers` CTEs both have almost identical code. What if we had 10 different post types? You'd be copying and pasting a lot of code thus repeating yourself. Also, the subquery that handles the `UNION` is not ideal. I'm not a fan of subqueries.
-
-Since both questions and answers tables have the exact same schema, a great way to deal with the above problem is by appending their rows using the `UNION` operator like this in a single CTE:
-```sql
-SELECT
-	id AS post_id,
-	'question' AS post_type,
-FROM
-	bigquery-public-data.stackoverflow.posts_questions
-UNION ALL
-SELECT
-	id AS post_id,
-	'answer' AS post_type,
-FROM
-	bigquery-public-data.stackoverflow.posts_answers
- ```
 
 With that out of the way let's now look at performance patterns.

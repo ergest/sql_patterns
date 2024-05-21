@@ -58,12 +58,12 @@ Conversion Error: Could not convert string '2o21' to INT32
 
 So how do we deal with these issues?
 
-### Pattern1: Ignore Bad Data
-One of the easiest ways to deal with formatting issues when converting data is to simply ignore bad formatting. What this means is we simply skip the malformed rows and don't deal with them at all. This works great in cases when the error is unfixable or occurs very rarely. So if a few rows out of 10 million are malformed and can't be fixed we can skip them
+### Pattern 1: Ignore Bad Data
+One of the easiest ways to deal with formatting issues when converting data is to simply ignore bad formatting. What this means is we simply skip the malformed rows and just don't deal with them. This works great in cases when the error is unfixable or occurs very rarely. So if a few rows out of 10 million are malformed and can't be fixed we can skip them.
 
-However the `CAST()` function will fail if it encounters an issue, as we just saw, and we want our query to be robust. To deal with this problem some databases introduce "safe" casting functions like `SAFE_CAST()` in BigQuery or `TRY_CAST()` in SQL Server. Not all servers provide this function though.
+However the `CAST()` function will fail if it encounters an issue, as we just saw, and we want our query to be robust. To deal with this problem some databases introduce "safe" casting functions like `SAFE_CAST()` or `TRY_CAST().`Not all servers provide this function. PostgreSQL for example doesn't have built-in safe casting but it can be custom built as a UDF.
 
-These functions will not fail when the formatting is unexpected but return `NULL` instead which then can be handled by using `COALESCE()` to replace `NULL` with a sensible value.
+These functions will not fail when casting fails instead returning `NULL` which then can be handled by using  `IFNULL()` or `COALESCE()` to replace `NULL` with a sensible value.
 
 Here's how that works:
 ```sql

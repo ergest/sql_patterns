@@ -3,7 +3,7 @@ In this chapter we're going to talk about query performance, aka how to make you
 
 This chapter isn't just about speed. There are many clever hacks to make your queries run really fast, but many of them will make your code unreadable and unmaintainable. We need to strike a balance between performance and maintainability.
 
-## Reduce Rows as Early as Possible
+## Pattern 1: Reduce Rows as Early as Possible
 The most important pattern that improves query performance is reducing data as much as possible as early as possible. What does that mean?
 
 So far we've learned that using modularity via CTEs and views is the best way to tackle complex queries. We also learned to keep our modules small and single purpose to ensure maximum composability. CTEs are great for aggregation and calculation of metrics but they can also be used to filter data as early as possible.
@@ -70,7 +70,7 @@ Did you notice the difference? We moved the date filter inside the CTE vs outsid
 
 But it doesn't always happen. I've seen cases where due to the table setup, a query like `4.1` took 10 hours and changing it to the query in `4.2` reduced execution time to 10 minutes!! Rather than relying on databases to do the right thing, we can ensure that we do the right thing for it. Filtering data inside a CTE is a great application of "filtering rows as early as possible."
 
-## Reducing Columns
+## Pattern 2: Reducing Columns
 Almost every book or course will tell you to start exploring a table by doing:
 ```sql
 --listing 4.3
@@ -122,7 +122,7 @@ Compared to:
  ```
 
 It may seem innocent at first, but if any of those tables contained 300 columns, now you'll be selecting all 300 of them every time you join on those CTEs.
-## Delaying Sorting
+## Pattern 3: Delaying Sorting
 As a rule of thumb you should AVOID any kind of sorting inside production level queries. Sorting is a very expensive operation, especially for really large tables and it wll dramatically slow down your queries. If you add an `ORDER BY` operation in your CTEs or views, anytime you join with that CTE or view, the database engine will be forced to sort data in memory.
 
 Sorting is best left to reporting and BI tools if it's not needed, or done at the very end, if it is at all necessary. You can't always avoid it though. Window functions for example sometimes necessitate sorting in order to choose the top row. We'll see an example of this later.
@@ -150,7 +150,7 @@ For example, the following is unnecessary and slows down performance because the
 )
 ```
 
-## Avoid Using Functions in the WHERE Clause
+## Pattern 4: Avoid Functions in the WHERE Clause
 In case you didn't know, you can put anything in the where clause. You already know about filtering on dates, numbers and strings of course but you can also filter calculations, functions, `CASE` statements, etc.
 
 When you use compare a column to a fixed value or to another column, the query optimizer can filter down to the relevant rows much faster. When you use a function or a complicated formula, the optimizer needs to scan the entire table before doing the filtering. This is negligible for small tables but when dealing with millions of rows query performance will suffer.
@@ -305,7 +305,7 @@ LIMIT 10;
 ```
 What's clever about this pattern is that invoking the function calls on fixed data, like current date, does NOT cause full table scans. Only when the function is applied to a column does the query performance suffer.
 
-## Avoid Using DISTINCT (if possible)
+## Pattern 5: Avoid DISTINCT (if possible)
 `SELECT DISTINCT` is a code smell for me. Whenever I see it, I suspect the programmer is trying to hide data problems without fixing them. It's so common as a catchall fix that this meme exploded both on Twitter/X and LinkedIn
 
 ![[select_distinct.jpeg]]
@@ -376,7 +376,7 @@ FROM
     cte_user_activity_by_type
 LIMIT 10;
 ```
-## Avoid using OR in the WHERE clause
+## Pattern 6: Avoid OR in the WHERE Clause
 Using `OR` in the `WHERE` clause can be quite natural based on the logic you're trying to implement but I bet you didn't know there are hidden, performance "gotchas" if you do. They're not very obvious either so pay careful attention.
 
 If you use `OR` to search for multiple values of the same column, there will be no performance issues. In fact you already do this without realizing it. Let's see an example. This query will get all the created posts
