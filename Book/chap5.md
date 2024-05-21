@@ -160,6 +160,15 @@ SELECT CAST(CASE WHEN dt LIKE '%-%--%'
 					  SUBSTRING(dt, 4, 2)
 	             END AS DATE) AS date_field 
 FROM dates;
+
+--sample output
+date_field|
+----------+
+2021-12-01|
+2021-12-02|
+2021-12-03|
+2021-12-04|
+2021-12-05|
 ```
 You can repeat this pattern as many times as you want to handle each case.
 

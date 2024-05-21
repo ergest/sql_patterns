@@ -34,7 +34,22 @@ WITH post_activity AS (
 )
 SELECT *
 FROM post_activity
-WHERE activity_date BETWEEN '2021-12-14' AND '2021-12-21';
+WHERE activity_date BETWEEN '2021-12-14' AND '2021-12-21'
+LIMIT 10;
+
+--sample output
+post_id |user_id |user_name       |activity_date          |activity_type|
+--------+--------+----------------+-----------------------+-------------+
+70401248|13437718|BGE34           |2021-12-18 05:50:33.917|edit         |
+70380038|17501206|vtable          |2021-12-16 21:47:01.913|edit         |
+70387919|17697814|user17697814    |2021-12-17 02:55:13.043|create       |
+70364800|17436438|user17436438    |2021-12-15 13:48:18.577|create       |
+70382506|12327190|TalGav          |2021-12-16 16:31:44.240|create       |
+70401589| 5708566|windowsill      |2021-12-18 07:05:07.927|create       |
+70401645| 8331542|Saad Abdul Majid|2021-12-18 07:17:10.987|create       |
+70418579| 4925718|msefer          |2021-12-20 07:25:11.413|create       |
+70362252| 4925718|msefer          |2021-12-15 13:35:49.967|edit         |
+70362983| 4925718|msefer          |2021-12-20 07:13:06.500|edit         |
 ```
 
 This is a correct way to filter the results and it may even be performant in our case given our small database and the really fast DuckDB engine. But there's an even better way to write it if we know we need to filter data before using it. For example we might want a rolling window of just the current week's post activity.
@@ -46,8 +61,8 @@ WITH post_activity AS (
         ph.user_id,
         u.display_name AS user_name,
         ph.creation_date AS activity_date,
-        CASE WHEN ph.post_history_type_id IN (1,2,3) THEN 'created'
-             WHEN ph.post_history_type_id IN (4,5,6) THEN 'edited' 
+        CASE WHEN ph.post_history_type_id IN (1,2,3) THEN 'create'
+             WHEN ph.post_history_type_id IN (4,5,6) THEN 'edit' 
         END AS activity_type
     FROM
         post_history ph
@@ -63,7 +78,22 @@ WITH post_activity AS (
         1,2,3,4,5
 )
 SELECT *
-FROM post_activity;
+FROM post_activity
+LIMIT 10;
+
+--sample output
+post_id |user_id |user_name       |activity_date          |activity_type|
+--------+--------+----------------+-----------------------+-------------+
+70401248|13437718|BGE34           |2021-12-18 05:50:33.917|edit         |
+70380038|17501206|vtable          |2021-12-16 21:47:01.913|edit         |
+70387919|17697814|user17697814    |2021-12-17 02:55:13.043|create       |
+70364800|17436438|user17436438    |2021-12-15 13:48:18.577|create       |
+70382506|12327190|TalGav          |2021-12-16 16:31:44.240|create       |
+70401589| 5708566|windowsill      |2021-12-18 07:05:07.927|create       |
+70401645| 8331542|Saad Abdul Majid|2021-12-18 07:17:10.987|create       |
+70418579| 4925718|msefer          |2021-12-20 07:25:11.413|create       |
+70362252| 4925718|msefer          |2021-12-15 13:35:49.967|edit         |
+70362983| 4925718|msefer          |2021-12-20 07:13:06.500|edit         |
 ```
 
 Did you notice the difference? We moved the date filter inside the CTE vs outside. Now of course I know that many modern database will automatically do "predicate pushdown" which means they will see the `WHERE` clause outside the CTE but still apply it inside. They will filter the rows before doing anything else.
@@ -85,7 +115,8 @@ You don't have to know anything about databases to know that the query will be m
 
 Here's an example you've seen before. In the `post_activity` CTE we select only the `id` column which is the only one we need to join with `post_activity` on. The `post_type` is a static value which is negligible when it comes to performance.
 ```sql
--- code snippet will not run
+--code snippet will not run
+--listing 4.4
 ,post_types AS (
     SELECT
 		id AS post_id,
@@ -103,7 +134,8 @@ Here's an example you've seen before. In the `post_activity` CTE we select only 
 
 Compared to:
 ```sql
--- code snippet will not run
+--code snippet will not run
+--listing 4.4
 ,post_types AS (
     SELECT
 	    pq.*,
@@ -129,7 +161,8 @@ Sorting is best left to reporting and BI tools if it's not needed, or done at th
 
 For example, the following is unnecessary and slows down performance because the sorting is done is inside a CTE. You don't need to sort your data yet.
 ```sql
--- code snippet will not run
+--code snippet will not run
+--listing 4.5
 , votes_on_user_post AS (
   	SELECT
         pa.user_id,
@@ -159,7 +192,7 @@ Let's see some examples:
 
 The `tags` column in both questions and answers is a collection of strings separated by `|` character as you see here:
 ```sql
---listing 4.4
+--listing 4.6
 SELECT 
     q.id AS post_id,
     q.creation_date,
@@ -167,10 +200,8 @@ SELECT
 FROM
     posts_questions q
 LIMIT 10;
-```
 
-Here's a sample output (yours might differ):
-```sql
+--sample output
 post_id |creation_date          |tags                                 |
 --------+-----------------------+-------------------------------------+
 70177589|2021-12-01 00:02:03.777|blockchain|nearprotocol|near|nearcore|
@@ -183,8 +214,6 @@ post_id |creation_date          |tags                                 |
 70177629|2021-12-01 00:08:02.943|python|python-3.x|pexpect            |
 70177630|2021-12-01 00:08:16.173|sql|sql-server|tsql                  |
 70177633|2021-12-01 00:08:46.233|sql|sql-server|tsql                  |
-
-Table 4.1
 ```
 
 The tags pertain to the list of topics or subjects that a post is about. One of the tricky things about storing tags like this is that you don't have to worry about the order in which they appear. There's no categorization system here. A tag can appear anywhere in the string.
@@ -238,6 +267,20 @@ SELECT *
 FROM cte_lowercase_tags
 WHERE tags LIKE '%sql%'
 LIMIT 10;
+
+--sample output
+post_id |creation_date          |tags                      |
+--------+-----------------------+--------------------------+
+70338059|2021-12-13 16:46:16.940|mysql|node.js|sequelize.js|
+70276304|2021-12-08 14:02:39.313|sql-order-by|where-clause |
+70341363|2021-12-13 21:50:42.510|php|mysql                 |
+70218001|2021-12-03 16:54:34.417|windows|postgresql        |
+70287562|2021-12-09 09:35:49.333|database|psql             |
+70292467|2021-12-09 15:25:07.093|mysql                     |
+70316036|2021-12-11 14:37:31.220|python|sqlalchemy         |
+70239290|2021-12-05 22:56:40.487|javascript|sqlite         |
+70274207|2021-12-08 11:26:41.477|sql|rest|td-engine        |
+70192916|2021-12-02 00:33:41.363|sql|spring|spring-boot    |
 ```
 I mentioned earlier that this is not advisable but in this case, if you really need to lowercase tags it's another option. You can use this option with a tool like dbt where you can materialize the lowercase tags into a table to make downstream querying much easier.
 
@@ -256,6 +299,20 @@ WHERE
     TRUE
     AND answer_count + comment_count >= 10
 LIMIT 10;
+
+--sample output
+post_id |creation_date          |total_activity|
+--------+-----------------------+--------------+
+70270242|2021-12-08 05:09:48.113|            10|
+70255288|2021-12-07 05:19:45.337|            12|
+70256716|2021-12-07 08:04:30.497|            10|
+70318632|2021-12-11 20:10:08.213|            12|
+70334900|2021-12-13 12:45:37.097|            11|
+70333905|2021-12-13 11:29:00.117|            14|
+70237681|2021-12-05 19:13:40.890|            10|
+70257087|2021-12-07 08:38:39.263|            10|
+70281346|2021-12-08 20:29:31.357|            13|
+70190971|2021-12-01 20:43:14.507|            12|
 ```
 
 We can do the same thing here:
@@ -273,6 +330,9 @@ SELECT *
 FROM cte_lowercase_tags
 WHERE total_activity >= 10
 LIMIT 10;
+
+--sample output
+
 ```
 
 Let's look at another common example with date functions where we can avoid CTEs altogether:

@@ -35,7 +35,7 @@ FROM post_history
 GROUP BY 1,2,3,4
 HAVING COUNT(*) > 1;
 
---output
+--sample output
 creation_date          |post_id |type_id|user_id|total|
 -----------------------+--------+-------+-------+-----+
 2021-12-10 14:09:36.950|70276799|      5|       |    2|
@@ -128,7 +128,7 @@ WHERE
 GROUP BY
     1,2,3,4;
 
---output
+--sample output
 post_id |user_id|activity_date|activity_type|total|
 --------+-------+-------------+-------------+-----+
 70182248|2702894|   2021-12-01|edited       |    1|
@@ -168,7 +168,7 @@ WHERE
 GROUP BY
     1,2,3;
 
---output
+--sample output
 post_id |user_id|activity_date|created|edited|
 --------+-------+-------------+-------+------+
 70182248|2230216|   2021-12-01|      3|     5|
@@ -197,7 +197,7 @@ SELECT
 FROM users
 WHERE id = 2702894;
 
---output
+--sample output
 id     |display_name  |creation_date          |reputation|
 -------+--------------+-----------------------+----------+
 2702894|Graham Ritchie|2013-08-21 09:07:23.133|     20218|
@@ -219,7 +219,7 @@ WHERE
 	AND ph.user_id = 2702894
 LIMIT 10;
 
---output
+--sample output
 id       |creation_date          |post_id |type_id|user_id|
 ---------+-----------------------+--------+-------+-------+
 260173419|2021-12-16 10:54:11.637|70377756|      2|2702894|
@@ -250,7 +250,7 @@ WHERE
 	TRUE
 	AND ph.user_id = 2702894;
 
---output
+--sample output
 post_id |user_id|user_name     |activity_date          |type_id|
 --------+-------+--------------+-----------------------+-------+
 70377756|2702894|Graham Ritchie|2021-12-16 10:54:11.637|      2|
@@ -291,7 +291,7 @@ WHERE
 ORDER BY
 	activity_date;
 
---output
+--sample output
 post_id |user_id |user_name        |activity_date          |
 --------+--------+-----------------+-----------------------+
 70286266|11693691|M.hussnain Gujjar|2021-12-09 07:45:41.700|
@@ -320,7 +320,7 @@ WHERE
 ORDER BY
 	activity_date;
 
---output
+--sample output
 post_id |user_id |user_name        |activity_date          |
 --------+--------+-----------------+-----------------------+
 70286266|11693691|M.hussnain Gujjar|2021-12-09 07:45:41.700|
@@ -350,7 +350,7 @@ WHERE
 	TRUE
 	AND u.reputation >= 500000;
 
---output
+--sample output
 count_star()|
 ------------+
         7596|
@@ -371,7 +371,7 @@ FROM
 WHERE
 	TRUE;
 
---output
+--sample output
 count_star()|
 ------------+
       806608|
@@ -394,7 +394,7 @@ WHERE
 	TRUE
 	AND u.id IS NULL;
 
---output
+--sample output
 count_star()|
 ------------+
        15704|

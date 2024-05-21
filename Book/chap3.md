@@ -209,7 +209,7 @@ WHERE user_id = 4603670
 ORDER BY activity_date
 LIMIT 10;
 
---output:
+--sample output:
 post_id |user_id|user_name       |activity_date          |activity_type|
 --------+-------+----------------+-----------------------+-------------+
 70192540|4603670|Barmak Shemirani|2021-12-01 23:30:38.057|created      |
@@ -274,7 +274,7 @@ WHERE user_id = 4603670
 ORDER BY activity_date
 LIMIT 10;
 
---output:
+--sample output:
 user_id|activity_date|activity_type|post_type|
 -------+-------------+-------------+---------+
 4603670|   2021-12-01|edit         |answer   |
@@ -359,7 +359,7 @@ WHERE user_id = 4603670
 GROUP BY 1,2
 LIMIT 10;
 
---output
+--sample output
 user_id|activity_dt|question_create|answer_create|question_edit|answer_edit|
 -------+-----------+---------------+-------------+-------------+-----------+
 4603670| 2021-12-01|              0|            1|            0|          1|
@@ -440,7 +440,7 @@ WHERE
     c1.user_id = 4603670
 LIMIT 10;
 
---output
+--sample output
 user_id|activity_date|comments_by_user|comments_on_user_post|
 -------+-------------+----------------+---------------------+
 4603670|   2021-12-03|               3|                    7|
@@ -509,10 +509,8 @@ FROM
 WHERE 
     v.user_id = 4603670
 LIMIT 10;
-```
 
-Here's the output:
-```sql
+--sample output:
 user_id|activity_date|total_upvotes|total_downvotes|
 -------+-------------+-------------+---------------+
 4603670|   2021-12-02|            0|              1|
@@ -525,13 +523,12 @@ user_id|activity_date|total_upvotes|total_downvotes|
 4603670|   2021-12-10|            0|              0|
 4603670|   2021-12-11|            2|              0|
 4603670|   2021-12-12|            1|              0|
-
-Table 3.5
 ```
 
 By now you should start to see very clearly how the final result is constructed. All we have to do is take the 3 results from the sub-problems and join them together on `user_id` and `activity_date` This will allow us to have a single table with a granularity of one row per user and all the metrics aggregated on the day level like this:
 ```sql
 --code snippet will not actually run
+--listing 3.6
 SELECT
 	pm.user_id,
 	pm.user_name,
@@ -611,8 +608,7 @@ CREATE OR REPLACE VIEW v_post_types AS
         id AS post_id,
         'answer' AS post_type,
     FROM
-        posts_answers
-;
+        posts_answers;
  ```
 
 #### User Defined Functions (UDFs)
@@ -634,8 +630,8 @@ WITH post_activity AS (
         ph.user_id,
         u.display_name AS user_name,
         ph.creation_date AS activity_date,
-        CASE WHEN ph.post_history_type_id IN (1,2,3) THEN 'created'
-             WHEN ph.post_history_type_id IN (4,5,6) THEN 'edited' 
+        CASE WHEN ph.post_history_type_id IN (1,2,3) THEN 'create'
+             WHEN ph.post_history_type_id IN (4,5,6) THEN 'edit' 
         END AS activity_type
     FROM
         post_history ph
@@ -661,13 +657,13 @@ What's great it is that we can also use it for generating user metrics:
 SELECT
     user_id,
     CAST(pa.activity_date AS DATE) AS activity_date,
-    SUM(CASE WHEN activity_type = 'created'
+    SUM(CASE WHEN activity_type = 'create'
         AND post_type = 'question' THEN 1 ELSE 0 END) AS question_created,
-    SUM(CASE WHEN activity_type = 'created'
+    SUM(CASE WHEN activity_type = 'create'
         AND post_type = 'answer'   THEN 1 ELSE 0 END) AS answer_created,
-    SUM(CASE WHEN activity_type = 'edited'
+    SUM(CASE WHEN activity_type = 'edit'
         AND post_type = 'question' THEN 1 ELSE 0 END) AS question_edited,
-    SUM(CASE WHEN activity_type = 'edited'
+    SUM(CASE WHEN activity_type = 'edit'
         AND post_type = 'answer'   THEN 1 ELSE 0 END) AS answer_edited  
 FROM
 	post_activity pa
@@ -689,7 +685,7 @@ and to join with comments and votes to user level data via the `post_id`
         INNER JOIN post_activity pa ON pa.post_id = c.post_id
     WHERE
         TRUE
-        AND pa.activity_type = 'created'
+        AND pa.activity_type = 'create'
     GROUP BY
         1,2
 )
@@ -704,7 +700,7 @@ and to join with comments and votes to user level data via the `post_id`
         INNER JOIN post_activity pa ON pa.post_id = v.post_id
     WHERE
         TRUE
-        AND pa.activity_type = 'created'
+        AND pa.activity_type = 'create'
     GROUP BY
         1,2
 )
@@ -726,8 +722,8 @@ WITH post_activity AS (
         ph.user_id,
         u.display_name AS user_name,
         ph.creation_date AS activity_date,
-        CASE WHEN ph.post_history_type_id IN (1,2,3) THEN 'created'
-             WHEN ph.post_history_type_id IN (4,5,6) THEN 'edited' 
+        CASE WHEN ph.post_history_type_id IN (1,2,3) THEN 'create'
+             WHEN ph.post_history_type_id IN (4,5,6) THEN 'edit' 
         END AS activity_type
     FROM
         post_history ph
@@ -767,13 +763,13 @@ WITH post_activity AS (
 SELECT
     user_id,
     CAST(activity_date AS DATE) AS activity_dt,
-    SUM(CASE WHEN activity_type = 'created'
+    SUM(CASE WHEN activity_type = 'create'
         AND post_type = 'question' THEN 1 ELSE 0 END) AS question_create,
-    SUM(CASE WHEN activity_type = 'created'
+    SUM(CASE WHEN activity_type = 'create'
         AND post_type = 'answer'   THEN 1 ELSE 0 END) AS answer_create,
-    SUM(CASE WHEN activity_type = 'edited'
+    SUM(CASE WHEN activity_type = 'edit'
         AND post_type = 'question' THEN 1 ELSE 0 END) AS question_edit,
-    SUM(CASE WHEN activity_type = 'edited'
+    SUM(CASE WHEN activity_type = 'edit'
         AND post_type = 'answer'   THEN 1 ELSE 0 END) AS answer_edit
 FROM
     (SELECT * FROM questions
@@ -783,9 +779,8 @@ WHERE
     user_id = 4603670
 GROUP BY 1,2
 LIMIT 10;
-```
 
-```sql
+--sample output
 user_id|activity_dt|question_create|answer_create|question_edit|answer_edit|
 -------+-----------+---------------+-------------+-------------+-----------+
 4603670| 2021-12-01|              0|            1|            0|          1|
@@ -798,8 +793,6 @@ user_id|activity_dt|question_create|answer_create|question_edit|answer_edit|
 4603670| 2021-12-08|              0|            2|            2|          6|
 4603670| 2021-12-09|              0|            0|            1|          0|
 4603670| 2021-12-10|              0|            1|            1|          1|
-
-Table 3.6
 ```
 This query will get you the same results as table 3.3 you saw earlier but notice that the `questions` and `answers` CTEs both have almost identical code. What if we had 10 different post types? You'd be copying and pasting a lot of code thus repeating yourself. Also, the subquery that handles the `UNION` is not ideal. I'm not a fan of subqueries.
 
