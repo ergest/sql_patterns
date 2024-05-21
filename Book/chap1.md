@@ -1,4 +1,4 @@
-# Chapter 1: Introducing the Project
+# Chapter 1: Understanding the Database
 In this chapter we're going to get into the details of the project that will help you learn the SQL Patterns. As you saw in the introduction, we're using a real-world, public dataset from StackOverflow.
 
 Before we dive into writing queries you should make sure you have the proper development environment set up. I will not list the instructions here in case things change so I'll add them to the GitHub repo. Make sure you visit: https://github.com/ergest/sqlpatterns for the most up to date instructions.

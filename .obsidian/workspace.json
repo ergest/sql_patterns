@@ -25,7 +25,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "book/chap2.md",
+                "file": "book/chap4.md",
                 "mode": "source",
                 "source": false
               }
@@ -98,7 +98,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "book/chap2.md",
+                "file": "book/chap4.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -137,22 +137,22 @@
   },
   "active": "cab677d01dffc5df",
   "lastOpenFiles": [
+    "book/chap5.md",
+    "book/chap0.md",
+    "book/chap1.md",
+    "book/chap2.md",
+    "book/chap8.md",
     "book/chap3.md",
     "book/chap4.md",
-    "book/chap5.md",
     "book/chap7.md",
     "book/chap6.md",
-    "book/chap8.md",
     "book/img/select_distinct.jpeg",
-    "book/chap2.md",
     "book/img/Example-Dag-Dag5.drawio.png",
     "book/img/Example-Dag-Dag4.drawio.png",
     "book/img/Example-Dag-Dag3.drawio.png",
     "book/img/Example-Dag-Dag2.drawio.png",
     "book/img/Example-Dag-Dag1.drawio.png",
-    "book/chap1.md",
     "book/img/sql_dag4.png",
-    "book/chap0.md",
     "book/cover.md",
     "build",
     "book/backgrounds/background10.pdf",

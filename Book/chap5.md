@@ -4,16 +4,13 @@ In this chapter we're going to talk about how to make your queries robust to mos
 Robustness means that your query will not break if the underlying data changes in unpredictable ways.
 
 Here are some of the ways that data can change:
-
 1. New columns are added that have NULL values for past data
 2. Existing columns that didn't have NULLs before now contain NULLs
 3. Columns that contained numbers or dates stored as strings now contain other values
 4. The formatting of dates or numbers gets messed up and the type conversion fails.
 5. The denominator in a ratio calculation becomes zero
 
-Ideally these things should not happen but in reality they happen more often than we'd like. The purpose of this chapter is to teach you how to anticipate these problems before they happen and 
-
-This is why I like to call this chapter **Defense Against Dirty Data**
+Ideally these things should not happen but in reality they happen more often than we'd like. That's why 
 
 We'll break these patterns down into two three groups:
 1. Dealing with formatting issues

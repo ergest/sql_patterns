@@ -1,4 +1,4 @@
-# Chapter 2: Core Concepts and Patterns
+# Chapter 2: Core Concepts and Patterns (TBD)
 In this chapter we're going to cover some of the core concepts of querying data and building tables for analysis and data science. We'll start with the most important but underrated concept in SQL; granularity.
 
 ## Granularity
@@ -240,7 +240,8 @@ FROM
 	post_history ph
 WHERE
 	TRUE
-	AND ph.user_id = 2702894;
+	AND ph.user_id = 2702894
+LIMIT 10;
 ```
 
 Here's the partial output:
@@ -434,3 +435,7 @@ You'll notice in my query above I create a `post_type` column indicating where t
 
 #### Talk about deduping rows via row_number() and qualify
 #### Talk about rank() and dense_rank() applications
+
+## Crosstab
+## Deduping Data Deliberately
+(by using row_number() with qualify())

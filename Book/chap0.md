@@ -50,12 +50,12 @@ Using this dataset we're going to build a table which calculates reputation metr
 
 As we go through the project, we'll cover each pattern when it arises. That will help you understand why we're using that pattern at that exact moment. Each chapter will cover a select group of patterns while building on the previous chapters.
 
-## How this book is organized
-In **Chapter 1** we introduce the project we'll be working on throughout the book. We'll make sure you have access to the dataset and can run the queries. We also get a basic understanding of the dataset by looking at the ER diagram.
+## How this book is organized (TBD)
+In **Chapter 1** we introduce the StackOverflow database we'll be working with throughout the book. We'll make sure you set up your development environment correctly and can run the queries.
 
-In **Chapter 2** we cover *Core Concepts*. These are data transformation patterns that act as our basic building blocks throughout the book. I explain each one using the StackOverflow dataset since we'll be using every one in our final query. The remaining patterns are grouped into four categories and each has its own chapter.
+In **Chapter 2** we cover *Core Concepts and Patterns*. These are data transformation patterns that act as our basic building blocks throughout the book. I explain each one using the StackOverflow dataset since we'll be using every one in our final query. The remaining patterns are grouped into four categories and each has its own chapter.
 
-In **Chapter 3** we cover *Modularity* patterns. We start off by learning how to decompose large queries into smaller, more modular and reusable pieces to make it easy to solve just about any complex problem. We cover how modularizing queries helps make your code easy to read, understand, maintain and extend.
+In **Chapter 3** we cover *Modularity Patterns*. We start off by learning how to decompose large queries into smaller, more modular and reusable pieces to make it easy to solve just about any complex problem. We cover how modularizing queries helps make your code easy to read, understand, maintain and extend.
 
 In **Chapter 4** we cover *Advanced Modularity* where we take what we learned in Chapter 3 and apply it to *dbt* (tm). These are patterns I use everyday in my job and have helped me to make my code not only easier to maintain and debug but also portable across many platforms.
 
