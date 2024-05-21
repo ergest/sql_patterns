@@ -430,26 +430,22 @@ This is an example where using `OR` in the `WHERE` clause doesn't incur a perfor
 		);
 ```
 
-However this query could be problematic:
+However a query like would very likely be problematic:
 ```sql
 --listing 4.15
-    SELECT
-        post_id,
-        creation_date,
-        user_id
-    FROM
-        post_history
-    WHERE
-	    post_history_type_id = 1
-		   OR post_history_type_id = 2
-		   OR post_history_type_id = 3
-		)
-	   AND
-	   (
-		   user_id = 17335553
-		   OR user_id = 17551873
-		   OR user_id = 15137025
-		);
+SELECT
+    post_id,
+    ph.creation_date,
+    user_id
+FROM
+    post_history ph
+    INNER JOIN users u 
+        ON u.id = ph.user_id
+WHERE
+   post_history_type_id = 1
+   OR u.up_votes >= 100;
 ```
+
+The query planner doesn't know how to solve this 
 
 That wraps up query performance. There's a lot more to learn about improving query performance but that's not the purpose of this book. In the next chapter we'll cover how to make your queries robust against unexpected changes in the underlying data.
