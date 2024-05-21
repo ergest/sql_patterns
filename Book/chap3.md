@@ -6,7 +6,7 @@ In this chapter we'll learn:
 - Self Documenting Code Principle
 - Move Logic Upstream Principle
 
-## The Concept of Modularity
+## Concept 1: Modularity
 Every complex system is made up of simple, self contained elements that can be designed, developed and tested independently. And that means you can take very complex queries and systematically break them down into much simpler elements.
 
 Just about every modern system is modular. Your smartphone might seem like a single piece of hardware but in reality all its components (the screen, CPU, memory, battery, speaker, GPU, accelerometer, GPS chip, etc. were designed independently and assembled.
@@ -20,30 +20,30 @@ Modular code has the following benefits:
 - When a system is designed with modularity in mind, the modules can be developed by other parties in parallel so they can be assembled later. It also makes it easy to improve functionality by swapping out old modules for new ones as long as the interface is the same.
 
 Before we dive into the specifics of applying modularity to SQL, let's cover a couple of key principles you'll use repeatedly throughout the book. They will be illustrated later.
-### Don't Repeat Yourself Principle (DRY)
+### Principle 1: Don't Repeat Yourself (DRY)
 The DRY principle dictates that a piece of code encapsulating some functionality must appear only once in a codebase. So ff you find yourself copying and pasting the same chunk of code everywhere your code is not DRY. The main benefit of DRY code is maintainability. If you need to change your logic, and there's a lot of repetition, you have to change all the places where the code repeats instead of a single place.
 
-### Single Responsibility Principle (SRP)
+### Principle 2: Single Responsibility Principle (SRP)
 The SRP principle dictates that your modules should be small, self-contained and have a single responsibility or purpose. For example you don't expect the GPS chip on your phone to also handle WiFi connectivity. The main benefit of SRP is that it makes modules more composable and facilitates code reuse. By organizing your code into well thought out "LEGO(tm)" blocks, writing complex queries becomes infinitely easier.
 
-### Self Documenting Code Principle
+### Principle 3: Self Documenting Code
 The self-documenting code principle dictates that your code be easy to read without needing comments. When you name your CTEs and views in ways that describe exactly what they do, even if it's a long description, your code will be infinitely easier to read, understand and maintain. For example `cte_user_agg` doesn't mean much while `cte_user_agg_by_region` is far more useful.
 
-### Move Logic Upstream Principle
+### Principle 4: Move Logic Upstream
 When you find yourself implementing very specific logic in a model that might be used elsewhere, move that logic upstream *closer to the source* of data. In the world of DAGs, upstream has a very precise meaning. It means to move potentially common logic onto earlier nodes in the graph because you never know which downstream models might use it.
 
 ![[sql_dag4.png]]
 (Models here represent dbt models which will be covered in a separate chapter)
 
-With these principles out of the way let's dive into applying modularity to SQL.
-### Three Levels of SQL Modularity
+With these principles out of the way let's dive into modularity patterns:
+
 In SQL there are 3 ways to modularize your code:
 1. Writing modular SQL using CTEs
 2. Writing modular SQL using views/UDFs
 3. Writing modular SQL using an external compiler (like *dbt* or *sqlmesh*)
 
 In this chapter we'll only cover the first two levels. The third level is more advanced so we'll cover it in its own separate chapter.
-### Writing Modular SQL Using CTEs
+## Pattern 1: Writing Modular SQL Using CTEs
 CTEs or Common Table Expressions are temporary views whose scope is limited to the current query. They are not stored in the database; they only exist while the query is running and are only accessible inside that query. They act like subqueries but are easier to understand and use.
 
 CTEs allow you to break down complex queries into simpler, smaller self-contained modules. By connecting them together we can solve any complex query.
@@ -520,7 +520,7 @@ GROUP BY
 ```
 
 
-## Writing modular SQL using views/UDFs
+## Pattern 2: Writing modular SQL using views/UDFs
 When you find yourself copying and pasting CTEs across multiple queries it's time to turn them into views or UDFs.
 
 Views are database objects that can be queried with SQL just like a table. The difference between the two is that views typically don't contain any data. They store a query that gets executed every time the view is queried (just like a CTE).
@@ -580,9 +580,7 @@ Functions allow for a lot more flexibility in data processing. While tables and 
 
 They can return a single scalar value or a table. A single scalar value can be used for example to parse JSON formatted strings via regular expressions. Table valued functions return a table instead of a single value. They behave exactly like views but the main difference is that they can take input parameters and return different result sets based on that. Very useful.
 
-## Patterns in Practice
-In this section we'll see how to apply the SRP and DRY principles in practice.
-### Single Responsibility Principle (SRP)
+## Pattern 3: Applying SRP
 When you're designing a query and breaking it up into CTEs, there is one principle to keep in mind. As much as possible construct CTEs in such a way that they can be reused in the query later.
 
 Let's take a look at the example from earlier:
@@ -672,7 +670,7 @@ and to join with comments and votes to user level data via the `post_id`
 
 This is at the heart of well-designed CTE. Notice here that we're being very careful about granularity multiplication! If we simply joined with `post_activity` on post_id without specifying the `activity_type` we'd get duplication. By filtering to just created posts, since a post can only be created once, we're pretty safe in getting a single row per post.
 
-## DRY Principle
+## Pattern 4: Applying DRY
 In the previous section we saw how we can decompose a large complex query into multiple smaller components. The main benefit for doing this is that it makes the queries more readable. In that same vein, the DRY (Don't Repeat Yourself) principle ensures that your query is clean from unnecessary repetition.
 
 The DRY principle states that if you find yourself copy-pasting the same chunk of code in multiple locations, you should put that code in a CTE and reference that CTE where it's needed.
@@ -726,15 +724,15 @@ WITH post_activity AS (
 )
 SELECT
     user_id,
-    CAST(activity_date AS DATE) AS activity_date,
+    CAST(activity_date AS DATE) AS activity_dt,
     SUM(CASE WHEN activity_type = 'created'
-        AND post_type = 'question' THEN 1 ELSE 0 END) AS question_created,
+        AND post_type = 'question' THEN 1 ELSE 0 END) AS question_create,
     SUM(CASE WHEN activity_type = 'created'
-        AND post_type = 'answer'   THEN 1 ELSE 0 END) AS answer_created,
+        AND post_type = 'answer'   THEN 1 ELSE 0 END) AS answer_create,
     SUM(CASE WHEN activity_type = 'edited'
-        AND post_type = 'question' THEN 1 ELSE 0 END) AS question_edited,
+        AND post_type = 'question' THEN 1 ELSE 0 END) AS question_edit,
     SUM(CASE WHEN activity_type = 'edited'
-        AND post_type = 'answer'   THEN 1 ELSE 0 END) AS answer_edited 
+        AND post_type = 'answer'   THEN 1 ELSE 0 END) AS answer_edit
 FROM
     (SELECT * FROM questions
      UNION ALL
@@ -745,18 +743,18 @@ GROUP BY 1,2;
 ```
 
 ```sql
-user_id|activity_date|question_created|answer_created|question_edited|answer_edited|
--------+-------------+----------------+--------------+---------------+-------------+
-4603670|   2021-12-01|               0|             1|              0|            1|
-4603670|   2021-12-02|               0|             1|              1|            3|
-4603670|   2021-12-03|               0|             3|              1|            5|
-4603670|   2021-12-04|               0|             2|              0|            6|
-4603670|   2021-12-05|               0|             2|              0|            3|
-4603670|   2021-12-06|               0|             3|              2|            9|
-4603670|   2021-12-07|               0|             2|              3|            2|
-4603670|   2021-12-08|               0|             2|              2|            6|
-4603670|   2021-12-09|               0|             0|              1|            0|
-4603670|   2021-12-10|               0|             1|              1|            1|
+user_id|activity_dt|question_created|answer_creat|question_edit|answer_edited|
+-------+-----------+----------------+--------------+---------------+-------------+
+4603670| 2021-12-01|               0|             1|              0|            1|
+4603670| 2021-12-02|               0|             1|              1|            3|
+4603670| 2021-12-03|               0|             3|              1|            5|
+4603670| 2021-12-04|               0|             2|              0|            6|
+4603670| 2021-12-05|               0|             2|              0|            3|
+4603670| 2021-12-06|               0|             3|              2|            9|
+4603670| 2021-12-07|               0|             2|              3|            2|
+4603670| 2021-12-08|               0|             2|              2|            6|
+4603670| 2021-12-09|               0|             0|              1|            0|
+4603670| 2021-12-10|               0|             1|              1|            1|
 
 Table 3.6
 ```

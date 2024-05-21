@@ -52,14 +52,14 @@ Let's see a couple of methods for doing that.
 
 Our final table will have a grain of one row per user. Only the `users` table has that same granularity. In order to build it we'll have to manipulate the granularity of the source tables so that's what we focus on next.
 
-## Granularity Manipulation
+## Concept 2: Granularity Manipulation
 Now that you have a grasp of the concept of granularity the next thing to learn is how to manipulate it. What I mean by manipulation is specifically going from a fine grain to a coarser grain.
 
 For example an e-commerce website might store each transaction it performs as a single row on a table with the millisecond timestamp when it ocurred. This gives us a very fine-grained table (i.e. a very high level of detail) 
 
 But if we wanted to know how much revenue you got on a given day, you have to reduce that level of detail to a single row.  This is done via aggregation.
 
-### Aggregation
+### Pattern 1: Aggregation
 Aggregation is a way of reducing the level of detail by grouping (aka rolling up) data to a coarser grain. You do that by reducing the number of columns in the output and applying `GROUP BY` to the remaining columns. The more columns you remove, the coarser the grain gets. 
 
 This is a very common pattern of storing data in a data warehouse. You keep the table at the finest possible grain (i.e. one transaction per row) and then aggregate it up to whatever level is needed for reporting. This way you can always look up the details when you need to debug issues.
@@ -107,7 +107,7 @@ Notice that didn't use an aggregation function like `COUNT()` or `SUM()` when do
 
 You can see now how we're going to manipulate the granularity to get one row per user. We need the date in order to calculate all the date related metrics.
 
-### Date Granularity
+### Pattern 2: Date Granularity
 The timestamp column `creation_date` is a rich field with both the date and time information (hour, minute, second, microsecond). Timestamp fields are special when it comes to aggregation because they have many levels of granularities built in.
 
 Given a single timestamp, we can construct granularities for seconds, minutes, hours, days, weeks, months, quarters, years, decades, etc. We do that by using one of the many date manipulation functions like `CAST()`,  `DATE_TRUNC()`, `DATE_PART()`, etc. 
@@ -149,7 +149,7 @@ post_id |user_id|activity_date|activity_type|total|
 
 In our case we only need to aggregate up to the day level, so we remove the time components by using `CAST(AS DATE)` 
 
-### Pivoting Data
+### Pattern 3: Pivoting Data
 Pivoting is another form of granularity manipulation where you change the shape of aggregated data by "pivoting" rows into columns. Let's look at the above example and try to pivot the activity type into separate columns for `created` and `edited` 
 
 Note that the counts here don't make sense since we already know that there are 3 different `post_history_type_id` for creation and editing. This is simply shown for demonstration purposes.
@@ -200,10 +200,10 @@ post_id |user_id|activity_date|created|edited|
 
 Pivoting is how we're going to calculate all the metrics for users, so this is an important concept to learn.
 
-## Granularity Multiplication
+## Concept 3: Granularity Multiplication
 Granularity multiplication will happen if the tables you're joining have different levels of detail for the columns being joined on. This will cause the resulting number of rows to multiply.
 
-### Basic JOINs
+### Pattern 1: Basic JOINs
 Joining tables is one of the most basic functions in SQL. Databases are designed to minimize redundancy of information and they do that by a process known as normalization. Joins then allow us to get all the information back in a single piece by combining these tables together.
 
 Let's look at an example:
@@ -296,7 +296,7 @@ Notice how the `user_name` repeats for each row.
 
 So if the history table has 10 entries for the same user and the `users` table has 1, the final result will contain 10 x 1 entries for the same user. If for some reason the `users` contained 2 entries for the same user (messy real world data), we'd see 10 x 2 = 20 entries for that user in the final result and each row would repeat twice.
 
-### Accidental INNER JOIN
+### Pattern 2: Accidental INNER JOIN
 Did you know that SQL will ignore a `LEFT JOIN` clause and perform an `INNER JOIN` instead if you make this one simple mistake? This is one of those SQL hidden secrets which sometimes gets asked as a trick question in interviews.
 
 When doing a `LEFT JOIN` you're intending to show all the results on the table in the `FROM` clause but if you need to limit
@@ -392,14 +392,14 @@ WHERE
 ```
 
 
-#### Pattern: Start with a LEFT JOIN
+### Pattern 3: Start with a LEFT JOIN
 Since we're on the subject of LEFT JOINS, one of my most used rules of thumb is to always use a `LEFT JOIN` when I'm not sure if one table is a subset of the other. For example in the query above, there's definitely users that have a valid `user_id` in the `users` table but have never had any activity.
 
 This often happens in the real world when data is deleted from a table and there's no foreign key constraints to ensure referential integrity (i.e. the database ensures you can't delete a row if it's referenced in another table. These types of constraints don't exist in data warehouses hence my general rule of thumb of always starting with a `LEFT JOIN.`
 
 Now that we have covered the basic concepts, it's time to dive into the patterns.
 
-## Talk about UNION vs UNION ALL
+## Pattern 4: Talk about UNION vs UNION ALL
 There are two types of unions, `UNION ALL` and `UNION` (distinct) 
 
 `UNION ALL` will append two tables without checking if they have the same exact row. This might cause duplicates but it's really fast. If you know for sure your tables don't contain duplicates, this is the preferred way to append them. 
