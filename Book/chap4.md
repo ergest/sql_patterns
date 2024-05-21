@@ -377,6 +377,22 @@ FROM
 LIMIT 10;
 ```
 ## Avoid using OR in the WHERE clause
+Using `OR` in the `WHERE` clause can be quite natural based on the logic you're trying to implement but I bet you didn't know there are hidden, performance "gotchas" if you do. They're not very obvious either so pay careful attention.
+
+If you use `OR` to search for multiple values of the same column, there will be no performance issues. In fact you already do this without realizing it. Let's see an example. This query will get all the created posts
+```sql
+--listing 4.13
+    SELECT
+        post_id,
+        creation_date,
+        user_id
+    FROM
+        post_history
+    WHERE
+	   post_history_type_id IN (1,2,3)
+```
+
+But did you
 
 
 That wraps up query performance. There's a lot more to learn about improving query performance but that's not the purpose of this book. In the next chapter we'll cover how to make your queries robust against unexpected changes in the underlying data.
