@@ -59,13 +59,15 @@ Conversion Error: Could not convert string '2o21' to INT32
 So how do we deal with these issues? Let's have a look at some patterns.
 
 ### Pattern 1: Skip Rows with Bad Data
-One of the easiest ways to deal with formatting issues when converting data is to simply ignore bad formatting. What this means is we simply skip the malformed rows and just don't deal with them. This works great in cases when the error is unfixable or occurs very rarely. So if a few rows out of 10 million are malformed and can't be fixed we can skip them.
+One of the easiest ways to deal with formatting issues when converting data is to simply ignore bad formatting. What this means is we simply skip the malformed rows when querying data. This works great in cases when the error is unfixable or occurs very rarely. So if a few rows out of 10 million are malformed and can't be fixed we can skip them.
 
-However the `CAST()` function will fail if it encounters an issue, as we just saw, and we want our query to be robust. To deal with this problem some databases introduce "safe" casting functions like `SAFE_CAST()` or `TRY_CAST().`Not all servers provide this function. PostgreSQL for example doesn't have built-in safe casting but it can be custom built as a UDF.
+However the `CAST()` function will fail if it encounters an issue, thus breaking the query, and we want our query to be robust. To deal with this problem some databases introduce "safe" casting functions like `SAFE_CAST()` or `TRY_CAST().`
 
-These functions will not fail when casting fails instead returning `NULL` which then can be handled by using  `IFNULL()` or `COALESCE()` to replace `NULLs` with a sensible value. DuckDB uses `TRY_CAST()` so let's see it in action. 
+*Note*: Not all servers provide this function. PostgreSQL for example doesn't have built-in safe casting but it can be built as custom user defined function (UDF).
 
-Here's how that works:
+`SAFE_CAST()` and `TRY_CAST()` are designed to return `NULL` if the conversion fails instead of breaking. We can then handle `NULL` by `COALESCE()` to replace the bad values with a sensible value.
+
+DuckDB uses `TRY_CAST()` so let's see it in action:
 ```sql
 --listing 5.5
 SELECT TRY_CAST('2021-12--01' as DATE) AS dt;
@@ -75,7 +77,7 @@ SELECT TRY_CAST('2021-12--01' as DATE) AS dt;
  NULL |
 ```
 
-Now we can apply any of the functions that deal with `NULL` and replace it or just leave it. 
+And if we want to skip the incorrect values we leave it as is. If however we don't want to skip the bad rows we can replace them by using `COALESCE()`
 ```sql
 --listing 5.6
 SELECT COALESCE(TRY_CAST('2o21' as INT), 0) AS num;
