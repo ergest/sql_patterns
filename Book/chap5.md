@@ -58,7 +58,7 @@ Conversion Error: Could not convert string '2o21' to INT32
 
 So how do we deal with these issues? Let's have a look at some patterns.
 
-### Pattern 1: Skip Rows with Bad Data
+### Pattern 1: Ignore or Replace Bad Data
 One of the easiest ways to deal with formatting issues when converting data is to simply ignore bad formatting. What this means is we simply skip the malformed rows when querying data. This works great in cases when the error is unfixable or occurs very rarely. So if a few rows out of 10 million are malformed and can't be fixed we can skip them.
 
 However the `CAST()` function will fail if it encounters an issue, thus breaking the query, and we want our query to be robust. To deal with this problem some databases introduce "safe" casting functions like `SAFE_CAST()` or `TRY_CAST().`
@@ -77,20 +77,20 @@ SELECT TRY_CAST('2021-12--01' as DATE) AS dt;
  NULL |
 ```
 
-And if we want to skip the incorrect values we leave it as is. If however we don't want to skip the bad rows we can replace them by using `COALESCE()`
+And if we want to skip the incorrect values we leave it as is. If however we don't want to skip the bad rows we can replace them by using `COALESCE():`
 ```sql
 --listing 5.6
-SELECT COALESCE(TRY_CAST('2o21' as INT), 0) AS num;
+SELECT COALESCE(TRY_CAST('2o21' as INT), 0) AS year;
 
-num|
----+
-  0|
+year|
+----+
+   0|
 ```
 
 ### Pattern 2: Force Formatting (if possible)
-While ignoring incorrect data is easy, you can't always get away with it. Sometimes you need to find patterns in how formatting is broken and fix them using string parsing functions. Let's see some examples
+While ignoring incorrect data is easy, you can't always get away with it. Sometimes you need to extract the actual data by finding patterns in how formatting is broken and fixing them using string parsing functions. Let's see some examples
 
-Suppose that some of the string dates had extra dashes like this:
+Suppose that some of the rows of dates had extra dashes like this:
 ```
 2021-12--01
 2021-12--02
