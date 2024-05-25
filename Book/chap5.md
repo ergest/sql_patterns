@@ -175,7 +175,7 @@ date_field|
 2021-12-04|
 2021-12-05|
 ```
-Notice how we're separating rows with different formatting using the `CASE` and `LIKE` operators to handle each of them differently. You can repeat this pattern as many times as you want to handle each case.
+Notice how we're separating rows with different formatting using the `CASE` and `LIKE` operators to handle each of them differently. You can repeat this pattern as many times as you want to handle each different format.
 
 Here's an example using numbers
 ```sql
@@ -210,7 +210,7 @@ weight|unit|
 68.000|KG  |
 ```
 
-I'm using the `SUBSTRING()` function again to extract parts of a string, but this time I add the function `INSTR()` which searches for a string within another string and returns the first occurrence of it or 0 if not found. 
+I'm using the `SUBSTRING()` function again to extract parts of a string, but this time I used the `INSTR()` function which searches for a string within another string and returns the first occurrence of it or 0 if not found. This gives me the index where the 
 
 ### Pattern 3: Handling NULLs Safely
 As a rule, you should always assume any column can be `NULL` at any point in time so it's a good idea to provide a default value for that column as part of your `SELECT`. This way you make sure that even if your data becomes `NULL` your query will not fail.
