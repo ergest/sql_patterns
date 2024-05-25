@@ -18,9 +18,9 @@ We'll break these patterns down into two three groups:
 ## Dealing with Formatting Issues
 SQL supports 3 primitive data types, strings, numbers and dates. They allow for mathematical operations with numbers, calendar operations with dates and many types of string operations. 
 
-It's quite common to see numbers and dates stored as strings. Even though many data loading tools will try to convert This makes it super easy to load data from text files into tables without worrying about formatting. However in order to operate on actual dates and numbers, you need to convert the strings to the native SQL type for number or date.
+It's quite common to see numbers and dates stored as strings, especially when you're loading flat text files like CSVs or TSVs. Some data loading tools will try and guess the type and format it on the fly but they're not always correct. So you will often have to manually convert dates and numbers.
 
-The standard function for converting data in SQL is `CAST()` Some other database implementations, like SQL Server, also use their own custom function called `CONVERT()`. We will use `CAST()` to both convert between types (like string to date) or within the same type (like a timestamp to date)
+The standard function for converting data in SQL is `CAST().` Some other database implementations, like SQL Server, also use their own custom function called `CONVERT()` but also support `CAST().` We will use `CAST()` to both convert between types (like string to date) or within the same type (like a timestamp to date)
 
 Here's an example of how type conversion works:
 ```sql
@@ -32,7 +32,7 @@ CAST('2021-12-01' AS DATE)|
                 2021-12-01|
 ```
 
-Suppose that for whatever reason the date was bad:
+That should work in most cases but of there are always exceptions. Suppose that for whatever reason the date was bad:
 ```sql
 --listing 5.2
 SELECT CAST('2021-13-01' as DATE);
@@ -40,7 +40,7 @@ SELECT CAST('2021-13-01' as DATE);
 Conversion Error: date field value out of range: "2021-13-01", expected format is (YYYY-MM-DD)
 ```
 
-Obviously there's no 13th month so we get an error. What if formatting was bad?
+Obviously there's no 13th month so we get an error. What if the date was fine but the formatting was bad?
 ```sql
 --listing 5.3
 SELECT CAST('2021-12--01' as DATE);
@@ -48,7 +48,7 @@ SELECT CAST('2021-12--01' as DATE);
 Conversion Error: date field value out of range: "2021-12--01", expected format is (YYYY-MM-DD)
 ```
 
-The extra dash in this case messes up conversion. Same thing can happen if you try to convert a string to a number and the formatting is malformed or the data is not a number.
+The extra dash in this case messes up automatic conversion, but the date itself was correct. What if you try to convert a string to a number and the data is not numeric?
 ```sql
 --listing 5.4
 SELECT CAST('2o21' as INT);
@@ -56,9 +56,9 @@ SELECT CAST('2o21' as INT);
 Conversion Error: Could not convert string '2o21' to INT32
 ```
 
-So how do we deal with these issues?
+So how do we deal with these issues? Let's have a look at some patterns.
 
-### Pattern 1: Ignore Bad Data
+### Pattern 1: Skip Rows with Bad Data
 One of the easiest ways to deal with formatting issues when converting data is to simply ignore bad formatting. What this means is we simply skip the malformed rows and just don't deal with them. This works great in cases when the error is unfixable or occurs very rarely. So if a few rows out of 10 million are malformed and can't be fixed we can skip them.
 
 However the `CAST()` function will fail if it encounters an issue, as we just saw, and we want our query to be robust. To deal with this problem some databases introduce "safe" casting functions like `SAFE_CAST()` or `TRY_CAST().`Not all servers provide this function. PostgreSQL for example doesn't have built-in safe casting but it can be custom built as a UDF.
