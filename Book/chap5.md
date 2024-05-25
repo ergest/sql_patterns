@@ -98,7 +98,7 @@ Suppose that some of the rows of dates had extra dashes like this:
 2021-12--04
 ```
 
-Since this is a regular pattern, we can parse them using string functions and then do our conversion like this:
+Since this is a recurring format, we can use string parsing functions to remove the extra dash and then do the conversion like this:
 ```sql
 --listing 5.7
 WITH dates AS (
@@ -112,9 +112,9 @@ WITH dates AS (
     UNION ALL 
     SELECT '2021-12--05' AS dt
 )
-SELECT CAST(SUBSTRING(dt, 1, 4) || '-' || 
-			SUBSTRING(dt, 6, 2) || '-' || 
-			SUBSTRING(dt, 10, 2) AS DATE) AS date_field 
+SELECT TRY_CAST(SUBSTRING(dt, 1, 4) || '-' || 
+				SUBSTRING(dt, 6, 2) || '-' || 
+				SUBSTRING(dt, 10, 2) AS DATE) AS date_field 
 FROM dates;
 
 date_field|
@@ -126,7 +126,7 @@ date_field|
 2021-12-05|
 ```
 
-So as you can see in this example, we took advantage of the regularity of the incorrect formatting to extract the important information (the year, month and day) and reconstruct the correct formatting by concatenating strings via the `||` operator.
+So as you can see in this example, we took advantage of the regularity of the incorrect formatting to extract the the year, month and day from the rows and reconstruct the correct formatting by concatenating strings via the `||` operator.
 
 What if you have different types of irregularities in your data? In some cases if information is aggregated from multiple sources you might have to deal with mixed formatting.
 
@@ -155,15 +155,15 @@ WITH dates AS (
     UNION ALL 
     SELECT '12/05/2021' AS dt
 )
-SELECT CAST(CASE WHEN dt LIKE '%-%--%'
-	             THEN SUBSTRING(dt, 1, 4) || '-' ||
-					  SUBSTRING(dt, 6, 2) || '-' ||
-					  SUBSTRING(dt, 10, 2)
-	             WHEN dt LIKE '%/%/%'
-	             THEN SUBSTRING(dt, 7, 4) || '-' ||
-					  SUBSTRING(dt, 1, 2) || '-' ||
-					  SUBSTRING(dt, 4, 2)
-	             END AS DATE) AS date_field 
+SELECT TRY_CAST(CASE WHEN dt LIKE '%-%--%'
+	            THEN SUBSTRING(dt, 1, 4) || '-' ||
+					 SUBSTRING(dt, 6, 2) || '-' ||
+					 SUBSTRING(dt, 10, 2)
+	            WHEN dt LIKE '%/%/%'
+	            THEN SUBSTRING(dt, 7, 4) || '-' ||
+					 SUBSTRING(dt, 1, 2) || '-' ||
+					 SUBSTRING(dt, 4, 2)
+	            END AS DATE) AS date_field 
 FROM dates;
 
 --sample output
@@ -175,7 +175,7 @@ date_field|
 2021-12-04|
 2021-12-05|
 ```
-You can repeat this pattern as many times as you want to handle each case.
+Notice how we're separating rows with different formatting using the `CASE` and `LIKE` operators to handle each of them differently. You can repeat this pattern as many times as you want to handle each case.
 
 Here's an example using numbers
 ```sql
