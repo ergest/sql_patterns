@@ -1,5 +1,5 @@
 # Chapter 5: Robustness Patterns
-In this chapter we're going to talk about how to make your queries robust to most data problems you'll encounter. Spend enough time working with real world data and you'll eventually get burned by one of these so it's important to know about them ahead of time and write defensive code. Which is why my alternative title for this chapter is *Defense Against Dark Arts of Dirty Data.*
+In this chapter we're going to talk about how to make your queries robust to most data problems you'll encounter. Spend enough time working with real world data and you'll eventually get burned by one of these. That's so it's important to know about them ahead of time and write defensive code. Which is why my alternative title for this chapter is *Defense Against Dirty Data.*
 
 Robustness means that your query will not break if the underlying data changes in unpredictable ways.
 
@@ -7,7 +7,7 @@ Here are some of the ways that data can change:
 1. New columns are added that have NULL values for past data
 2. Existing columns that didn't have NULLs before now contain NULLs
 3. Columns that contained numbers or dates stored as strings now contain other values
-4. The formatting of dates or numbers gets messed up and the type conversion fails.
+4. The formatting of dates or numbers gets messed up and type conversion fails.
 5. The denominator in a ratio calculation becomes zero
 
 We'll break these patterns down into two three groups:
@@ -16,9 +16,9 @@ We'll break these patterns down into two three groups:
 2. Dealing with division by zero
 
 ## Dealing with Formatting Issues
-SQL supports 3 primitive data types, strings, numbers and dates. They allow for mathematical operations with numbers and calendar operations with dates. Oftentimes you might see numbers and dates stored as strings.
+SQL supports 3 primitive data types, strings, numbers and dates. They allow for mathematical operations with numbers, calendar operations with dates and many types of string operations. 
 
-This makes it super easy to load data from text files into tables without worrying about formatting. However in order to operate on actual dates and numbers, you need to convert the strings to the native SQL type for number or date.
+It's quite common to see numbers and dates stored as strings. Even though many data loading tools will try to convert This makes it super easy to load data from text files into tables without worrying about formatting. However in order to operate on actual dates and numbers, you need to convert the strings to the native SQL type for number or date.
 
 The standard function for converting data in SQL is `CAST()` Some other database implementations, like SQL Server, also use their own custom function called `CONVERT()`. We will use `CAST()` to both convert between types (like string to date) or within the same type (like a timestamp to date)
 
