@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "book/chap7.md",
+                "file": "book/chap6.md",
                 "mode": "source",
                 "source": false
               }
@@ -25,7 +25,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "book/chap7.md",
+                "file": "book/chap5.md",
                 "mode": "source",
                 "source": false
               }
@@ -98,7 +98,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "book/chap7.md",
+                "file": "book/chap5.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -138,6 +138,7 @@
   "active": "cab677d01dffc5df",
   "lastOpenFiles": [
     "book/chap6.md",
+    "book/chap7.md",
     "book/chap5.md",
     "book/chap8.md",
     "book/chap4.md",
@@ -145,7 +146,6 @@
     "book/chap2.md",
     "book/chap1.md",
     "book/chap0.md",
-    "book/chap7.md",
     "book/img/select_distinct.jpeg",
     "book/img/Example-Dag-Dag5.drawio.png",
     "book/img/Example-Dag-Dag4.drawio.png",
