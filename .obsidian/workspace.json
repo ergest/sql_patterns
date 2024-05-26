@@ -25,7 +25,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "book/chap5.md",
+                "file": "book/chap8.md",
                 "mode": "source",
                 "source": false
               }
@@ -78,8 +78,7 @@
               "state": {}
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "horizontal",
@@ -99,7 +98,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "book/chap5.md",
+                "file": "book/chap8.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -136,10 +135,10 @@
       "table-editor-obsidian:Advanced Tables Toolbar": false
     }
   },
-  "active": "7344326a0882a3d0",
+  "active": "cab677d01dffc5df",
   "lastOpenFiles": [
-    "book/chap4.md",
     "book/chap5.md",
+    "book/chap4.md",
     "book/chap3.md",
     "book/chap2.md",
     "book/chap1.md",

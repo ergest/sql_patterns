@@ -13,3 +13,5 @@ This chapter contains a varied selection of useful patterns that didn't fit in a
 (Applying repeating SQL through information_schema)
 
 ## Cubes and Rollups
+
+##
