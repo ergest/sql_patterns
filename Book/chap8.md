@@ -14,4 +14,4 @@ This chapter contains a varied selection of useful patterns that didn't fit in a
 
 ## Cubes and Rollups
 
-##
+## Replacing multiple case statements with a lookup table
