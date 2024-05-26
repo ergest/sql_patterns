@@ -9,11 +9,13 @@ Here are some of the ways that data can change:
 3. Columns that contained numbers or dates stored as strings now contain other values
 4. The formatting of dates or numbers gets messed up and type conversion fails.
 5. The denominator in a ratio calculation becomes zero
+6. Strings have different casing so direct comparison fails
 
 We'll break these patterns down into two three groups:
 1. Dealing with formatting issues
 3. Dealing with NULLs
 2. Dealing with division by zero
+3. Dealing with inconsistent comparisons
 
 ## Dealing with Formatting Issues
 SQL supports 3 primitive data types, strings, numbers and dates. They allow for mathematical operations with numbers, calendar operations with dates and many types of string operations. 
@@ -212,10 +214,11 @@ weight|unit|
 
 I'm using the `SUBSTRING()` function again to extract parts of a string, and I used the `INSTR()` function, which searches for a string within another string and returns the first occurrence of it or 0 if not found, in order to tell the `SUBSTRING()` function how many characters to read.
 
-### Pattern 3: Handling NULLs Safely
-As a rule, you should always assume any column can be `NULL` at any point in time so it's a good idea to provide a default value for that column as part of your `SELECT`. This way you make sure that even if your data becomes `NULL` your query will not fail.
-
+## Dealing with NULLs
 `NULLs` in SQL represent unknown values. While the data may appear to be blank or empty in the results, it's not the same as an empty string or white space. The reason we want to handle them is because they cause issues when it comes to comparing fields or joining data. They might confuse users, so as a general pattern you should replace `NULLs` with predetermined default values.
+
+### Pattern 3: Assume NULL
+As a rule, you should always assume any column can be `NULL` at any point in time so it's a good idea to provide a default value for that column as part of your `SELECT`. This way you make sure that even if your data becomes `NULL` your query will not fail.
 
 For strings you might use default values such as `NA`, `Not Provided`, `Not Available`, etc. Dates and numbers are trickier. For a date field you might use a default value such as `1900-01-01` and that's a safe enough signal that the data is not available.
 
@@ -291,20 +294,7 @@ SELECT
 FROM
     cte_test_data;
 ```
-This works but is not as elegant. BigQuery offers another way we can do this more cleanly. Just like the `SAFE_CAST()` function, it has a `SAFE_DIVIDE()` function which returns NULL in the case of divide-by-zero error. Then you simply deal with NULL values using `COALESCE()`
-
-```sql
-SELECT
-	ROUND(CAST(IFNULL(SAFE_DIVIDE(total_posts_created, 
-		streak_in_days), 0) AS NUMERIC), 1) AS posts_per_day,
-    ROUND(CAST(IFNULL(SAFE_DIVIDE(total_comments_by_user, 
-		total_posts_created), 0) AS NUMERIC), 1)  AS user_comments_per_post
-FROM
-    total_metrics_per_user
-ORDER BY 
-    total_questions_created DESC;
-```
-Now that's far more elegant isn't it?  Snowflake also implements a similar function they call `DIV0()` which automatically returns 0 if there's a division by zero error.
+This works really well in all cases. There is another option. Cloud warehouses like BigQuery offer a `SAFE_DIVIDE()` function which returns `NULL` in the case of divide-by-zero error. Then you simply deal with `NULL` values using `COALESCE()` like above. Snowflake offers a similar function called `DIV0()` which automatically returns 0 if there's a division by zero error. DuckDB on the other hand seems to handle divide by zero directly without throwing an error.
 
 ### Comparing Strings
 I said earlier that strings are the easiest way to store any kind of data (numbers, dates, strings) but strings also have their own issues, especially when you're trying to join on a string field.
