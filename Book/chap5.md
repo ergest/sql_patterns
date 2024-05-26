@@ -391,12 +391,22 @@ test|
 true|
 ```
 
-As far as handling unexpected characters, you'll first need to figure out how they appear and then fix them using multiple calls to the function `REPLACE()` This can vary a lot, but usually you'll want to replace offending characters with an empty string.
+As far as handling unexpected characters, you'll first need to figure out how they appear and then fix them using the function `REPLACE()` This can vary a lot, but usually you'll want to replace offending characters with an empty string.
 
 Here's an example:
 ```sql
 --listing 5.15
-SELECT REPLACE(TRIM(LOWER('String/')), '/','') = TRIM(LOWER(' string')) AS test;
+SELECT REPLACE(TRIM(LOWER('String//')), '/','') = TRIM(LOWER(' string')) AS test;
+
+test|
+----+
+true|
+```
+
+If you're replacing multiple offending characters at once, you can do it using multiple nested calls to `REPLACE()` like the example below:
+```sql
+--listing 5.16
+SELECT REPLACE(REPLACE(TRIM(LOWER('String//}')), '/',''),'}','') = TRIM(LOWER(' string')) AS test;
 
 test|
 ----+
