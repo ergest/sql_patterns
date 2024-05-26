@@ -234,7 +234,7 @@ year|
 ### Pattern 4: Handling Division by Zero Safely
 Whenever you calculate ratios you always have to worry about division by zero. Your query might work when you first test it, but if the denominator ever becomes zero your query will fail.
 
-The easiest way to handle this is by excluding zero values in the where clause or by using a `CASE` statement.
+The easiest way to handle this is by excluding zero values in the where clause:
 ```sql
 WITH cte_test_data AS (
     SELECT 94 as comments_on_post, 38 as posts_created
@@ -253,29 +253,43 @@ WITH cte_test_data AS (
     UNION ALL
     SELECT 15, 15
 )
-SELECT CAST(comments_on_post / posts_created AS NUMERIC) AS comments_on_post_per_post
-FROM cte_test_data
-WHERE posts_created > 0;
+SELECT
+    ROUND(CAST(comments_on_post AS NUMERIC) / 
+          CAST(posts_created AS NUMERIC), 1) AS comments_on_post_per_post
+FROM
+    cte_test_data
+WHERE
+    posts_created > 0;
 ```
 
 This will work fine in some cases but it also will filter the entire dataset causing counts to be wrong. One way to handle this is by using a `CASE` statement like this:
 ```sql
+WITH cte_test_data AS (
+    SELECT 94 as comments_on_post, 38 as posts_created
+    UNION ALL
+    SELECT 62, 0
+    UNION ALL
+    SELECT 39, 20
+    UNION ALL
+    SELECT 34, 19
+    UNION ALL
+    SELECT 167, 120
+    UNION ALL
+    SELECT 189, 48
+    UNION ALL
+    SELECT 96, 17
+    UNION ALL
+    SELECT 15, 15
+)
 SELECT
     CASE
-        WHEN total_posts_created > 0
-        THEN ROUND(CAST(total_comments_on_post /
-                        total_posts_created AS NUMERIC), 1)
-        ELSE 0
-    END AS comments_on_post_per_post,
-    CASE
-        WHEN streak_in_days > 0
-        THEN ROUND(CAST(total_posts_created /
-				        streak_in_days AS NUMERIC), 1)
-    END AS posts_per_day
+	    WHEN posts_created > 0 THEN
+		    ROUND(CAST(comments_on_post AS NUMERIC) / 
+		          CAST(posts_created AS NUMERIC), 1)
+	     ELSE 0
+	END AS comments_on_post_per_post
 FROM
-    total_metrics_per_user
-ORDER BY 
-    total_questions_created DESC;
+    cte_test_data;
 ```
 This works but is not as elegant. BigQuery offers another way we can do this more cleanly. Just like the `SAFE_CAST()` function, it has a `SAFE_DIVIDE()` function which returns NULL in the case of divide-by-zero error. Then you simply deal with NULL values using `COALESCE()`
 
