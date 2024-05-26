@@ -215,56 +215,9 @@ I'm using the `SUBSTRING()` function again to extract parts of a string, and I u
 ### Pattern 3: Handling NULLs Safely
 As a rule, you should always assume any column can be `NULL` at any point in time so it's a good idea to provide a default value for that column as part of your `SELECT`. This way you make sure that even if your data becomes `NULL` your query will not fail.
 
-`NULLs` in SQL represent unknown values. While the data may appear to be blank or empty in the results, it's not the same as an empty string or white space. The reason we want to handle them directly is they cause havoc when it comes to comparing fields or joining data. As a rule you should replace `NULLs`
+`NULLs` in SQL represent unknown values. While the data may appear to be blank or empty in the results, it's not the same as an empty string or white space. The reason we want to handle them is because they cause issues when it comes to comparing fields or joining data. They might confuse users, so as a general pattern you should replace `NULLs` with predetermined default values.
 
-You cannot compare `NULLs` to anything directly, for example you cannot say:
-```sql
-SELECT col1
-FROM table
-WHERE col2 = NULL;
-```
-
-You get NULL whenever you perform any type of calculation with NULL like adding or subtracting, multiplying or dividing. Doing any operation with an unknown value is still unknown. 
-
-Since you cannot compare to NULL using the equals sign (=) SQL deals with NULLs using the `IS` keyword. `IS NULL` literally means is unknown. To replace NULLs with a default value when you're doing conversions, you use `COALESCE()` which takes a comma-separated list of values and returns the first non-null value.
-
-So in order to protect against unexpected NULLs it's often a good idea for your production queries to wrap `COALESCE()` around all the fields.
-```sql
-WITH dates AS (
-    SELECT '2021-12--01' AS dt
-    UNION ALL 
-    SELECT '2021-12--02' AS dt
-    UNION ALL 
-    SELECT '2021-12--03' AS dt
-    UNION ALL 
-    SELECT '12/04/2021' AS dt
-    UNION ALL 
-    SELECT '12/05/2021' AS dt
-    UNION ALL 
-    SELECT '13/05/2021' AS dt
-)
-SELECT COALESCE(TRY_CAST(
-            CASE WHEN dt LIKE '%-%--%'
-            THEN SUBSTRING(dt, 1, 4) || '-' ||
-                 SUBSTRING(dt, 6, 2) || '-' ||
-                 SUBSTRING(dt, 10, 2)
-            WHEN dt LIKE '%/%/%'
-            THEN SUBSTRING(dt, 7, 4) || '-' ||
-                 SUBSTRING(dt, 1, 2) || '-' ||
-                 SUBSTRING(dt, 4, 2)
-            END AS DATE), '1900-01-01') AS date_field 
-FROM dates;
-
---sample output
-date_field|
-----------+
-2021-12-01|
-2021-12-02|
-2021-12-03|
-2021-12-04|
-2021-12-05|
-1900-01-01|
-```
+For strings you might use default values such as `NA`, `Not Provided`, `Not Available`, etc. Dates and numbers are trickier. For a date field you might use a default value such as `1900-01-01` and that's a safe enough signal that the data is not available. Doing this however could mess up age calculations, especially if the age is later averaged, so be careful where you use it. Same thing applies to using a default value like `0`, `-1`, or `9999` for numbers. It might make sense when the number
 
 This is the same query we saw earlier but implemented using "defensive coding" where we replace malformed data with a fixed value of `1900-01-01`. This protects our query from failing and later we can investigate why the data was junk.
 
