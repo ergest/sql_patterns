@@ -192,8 +192,8 @@ WITH weights AS (
     SELECT '68kg' AS wt
 )
 SELECT 
-	CAST(CASE WHEN wt LIKE '%lb' THEN SUBSTRING(wt, 1, INSTR(wt, 'lb')-1)
-			  WHEN wt LIKE '%kg' THEN SUBSTRING(wt, 1, INSTR(wt, 'kg')-1)
+	TRY_CAST(CASE WHEN wt LIKE '%lb' THEN SUBSTRING(wt, 1, INSTR(wt, 'lb')-1)
+				  WHEN wt LIKE '%kg' THEN SUBSTRING(wt, 1, INSTR(wt, 'kg')-1)
          END AS DECIMAL) AS weight,
 	CASE WHEN wt LIKE '%lb' THEN 'LB'
 		 WHEN wt LIKE '%kg' THEN 'KG'
@@ -217,10 +217,20 @@ As a rule, you should always assume any column can be `NULL` at any point in tim
 
 `NULLs` in SQL represent unknown values. While the data may appear to be blank or empty in the results, it's not the same as an empty string or white space. The reason we want to handle them is because they cause issues when it comes to comparing fields or joining data. They might confuse users, so as a general pattern you should replace `NULLs` with predetermined default values.
 
-For strings you might use default values such as `NA`, `Not Provided`, `Not Available`, etc. Dates and numbers are trickier. For a date field you might use a default value such as `1900-01-01` and that's a safe enough signal that the data is not available. Doing this however could mess up age calculations, especially if the age is later averaged, so be careful where you use it. Same thing applies to using a default value like `0`, `-1`, or `9999` for numbers. It might make sense when the number
+For strings you might use default values such as `NA`, `Not Provided`, `Not Available`, etc. Dates and numbers are trickier. For a date field you might use a default value such as `1900-01-01` and that's a safe enough signal that the data is not available.
 
-This is the same query we saw earlier but implemented using "defensive coding" where we replace malformed data with a fixed value of `1900-01-01`. This protects our query from failing and later we can investigate why the data was junk.
+Doing this however could mess up age calculations, especially if the age is later averaged, so be careful where you use it. Same thing applies to using a default value like `0`, `-1`, or `9999` for numbers. It might make sense when the column cannot be 0 or negative, but not always.
 
+You do this by using `COALESCE()` as described earlier:
+
+```sql
+--listing 5.7
+SELECT COALESCE(TRY_CAST('2o21' as INT), 0) AS year;
+
+year|
+----+
+   0|
+```
 ### Pattern 4: Handling Division by Zero Safely
 Whenever you calculate ratios you always have to worry about division by zero. Your query might work when you first test it, but if the denominator ever becomes zero your query will fail.
 
@@ -228,7 +238,7 @@ The easiest way to handle this is by excluding zero values in the where clause a
 ```sql
 SELECT
     ROUND(CAST(total_comments_on_post /
-		total_posts_created AS NUMERIC), 1)  AS comments_on_post_per_post
+		total_posts_created AS NUMERIC), 1) AS comments_on_post_per_post
 FROM
     total_metrics_per_user
 WHERE
