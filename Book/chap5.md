@@ -12,12 +12,12 @@ Here are some of the ways that data can change:
 6. Strings have different casing so direct comparison fails
 
 We'll break these patterns down into two three groups:
-1. Handing formatting issues
+1. Handing type conversions
 3. Handing NULLs
 2. Handing division by zero
 3. Handing inconsistent comparisons
 
-## Handling Formatting Issues
+## Handling Type Conversions
 SQL supports 3 primitive data types, strings, numbers and dates. They allow for mathematical operations with numbers, calendar operations with dates and many types of string operations. 
 
 It's quite common to see numbers and dates stored as strings, especially when you're loading flat text files like CSVs or TSVs. Some data loading tools will try and guess the type and format it on the fly but they're not always correct. So you will often have to manually convert dates and numbers.
@@ -246,7 +246,7 @@ FROM
 LIMIT 10;
 ```
 
-Since `id` is the primary key in this table it can't be `NULL` so we choose not to handle it, but we do handle everything else regardless of whether it's NULL or not.
+Since `id` is the primary key in this table it can't be `NULL` so we're not to handling it here, but we do handle everything else regardless of whether it's NULL or not.
 ## Handing Division By Zero
 When you calculate ratios you must always handle potential division by zero. Your query might work when you first test it, but if the denominator ever becomes zero it will fail.
 
