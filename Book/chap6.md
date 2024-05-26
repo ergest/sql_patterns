@@ -215,8 +215,13 @@ ORDER BY
 ```
 
 ## Final Comments
-There are a few final things to mention before we go to the next chapter:
-- Our query is very long and complex. While we did a pretty good job of modularizing it with CTEs it's still 200+ lines long
+There are a few final things to mention before we go to the next chapter.
+
+Our query is very long and complex. While we did a pretty good job of decomposing it into clean modules it's still 200+ lines long. Many of the CTEs can only be used inside this query. As discussed in *Chapter 3*, if we want to use them elsewhere in the database we need to create views. We'll see how to do this with *dbt* in the next chapter
+
+You'll notice that in CTE `total_metrics_per_user` I cast all those integer values into type `NUMERIC` why? The reason is when many databases perform integer division they will not show any decimal values. By casting them into `NUMERIC` we ensure decimal places. And since the number of decimals can be unpredictable, we use the `ROUND()` function to round all the values to 1 decimal place. A clever trick to do this without casting is to multiply each colum by `1.0` which forces the database to do the type conversion implicitly.
+
+Did you notice how many times the `CASE` statement was repeated? It makes the query unnecessarily complicated and hard to maintain. Remember the **DRY Principle?** Is there a way we can avoid having to use it? Not unless your database has a "safe divide" function, but there is a way to do this with a SQL compiler macro like *dbt.* We
 
 There's one final pattern we use in the final CTE. We pre-calculate all the aggregates at the user level and then add a few more ratio-based metrics. You'll notice that we use two functions to shape the results: `CAST()` is used because SQL performs integer division and for the ratios we want to show the remainder, and then `ROUND()` is used to round the remainder to a single decimal point.
 
