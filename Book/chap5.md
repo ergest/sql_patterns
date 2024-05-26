@@ -255,6 +255,7 @@ The easiest way to handle this is by excluding zero values in the denominator. T
 
 Here's an example:
 ```sql
+--listing 5.8
 WITH cte_test_data AS (
     SELECT 94 as comments_on_post, 38 as posts_created
     UNION ALL
@@ -300,6 +301,7 @@ Then you simply deal with `NULL` values using `COALESCE()` like above. Snowflake
 
 Here's an example:
 ```sql
+--listing 5.9
 WITH cte_test_data AS (
     SELECT 94 as comments_on_post, 38 as posts_created
     UNION ALL
@@ -334,10 +336,11 @@ I said earlier that strings are the easiest way to store any kind of data (numbe
 Here are some issues you'll undoubtedly run into with strings. 
 1. Inconsistent casing
 2. Space padding
-3. Non-ASCII characters
+3. Unexpected characters
 
 Many databases are case sensitive so if the same string is stored with different cases it will not match when doing a join. Let's see an example:
 ```sql
+--listing 5.10
 SELECT 'string' = 'String' AS test;
 
 test |
@@ -347,6 +350,7 @@ false|
 
 As you can see, a different case causes the test to show as `FALSE` The only way to deal with this problem when joining on strings or matching patterns on a string is to convert all fields to upper or lower case.
 ```sql
+--listing 5.11
 SELECT LOWER('string') = LOWER('String') AS test;
 
 test|
@@ -356,6 +360,7 @@ true|
 
 Space padding is the other common issue you deal with strings.
 ```sql
+--listing 5.12
 SELECT 'string' = ' string' AS test;
 
 test |
@@ -365,6 +370,7 @@ false|
 
 You deal with this by using the `TRIM()` function which removes all the leading and trailing spaces.
 ```sql
+--listing 5.13
 SELECT TRIM('string') = TRIM(' string') AS test;
 
 test|
@@ -372,8 +378,12 @@ test|
 true|
 ```
 
+### Pattern 6: Anticipate and Force Formatting
+So as a rule of thumb whenever it comes to processing strings, it's best to assume the worst and deal with it upfront and that's why I always apply both `TRIM()` and `LOWER().` to all string columns.
+
 If you ever have to join on an email column these functions are absolutely essential. It's best to combine them just to be sure:
 ```sql
+--listing 5.14
 SELECT TRIM(LOWER('String')) = TRIM(LOWER(' string')) AS test;
 
 test|
