@@ -391,4 +391,16 @@ test|
 true|
 ```
 
+As far as handling unexpected characters, you'll first need to figure out how they appear and then fix them using multiple calls to the function `REPLACE()` This can vary a lot, but usually you'll want to replace offending characters with an empty string.
+
+Here's an example:
+```sql
+--listing 5.15
+SELECT REPLACE(TRIM(LOWER('String/')), '/','') = TRIM(LOWER(' string')) AS test;
+
+test|
+----+
+true|
+```
+
 That wraps up our chapter on query robustness. In the next chapter we get to see the entire query for user engagement. It's also a great opportunity to review what we've learned so far.
