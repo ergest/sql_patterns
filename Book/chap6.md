@@ -3,6 +3,7 @@ In this chapter we wrap up our query and go over it one more time highlighting t
 
 So here's the whole query
 ```sql
+ -- listing 6.1
  -- Get the user name and collapse the granularity of post_history to the user_id, post_id, activity type and date
  -- Get the user name and collapse the granularity of post_history to the user_id, post_id, activity type and date
 WITH post_activity AS (
@@ -143,79 +144,68 @@ SELECT
     comments_by_user,
     comments_on_post,
     streak_in_days,
+    
     -- per day metrics
     CASE
         WHEN streak_in_days > 0 THEN
-            ROUND(TRY_CAST(posts_created AS NUMERIC) /
-                  TRY_CAST(streak_in_days AS NUMERIC), 1)
+            ROUND(posts_created / streak_in_days, 1)
         ELSE 0
     END AS posts_per_day,
     CASE
         WHEN streak_in_days > 0 THEN
-            ROUND(TRY_CAST(posts_edited AS NUMERIC) /
-                  TRY_CAST(streak_in_days AS NUMERIC), 1)
+            ROUND(posts_edited / streak_in_days, 1)
         ELSE 0
     END AS edits_per_day,
     CASE
         WHEN streak_in_days > 0 THEN
-            ROUND(TRY_CAST(answers_created AS NUMERIC) /
-                  TRY_CAST(streak_in_days AS NUMERIC), 1)
+            ROUND(answers_created / streak_in_days, 1)
         ELSE 0
     END AS answers_per_day,
     CASE
         WHEN streak_in_days > 0 THEN
-            ROUND(TRY_CAST(questions_created AS NUMERIC) /
-                  TRY_CAST(streak_in_days AS NUMERIC), 1)
+            ROUND(questions_created / streak_in_days, 1)
         ELSE 0
     END AS questions_per_day,
     CASE
         WHEN streak_in_days > 0 THEN
-            ROUND(TRY_CAST(comments_by_user AS NUMERIC) /
-                  TRY_CAST(streak_in_days AS NUMERIC), 1)
+            ROUND(comments_by_user / streak_in_days, 1)
         ELSE 0
     END AS user_comments_per_day,
     CASE
         WHEN streak_in_days > 0 THEN
-            ROUND(TRY_CAST(comments_by_user AS NUMERIC) /
-                  TRY_CAST(streak_in_days AS NUMERIC), 1)
+            ROUND(comments_by_user / streak_in_days, 1)
         ELSE 0
     END AS user_comments_per_day,
 
     -- per post metrics
     CASE
         WHEN posts_created > 0 THEN
-            ROUND(TRY_CAST(answers_created AS NUMERIC) /
-                  TRY_CAST(posts_created AS NUMERIC), 1)
+            ROUND(answers_created / posts_created, 1)
         ELSE 0
     END AS answers_per_post,
     CASE
         WHEN posts_created > 0 THEN
-            ROUND(TRY_CAST(questions_created AS NUMERIC) /
-                  TRY_CAST(posts_created AS NUMERIC), 1)
+            ROUND(questions_created / posts_created, 1)
         ELSE 0
     END AS questions_per_post,
     CASE
         WHEN posts_created > 0 THEN
-            ROUND(TRY_CAST(total_upvotes AS NUMERIC) /
-                  TRY_CAST(posts_created AS NUMERIC), 1)
+            ROUND(total_upvotes / posts_created, 1)
         ELSE 0
     END AS upvotes_per_post,
     CASE
         WHEN posts_created > 0 THEN
-            ROUND(TRY_CAST(total_downvotes AS NUMERIC) /
-                  TRY_CAST(posts_created AS NUMERIC), 1)
+            ROUND(total_downvotes / posts_created, 1)
         ELSE 0
     END AS downvotes_per_post,
     CASE
         WHEN posts_created > 0 THEN
-            ROUND(TRY_CAST(comments_by_user AS NUMERIC) /
-                  TRY_CAST(posts_created AS NUMERIC), 1)
+            ROUND(comments_by_user / posts_created, 1)
         ELSE 0
     END AS user_comments_per_post,
     CASE
         WHEN posts_created > 0 THEN
-            ROUND(TRY_CAST(comments_on_post AS NUMERIC) /
-                  TRY_CAST(posts_created AS NUMERIC), 1)
+            ROUND(comments_on_post / posts_created, 1)
         ELSE 0
     END AS comments_per_post
 FROM
@@ -224,8 +214,12 @@ ORDER BY
     posts_created DESC;
 ```
 
-Now that you have all these wonderful metrics you can sort the results by any of them to see different types of users. For example you can sort by `questions_per_post` to see everyone who posts mostly questions or `answers_by_post` to see those who post mostly answers. You can also create new metrics that indicate who your best users are.
-
 ## Final Comments
+There are a few final things to mention before we go to the next chapter:
+- Our query is very long and complex. While we did a pretty good job of modularizing it with CTEs it's still 200+ lines long
+
+There's one final pattern we use in the final CTE. We pre-calculate all the aggregates at the user level and then add a few more ratio-based metrics. You'll notice that we use two functions to shape the results: `CAST()` is used because SQL performs integer division and for the ratios we want to show the remainder, and then `ROUND()` is used to round the remainder to a single decimal point.
+
+Now that you have all these wonderful metrics you can sort the results by any of them to see different types of users. For example you can sort by `questions_per_post` to see everyone who posts mostly questions or `answers_by_post` to see those who post mostly answers. You can also create new metrics that indicate who your best users are.
 
 Some of the best uses of this type of table are for customer segmentation or as a feature table for data science.
