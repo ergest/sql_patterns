@@ -279,8 +279,21 @@ FROM
     cte_test_data
 WHERE
     posts_created > 0;
+
+--sample output
+comments_on_post_per_post|
+-------------------------+
+                      2.5|
+                      2.0|
+                      1.8|
+                      1.4|
+                      3.9|
+                      5.6|
+                      1.0|
 ```
 
+
+### Pattern 5: Anticipate and Bypass
 The best way to handle division by zero without filtering out rows is to use a `CASE` statement. While this will work, there are other options. Cloud warehouses like BigQuery offer a `SAFE_DIVIDE()` function which returns `NULL` in the case of divide-by-zero error.
 
 Then you simply deal with `NULL` values using `COALESCE()` like above. Snowflake offers a similar function called `DIV0()` which automatically returns 0 if there's a division by zero error. DuckDB on the other hand seems to handle divide by zero directly without throwing an error.
@@ -315,7 +328,7 @@ FROM
     cte_test_data;
 ```
 
-### Comparing Strings
+## Handling Inconsistent Comparison
 I said earlier that strings are the easiest way to store any kind of data (numbers, dates, strings) but strings also have their own issues, especially when you're trying to join on a string field.
 
 Here are some issues you'll undoubtedly run into with strings. 

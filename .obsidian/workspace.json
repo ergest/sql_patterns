@@ -78,7 +78,8 @@
               "state": {}
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "horizontal",
@@ -135,7 +136,7 @@
       "table-editor-obsidian:Advanced Tables Toolbar": false
     }
   },
-  "active": "cab677d01dffc5df",
+  "active": "7344326a0882a3d0",
   "lastOpenFiles": [
     "book/chap4.md",
     "book/chap5.md",
