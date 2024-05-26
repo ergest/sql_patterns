@@ -12,12 +12,12 @@ Here are some of the ways that data can change:
 6. Strings have different casing so direct comparison fails
 
 We'll break these patterns down into two three groups:
-1. Dealing with formatting issues
-3. Dealing with NULLs
-2. Dealing with division by zero
-3. Dealing with inconsistent comparisons
+1. Handing formatting issues
+3. Handing NULLs
+2. Handing division by zero
+3. Handing inconsistent comparisons
 
-## Dealing with Formatting Issues
+## Handling Formatting Issues
 SQL supports 3 primitive data types, strings, numbers and dates. They allow for mathematical operations with numbers, calendar operations with dates and many types of string operations. 
 
 It's quite common to see numbers and dates stored as strings, especially when you're loading flat text files like CSVs or TSVs. Some data loading tools will try and guess the type and format it on the fly but they're not always correct. So you will often have to manually convert dates and numbers.
@@ -214,7 +214,7 @@ weight|unit|
 
 I'm using the `SUBSTRING()` function again to extract parts of a string, and I used the `INSTR()` function, which searches for a string within another string and returns the first occurrence of it or 0 if not found, in order to tell the `SUBSTRING()` function how many characters to read.
 
-## Dealing with NULLs
+## Handling NULLs
 `NULLs` in SQL represent unknown values. While the data may appear to be blank or empty in the results, it's not the same as an empty string or white space. The reason we want to handle them is because they cause issues when it comes to comparing fields or joining data. They might confuse users, so as a general pattern you should replace `NULLs` with predetermined default values.
 
 ### Pattern 3: Assume NULL
@@ -225,19 +225,35 @@ For strings you might use default values such as `NA`, `Not Provided`, `Not Avai
 Doing this however could mess up age calculations, especially if the age is later averaged, so be careful where you use it. Same thing applies to using a default value like `0`, `-1`, or `9999` for numbers. It might make sense when the column cannot be 0 or negative, but not always.
 
 You do this by using `COALESCE()` as described earlier:
-
 ```sql
 --listing 5.7
-SELECT COALESCE(TRY_CAST('2o21' as INT), 0) AS year;
-
-year|
-----+
-   0|
+SELECT
+    id,
+    COALESCE(display_name, 'unknown') AS user_name,
+    COALESCE(about_me, 'unknown') AS about_me,
+    COALESCE(age, 'unknown') AS age,
+    COALESCE(creation_date, '1900-01-01') AS creation_date,
+    COALESCE(last_access_date, '1900-01-01') AS last_access_date,
+    COALESCE(location, 'unknown') AS location,
+    COALESCE(reputation, 0) AS reputation,
+    COALESCE(up_votes, 0) AS up_votes,
+    COALESCE(down_votes, 0) AS down_votes,
+    COALESCE(views, 0) AS views,
+    COALESCE(profile_image_url, 'unknown') AS profile_image_url,
+    COALESCE(website_url, 'unknown') AS website_url
+FROM
+    users
+LIMIT 10;
 ```
-### Pattern 4: Handling Division by Zero Safely
-Whenever you calculate ratios you always have to worry about division by zero. Your query might work when you first test it, but if the denominator ever becomes zero your query will fail.
 
-The easiest way to handle this is by excluding zero values in the where clause:
+Since `id` is the primary key in this table it can't be `NULL` so we choose not to handle it, but we do handle everything else regardless of whether it's NULL or not.
+## Handing Division By Zero
+When you calculate ratios you must always handle potential division by zero. Your query might work when you first test it, but if the denominator ever becomes zero it will fail.
+
+### Pattern 4: Skip Rows With 0 Denominator
+The easiest way to handle this is by excluding zero values in the denominator. This will work fine but it will also filter out rows which could be needed.
+
+Here's an example:
 ```sql
 WITH cte_test_data AS (
     SELECT 94 as comments_on_post, 38 as posts_created
@@ -265,7 +281,11 @@ WHERE
     posts_created > 0;
 ```
 
-This will work fine in some cases but it also will filter the entire dataset causing counts to be wrong. One way to handle this is by using a `CASE` statement like this:
+The best way to handle division by zero without filtering out rows is to use a `CASE` statement. While this will work, there are other options. Cloud warehouses like BigQuery offer a `SAFE_DIVIDE()` function which returns `NULL` in the case of divide-by-zero error.
+
+Then you simply deal with `NULL` values using `COALESCE()` like above. Snowflake offers a similar function called `DIV0()` which automatically returns 0 if there's a division by zero error. DuckDB on the other hand seems to handle divide by zero directly without throwing an error.
+
+Here's an example:
 ```sql
 WITH cte_test_data AS (
     SELECT 94 as comments_on_post, 38 as posts_created
@@ -294,7 +314,6 @@ SELECT
 FROM
     cte_test_data;
 ```
-This works really well in all cases. There is another option. Cloud warehouses like BigQuery offer a `SAFE_DIVIDE()` function which returns `NULL` in the case of divide-by-zero error. Then you simply deal with `NULL` values using `COALESCE()` like above. Snowflake offers a similar function called `DIV0()` which automatically returns 0 if there's a division by zero error. DuckDB on the other hand seems to handle divide by zero directly without throwing an error.
 
 ### Comparing Strings
 I said earlier that strings are the easiest way to store any kind of data (numbers, dates, strings) but strings also have their own issues, especially when you're trying to join on a string field.
