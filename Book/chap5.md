@@ -210,12 +210,14 @@ weight|unit|
 68.000|KG  |
 ```
 
-I'm using the `SUBSTRING()` function again to extract parts of a string, but this time I used the `INSTR()` function which searches for a string within another string and returns the first occurrence of it or 0 if not found. This gives me the index where the 
+I'm using the `SUBSTRING()` function again to extract parts of a string, and I used the `INSTR()` function, which searches for a string within another string and returns the first occurrence of it or 0 if not found, in order to tell the `SUBSTRING()` function how many characters to read.
 
 ### Pattern 3: Handling NULLs Safely
 As a rule, you should always assume any column can be `NULL` at any point in time so it's a good idea to provide a default value for that column as part of your `SELECT`. This way you make sure that even if your data becomes `NULL` your query will not fail.
 
-`NULLs` in SQL represent unknown values. While the data may appear to be blank or empty in the results, it's not the same as an empty string or white space. You cannot compare `NULLs` to anything directly, for example you cannot say:
+`NULLs` in SQL represent unknown values. While the data may appear to be blank or empty in the results, it's not the same as an empty string or white space. The reason we want to handle them directly is they cause havoc when it comes to comparing fields or joining data. As a rule you should replace `NULLs`
+
+You cannot compare `NULLs` to anything directly, for example you cannot say:
 ```sql
 SELECT col1
 FROM table
