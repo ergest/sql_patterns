@@ -234,17 +234,28 @@ year|
 ### Pattern 4: Handling Division by Zero Safely
 Whenever you calculate ratios you always have to worry about division by zero. Your query might work when you first test it, but if the denominator ever becomes zero your query will fail.
 
-The easiest way to handle this is by excluding zero values in the where clause as we do in our query
+The easiest way to handle this is by excluding zero values in the where clause or by using a `CASE` statement.
 ```sql
-SELECT
-    ROUND(CAST(total_comments_on_post /
-		total_posts_created AS NUMERIC), 1) AS comments_on_post_per_post
-FROM
-    total_metrics_per_user
-WHERE
-    total_posts_created > 0
-ORDER BY 
-    total_questions_created DESC;
+WITH cte_test_data AS (
+    SELECT 94 as comments_on_post, 38 as posts_created
+    UNION ALL
+    SELECT 62, 0
+    UNION ALL
+    SELECT 39, 20
+    UNION ALL
+    SELECT 34, 19
+    UNION ALL
+    SELECT 167, 120
+    UNION ALL
+    SELECT 189, 48
+    UNION ALL
+    SELECT 96, 17
+    UNION ALL
+    SELECT 15, 15
+)
+SELECT CAST(comments_on_post / posts_created AS NUMERIC) AS comments_on_post_per_post
+FROM cte_test_data
+WHERE posts_created > 0;
 ```
 
 This will work fine in some cases but it also will filter the entire dataset causing counts to be wrong. One way to handle this is by using a `CASE` statement like this:
