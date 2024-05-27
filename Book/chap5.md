@@ -143,7 +143,7 @@ dt         |
 12/05/2021 |
 ```
 
-Obviously we can't force the same formatting for all the dates here so we'll have to split this up and apply the pattern separately using the `CASE` statement:
+Obviously we can't force the same formatting for all the dates here so we'll have to split it up using the `CASE` statement like this:
 ```sql
 --listing 5.8
 WITH dates AS (
@@ -247,6 +247,7 @@ LIMIT 10;
 ```
 
 Since `id` is the primary key in this table it can't be `NULL` so we're not to handling it here, but we do handle everything else regardless of whether it's NULL or not.
+
 ## Handing Division By Zero
 When you calculate ratios you must always handle potential division by zero. Your query might work when you first test it, but if the denominator ever becomes zero it will fail.
 
