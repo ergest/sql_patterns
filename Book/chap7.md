@@ -1,5 +1,5 @@
 # Chapter 6: DBT Patterns
-In this chapter we're going to use all the patterns we've seen to simplify our final query from the project we just saw.
+In this chapter we're going to use all the patterns we've seen to simplify our final query from the project we just saw using *dbt*. 
 
 ## Interface patterns
 ## Reusability Principle
