@@ -1,6 +1,7 @@
 # Chapter 6: DBT Patterns
 In this chapter we're going to use all the patterns we've seen to simplify our final query from the project we just saw.
 
+## Interface patterns
 ## Reusability Principle
 We start off with a very important principle that rarely gets talked about in SQL. When you're designing a query and breaking it up into CTEs, there is one principle to keep in mind. The CTEs should be constructed in such a way that they can be reused if needed later. This principle makes code easier to maintain and compact.
 
