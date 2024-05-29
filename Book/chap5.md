@@ -217,6 +217,30 @@ I'm using the `SUBSTRING()` function again to extract parts of a string, and I u
 ## Handling NULLs
 `NULLs` in SQL represent unknown values. While the data may appear to be blank or empty in the results, it's not the same as an empty string or white space. The reason we want to handle them is because they cause issues when it comes to comparing fields or joining data. They might confuse users, so as a general pattern you should replace `NULLs` with predetermined default values.
 
+### Pattern 3: Use LEFT JOIN Unless You're Absolutely Sure
+One of my most used rules of thumb is to always use a `LEFT JOIN` when I'm not sure if one table is a subset of the other. For example in the query below:, we use a left join with the static table `post_history_type_mapping` because we're not sure how the `post_history_type_id` might change. We might have new mappings coming thour
+
+```sql
+SELECT
+    id,
+    post_id,
+    post_history_type_id,
+    revision_guid,
+    user_id,
+    COALESCE(m.activity_type, 'unknown') AS activity_type,
+    COALESCE(m.grouped_activity_type, 'unknown') AS grouped_activity_type,
+    COALESCE(creation_date, '1900-01-01') AS creation_date,
+    COALESCE(text, 'unknown') AS text,
+    COALESCE(comment, 'unknown') AS comment
+FROM
+    {{ ref('post_history') }} ph
+    LEFT JOIN {{ ref('post_history_type_mapping') }} m
+        ON ph.post_history_type_id = m.post_history_type_id
+
+```
+
+This often happens in the real world when data is deleted from a table and there's no foreign key constraints to ensure referential integrity (i.e. the database ensures you can't delete a row if it's referenced in another table. These types of constraints don't exist in data warehouses hence my general rule of thumb of always starting with a `LEFT JOIN.`
+
 ### Pattern 3: Assume NULL
 As a rule, you should always assume any column can be `NULL` at any point in time so it's a good idea to provide a default value for that column as part of your `SELECT`. This way you make sure that even if your data becomes `NULL` your query will not fail.
 

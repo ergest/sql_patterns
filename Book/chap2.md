@@ -2,7 +2,7 @@
 In this chapter we're going to cover some of the core concepts of querying data and building tables for analysis and data science. We'll start with the most important but underrated concept in SQL; granularity.
 
 ## Concept Granularity
-Granularity (also known as the grain of the tqable) is a measure of the level of detail that determines an individual row in a table or view. This is extremely important when it comes to joins or aggregating data. 
+Granularity (also known as the grain of the table) is a measure of the level of detail that determines an individual row in a table or view. This is extremely important when it comes to joins or aggregating data. 
 
 Granularity comes in two flavors: *fine grain* and *coarse grain*.
 
@@ -400,15 +400,7 @@ count_star()|
        15704|
 ```
 
-
-### Pattern 3: Start with a LEFT JOIN
-Since we're on the subject of LEFT JOINS, one of my most used rules of thumb is to always use a `LEFT JOIN` when I'm not sure if one table is a subset of the other. For example in the query above, there's definitely users that have a valid `user_id` in the `users` table but have never had any activity.
-
-This often happens in the real world when data is deleted from a table and there's no foreign key constraints to ensure referential integrity (i.e. the database ensures you can't delete a row if it's referenced in another table. These types of constraints don't exist in data warehouses hence my general rule of thumb of always starting with a `LEFT JOIN.`
-
-Now that we have covered the basic concepts, it's time to dive into the patterns.
-
-## Pattern 4: Talk about UNION vs UNION ALL
+### Pattern 4: Talk about UNION vs UNION ALL
 There are two types of unions, `UNION ALL` and `UNION` (distinct) 
 
 `UNION ALL` will append two tables without checking if they have the same exact row. This might cause duplicates but it's really fast. If you know for sure your tables don't contain duplicates, this is the preferred way to append them. 

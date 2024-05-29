@@ -13,26 +13,13 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "book/chap6.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "cab677d01dffc5df",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "book/chap7.md",
+                "file": "book/chap5.md",
                 "mode": "source",
                 "source": false
               }
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "vertical"
@@ -61,7 +48,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "",
+                "query": "left",
                 "matchingCase": true,
                 "explainSearch": false,
                 "collapseAll": true,
@@ -98,7 +85,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "book/chap7.md",
+                "file": "book/chap5.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -135,16 +122,16 @@
       "table-editor-obsidian:Advanced Tables Toolbar": false
     }
   },
-  "active": "cab677d01dffc5df",
+  "active": "8e6b0d89cccb8f39",
   "lastOpenFiles": [
-    "book/chap5.md",
-    "book/chap1.md",
-    "book/chap6.md",
     "book/chap7.md",
-    "book/chap8.md",
-    "book/chap3.md",
-    "book/chap4.md",
+    "book/chap6.md",
     "book/chap2.md",
+    "book/chap5.md",
+    "book/chap8.md",
+    "book/chap4.md",
+    "book/chap1.md",
+    "book/chap3.md",
     "book/chap0.md",
     "book/img/select_distinct.jpeg",
     "book/img/Example-Dag-Dag5.drawio.png",

@@ -10,7 +10,7 @@ But the beauty of dbt is that it makes it really easy to create our own custom m
 
 Have a look at this example in the `models/clean` subfolder:
 ```sql
---model post_history_clean
+--model post_history_clean original
 {{
   config(materialized = 'table')
 }}
@@ -61,5 +61,27 @@ FROM
 Do you see how we protect ourselves from `NULLs` by using `COALESCE()` liberally? We also handle the mapping of the `post_history_type_id.` There are a lot more types we didn't see before because we didn't have to, but now we can put them all here so we only work with text later. Text descriptions make code more readable and maintainable vs some magic number.
 
 This is fine but do you notice how many times we had to copy paste the same piece of code? Can we do better? With dbt we can. There's a concept in dbt called _seed_ files, which are perfect for this type of mapping. This is basically a CSV file with two columns `post_history_type_id` and `text_description` The file makes it a lot easier to add or update mapping in the future.
+
+Now our code looks like this:
+```sql
+--model post_history_clean
+SELECT
+    id,
+    post_id,
+    post_history_type_id,
+    revision_guid,
+    user_id,
+    COALESCE(m.activity_type, 'unknown') AS activity_type,
+    COALESCE(m.grouped_activity_type, 'unknown') AS grouped_activity_type,
+    COALESCE(creation_date, '1900-01-01') AS creation_date,
+    COALESCE(text, 'unknown') AS text,
+    COALESCE(comment, 'unknown') AS comment
+FROM
+    {{ ref('post_history') }} ph
+    LEFT JOIN {{ ref('post_history_type_mapping') }} m
+        ON ph.post_history_type_id = m.post_history_type_id
+```
+
+Notice a couple of things. First of all our code is a lot more compact, easy to read, understand and maintain.
 ## Wrapper Patterns
 If you look into the `models/
