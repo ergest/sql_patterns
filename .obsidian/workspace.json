@@ -25,7 +25,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "book/chap7.md",
+                "file": "book/chap1.md",
                 "mode": "source",
                 "source": false
               }
@@ -61,7 +61,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "",
+                "query": "post_history_type_id",
                 "matchingCase": true,
                 "explainSearch": false,
                 "collapseAll": true,
@@ -78,7 +78,8 @@
               "state": {}
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "horizontal",
@@ -98,7 +99,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "book/chap7.md",
+                "file": "book/chap1.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -137,10 +138,10 @@
   },
   "active": "cab677d01dffc5df",
   "lastOpenFiles": [
-    "book/chap8.md",
-    "book/chap5.md",
-    "book/chap6.md",
     "book/chap7.md",
+    "book/chap5.md",
+    "book/chap8.md",
+    "book/chap6.md",
     "book/chap3.md",
     "book/chap4.md",
     "book/chap2.md",

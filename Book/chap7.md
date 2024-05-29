@@ -6,9 +6,31 @@ Dbt makes it really simple to design modular data transformation workflows, whic
 ## Applying Robustness Patterns
 Dbt uses the concept of "models" for modularizing your code. All the models by default live in the `models` folder. In that folder there are two subfolders `raw` and `clean` The first one loads the Stackoverflow tables from parquet files as is without any modifications. We've used those exact tables throughout the book
 
-But the beauty of dbt is that it lets us create our own custom models while applying the robustness patterns we learned in the previous chapter. Have a look at 
+But the beauty of dbt is that it makes it really easy to create our own custom models while applying the robustness patterns we learned in [Chapter 5](chap5). We can have our own foundational models rather than rely on raw data.
 
-If you look in the `models/clean` subfolder
+Have a look at this example in the `models/clean` subfolder:
+```sql
+--model post_history_clean
+{{
+  config(materialized = 'table')
+}}
 
+SELECT
+    id,
+    post_id,
+    post_history_type_id,
+    revision_guid,
+    user_id,
+    CASE WHEN post_history_type_id IN (1,2,3) THEN 'create'
+         WHEN post_history_type_id IN (4,5,6) THEN 'edit' 
+    END AS activity_type
+    COALESCE(creation_date, '1900-01-01') AS creation_date,
+    COALESCE(text, 'unknown') AS text,
+    COALESCE(comment, 'unknown') AS comment
+FROM
+    {{ ref('post_history') }}
+```
+
+Do you see how we protect ourselves from `NULLs` by using `COALESCE()` liberally? We also handle the mapping of the 
 ## Wrapper Patterns
 If you look into the `models/
