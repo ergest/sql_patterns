@@ -218,8 +218,9 @@ I'm using the `SUBSTRING()` function again to extract parts of a string, and I u
 `NULLs` in SQL represent unknown values. While the data may appear to be blank or empty in the results, it's not the same as an empty string or white space. The reason we want to handle them is because they cause issues when it comes to comparing fields or joining data. They might confuse users, so as a general pattern you should replace `NULLs` with predetermined default values.
 
 ### Pattern 3: Use LEFT JOIN Unless You're Absolutely Sure
-One of my most used rules of thumb is to always use a `LEFT JOIN` when I'm not sure if one table is a subset of the other. For example in the query below:, we use a left join with the static table `post_history_type_mapping` because we're not sure how the `post_history_type_id` might change. We might have new mappings coming thour
+One of my most used rules of thumb is to always use a `LEFT JOIN` when I'm not sure if one table is a subset of the other.
 
+For example in the query below:, we use a left join with the static table `post_history_type_mapping` because we're not sure how the `post_history_type_id` might change. We might have new mappings being created that we haven't added to our lookup table yet and we don't want to limit our final results unknowingly. By the way this query is part of our dbt chapter and explained in [Chapter 7](chap7)
 ```sql
 SELECT
     id,
@@ -239,9 +240,7 @@ FROM
 
 ```
 
-This often happens in the real world when data is deleted from a table and there's no foreign key constraints to ensure referential integrity (i.e. the database ensures you can't delete a row if it's referenced in another table. These types of constraints don't exist in data warehouses hence my general rule of thumb of always starting with a `LEFT JOIN.`
-
-### Pattern 3: Assume NULL
+### Pattern 4: Assume NULL
 As a rule, you should always assume any column can be `NULL` at any point in time so it's a good idea to provide a default value for that column as part of your `SELECT`. This way you make sure that even if your data becomes `NULL` your query will not fail.
 
 For strings you might use default values such as `NA`, `Not Provided`, `Not Available`, etc. Dates and numbers are trickier. For a date field you might use a default value such as `1900-01-01` and that's a safe enough signal that the data is not available.
@@ -275,7 +274,7 @@ Since `id` is the primary key in this table it can't be `NULL` so we're not to h
 ## Handing Division By Zero
 When you calculate ratios you must always handle potential division by zero. Your query might work when you first test it, but if the denominator ever becomes zero it will fail.
 
-### Pattern 4: Skip Rows With 0 Denominator
+### Pattern 5: Skip Rows With 0 Denominator
 The easiest way to handle this is by excluding zero values in the denominator. This will work fine but it will also filter out rows which could be needed.
 
 Here's an example:
@@ -319,7 +318,7 @@ comments_on_post_per_post|
 ```
 
 
-### Pattern 5: Anticipate and Bypass
+### Pattern 6: Anticipate and Bypass
 The best way to handle division by zero without filtering out rows is to use a `CASE` statement. While this will work, there are other options. Cloud warehouses like BigQuery offer a `SAFE_DIVIDE()` function which returns `NULL` in the case of divide-by-zero error.
 
 Then you simply deal with `NULL` values using `COALESCE()` like above. Snowflake offers a similar function called `DIV0()` which automatically returns 0 if there's a division by zero error. DuckDB on the other hand seems to handle divide by zero directly without throwing an error.
@@ -403,7 +402,7 @@ test|
 true|
 ```
 
-### Pattern 6: Anticipate and Force Formatting
+### Pattern 7: Anticipate and Force Formatting
 So as a rule of thumb whenever it comes to processing strings, it's best to assume the worst and deal with it upfront and that's why I always apply both `TRIM()` and `LOWER().` to all string columns.
 
 If you ever have to join on an email column these functions are absolutely essential. It's best to combine them just to be sure:
