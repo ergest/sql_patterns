@@ -82,6 +82,7 @@ FROM
         ON ph.post_history_type_id = m.post_history_type_id
 ```
 
-Notice a couple of things. First of all our code is a lot more compact, easy to read, understand and maintain. Second we're using a `LEFT JOIN` as explained in [Chapter 5](chap5) pattern 3. Also notice how we  assume `NULL` `COALESCE()` the input coming from the `LEFT JOIN` knowing it might be `NULL` in the future
+Notice a couple of things. First of all our code is a lot more compact, easy to read, understand and maintain. Second we're using a `LEFT JOIN` as explained in [Chapter 5](chap5) pattern 3. Also notice how we  assume `NULL` with  `activity_type` and `grouped_activity_type` and `COALESCE()` the input coming from the `LEFT JOIN` in order to protect ourselves.
+
 ## Wrapper Patterns
 If you look into the `models/
