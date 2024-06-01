@@ -151,4 +151,32 @@ user_post_metrics AS (
     GROUP BY 1,2,3
 ```
 
-We can do some interesting things here. First notice all that bolierplate SQL with `SUM` and `CASE` Now this where dbt really shines. We can make a macro to hide
+We can do some interesting things here. First notice all that bolierplate SQL with `SUM` and `CASE` Now this where dbt really shines. We can make a custom macro to hide the functionality behind.
+
+```sql
+{{
+  config(materialized = 'view')
+}}
+
+SELECT
+    ph.user_id,
+    u.user_name,
+    pt.creation_date AS activity_date,
+    {{- sum_if("ph.activity_type = 'create' 
+	    AND pt.post_type = 'question'", 1)}} AS questions_created,
+    {{- sum_if("ph.activity_type = 'create' 
+	    AND pt.post_type = 'answer'", 1)}} AS answers_created,
+    {{- sum_if("ph.activity_type = 'edit' 
+	    AND pt.post_type = 'question'", 1)}} AS questions_edited,
+    {{- sum_if("ph.activity_type = 'edit' 
+	    AND pt.post_type = 'answer'", 1)}} AS answers_edited,
+    {{- sum_if("ph.activity_type = 'create'", 1)}} AS posts_created,
+    {{- sum_if("ph.activity_type = 'create'", 1)}} AS posts_edited
+FROM
+    {{ ref('all_post_types_combined') }} pt
+    JOIN {{ ref('post_history_clean') }} ph
+        ON pt.id = ph.post_id
+    JOIN {{ ref('users_clean')}} u
+        ON ph.user_id = u.id
+GROUP BY 1,2,3
+```
