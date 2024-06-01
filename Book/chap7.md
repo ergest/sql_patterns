@@ -185,4 +185,4 @@ WHERE
     AND ph.user_id IS NOT NULL --exclude deleted accounts
 GROUP BY 1,2,3
 ```
-So what did we change? First we removed the `user_post_metrics` CTE and joined directly with the cleaned tables to get the post types and the activity types. Because of that some of the columns had to change, like `post_id` and `activity_date.` We removed the `TRY_CAST()` call since it's 
+So what did we change? First we removed the `user_post_metrics` CTE and joined directly with the cleaned tables to get the post types and the activity types. Because of that some of the columns had to change, like `post_id` and `activity_date.` We removed the `TRY_CAST()` call since it's already handled inside of `all_post_types_combined` model.
