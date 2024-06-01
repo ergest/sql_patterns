@@ -48,7 +48,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "",
+                "query": "SRP",
                 "matchingCase": true,
                 "explainSearch": false,
                 "collapseAll": true,
@@ -65,7 +65,8 @@
               "state": {}
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "horizontal",
@@ -124,14 +125,14 @@
   },
   "active": "8e6b0d89cccb8f39",
   "lastOpenFiles": [
+    "book/chap3.md",
+    "book/chap7.md",
     "book/img/dbt_user_metrics_dag.jpg",
     "book/img/dbt_all_post_types_dag.jpg",
     "book/chap6.md",
     "book/chap0.md",
-    "book/chap7.md",
     "book/img/Example-Dag-Dag5.drawio.png",
     "book/chap8.md",
-    "book/chap3.md",
     "book/chap2.md",
     "book/chap4.md",
     "book/chap5.md",

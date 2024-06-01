@@ -84,7 +84,7 @@ FROM
 
 Notice a couple of things. First of all our code is a lot more compact, easy to read, understand and maintain. Second we're using a `LEFT JOIN` as explained in [Chapter 5](chap5) pattern 3. Also notice how we  assume `NULL` with  `activity_type` and `grouped_activity_type` and `COALESCE()` the input coming from the `LEFT JOIN` in order to protect ourselves.
 
-## Applying Modularity Patterns
+## Applying Modularity Patterns With DBT
 While CTEs provide a great way to decompose a single query into readable and maintainable modules, they don't go far enough. If you wanted to reuse any of them you'd have to manually create views. And when views no longer cut it, due to performance issues, you'd have to materialize them into tables.
 
 Dbt makes both of those options easier while also allowing you to create linkages across models forming a DAG as we saw in [Chapter 3](chap3). ![[Example-Dag-Dag5.drawio.png]]
@@ -189,6 +189,7 @@ We do a few very interesting things here. First notice all that boilerplate SQL 
 {%- endmacro %}
 ```
 
-At first the macro seems superfluous. Why bother right? In this case it does seem like the macro is not adding any functionality, however 
+## Applying SRP With dbt
+At first the macro seems superfluous. Why bother right? In this case it does seem like the macro is not adding any functionality, however by adding a macro, if we ever decide to change the logic of the macro to support a weird platform, all we have to do is change one file. This macro's logic might be simple, but I've written some very complex macros that have made my code incredibly easy to read, understand and maintain.
 
-So what did we change? First we removed the `user_post_metrics` CTE and joined directly with the cleaned tables to get the post types and the activity types. Because of that some of the columns had to change, like `post_id` and `activity_date.` We removed the `TRY_CAST()` call since it's already handled inside of `all_post_types_combined` model.
+Also technically So what did we change? First we removed the `user_post_metrics` CTE and joined directly with the cleaned tables to get the post types and the activity types. Because of that some of the columns had to change, like `post_id` and `activity_date.` We removed the `TRY_CAST()` call since it's already handled inside of `all_post_types_combined` model.
