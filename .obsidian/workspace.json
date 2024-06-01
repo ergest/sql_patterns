@@ -48,7 +48,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "left",
+                "query": "/clean",
                 "matchingCase": true,
                 "explainSearch": false,
                 "collapseAll": true,
@@ -65,7 +65,8 @@
               "state": {}
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "horizontal",
@@ -125,16 +126,16 @@
   "active": "8e6b0d89cccb8f39",
   "lastOpenFiles": [
     "book/chap6.md",
+    "book/chap0.md",
+    "book/chap7.md",
+    "book/img/Example-Dag-Dag5.drawio.png",
     "book/chap8.md",
     "book/chap3.md",
     "book/chap2.md",
-    "book/chap7.md",
     "book/chap4.md",
     "book/chap5.md",
     "book/chap1.md",
-    "book/chap0.md",
     "book/img/select_distinct.jpeg",
-    "book/img/Example-Dag-Dag5.drawio.png",
     "book/img/Example-Dag-Dag4.drawio.png",
     "book/img/Example-Dag-Dag3.drawio.png",
     "book/img/Example-Dag-Dag2.drawio.png",

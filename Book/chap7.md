@@ -87,7 +87,8 @@ Notice a couple of things. First of all our code is a lot more compact, easy to 
 ## Applying Modularity Patterns
 While CTEs provide a great way to decompose a single query into readable and maintainable modules, they don't go far enough. If you wanted to reuse any of them you'd have to manually create views. And when views no longer cut it, due to performance issues, you'd have to materialize them into tables.
 
-Dbt makes both of those options easier while also allowing you to create linkages across models forming a DAG as we saw in [Chapter 3](chap3). 
+Dbt makes both of those options easier while also allowing you to create linkages across models forming a DAG as we saw in [Chapter 3](chap3). ![[Example-Dag-Dag5.drawio.png]]
 
+Let's look at example. We'll take the query from the previous chapter and turn all the CTEs into models
 ## Wrapper Patterns
 If you look into the `models/
