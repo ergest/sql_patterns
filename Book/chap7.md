@@ -193,3 +193,5 @@ We do a few very interesting things here. First notice all that boilerplate SQL 
 At first the macro seems superfluous. Why bother right? In this case it does seem like the macro is not adding any functionality, however by using a macro, we're applying the Single Responsibility Principle. SR allows us to contain the logic in a single file (the macro) so if we ever decide to change all we have to do is change one file.
 
 This macro's logic might be simple, but I've written some very complex macros that have made my code incredibly easy to read, understand and maintain. It's a very good practice and one I unfortunately don't see used very often.
+
+Let's see another example of this pattern. Here's the last part of the code from [Chapter 6](chap6) and we would like to use SRP to implement the `SAFE_DIVIDE()`

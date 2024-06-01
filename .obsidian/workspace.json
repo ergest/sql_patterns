@@ -18,6 +18,30 @@
                 "source": false
               }
             }
+          },
+          {
+            "id": "681d7cee87cc7136",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "book/chap6.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          },
+          {
+            "id": "761f34eed58eea1d",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "book/chap5.md",
+                "mode": "source",
+                "source": false
+              }
+            }
           }
         ]
       }
@@ -65,8 +89,7 @@
               "state": {}
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "horizontal",
@@ -125,17 +148,17 @@
   },
   "active": "8e6b0d89cccb8f39",
   "lastOpenFiles": [
-    "book/chap3.md",
+    "book/chap6.md",
+    "book/chap5.md",
     "book/chap7.md",
+    "book/chap3.md",
     "book/img/dbt_user_metrics_dag.jpg",
     "book/img/dbt_all_post_types_dag.jpg",
-    "book/chap6.md",
     "book/chap0.md",
     "book/img/Example-Dag-Dag5.drawio.png",
     "book/chap8.md",
     "book/chap2.md",
     "book/chap4.md",
-    "book/chap5.md",
     "book/chap1.md",
     "book/img/select_distinct.jpeg",
     "book/img/Example-Dag-Dag4.drawio.png",
