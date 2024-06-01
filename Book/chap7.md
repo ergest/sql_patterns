@@ -91,7 +91,23 @@ Dbt makes both of those options easier while also allowing you to create linkage
 
 Let's look at example. We'll take the query from the previous chapter and turn all the CTEs into models.
 
-First let's tackle the `post_types` CTE. This is a very useful model for For that we create a model that unions the post types into a single table/view. Since we can, we use the `union_relations()` macro from the `dbt-utils` library:
+First let's tackle the `post_types` CTE. 
+```sql
+    SELECT
+        id AS post_id,
+        'question' AS post_type,
+    FROM
+        posts_questions
+    UNION ALL
+    SELECT
+        id AS post_id,
+        'answer' AS post_type,
+    FROM
+        posts_answers
+ )
+```
+
+The CTE only selects the `post_id` and `post_type` columns but I think this can be a very useful in the future so we create a more comprehensive model that unions all the columns in a single view. To save ourselves from writing boilerplate SQL and cover future cases where new columns are added to the base tables we use the `union_relations()` macro from `dbt-utils`:
 ```sql
 --listing 7.2 all_post_types_combined
 {{
@@ -105,7 +121,34 @@ First let's tackle the `post_types` CTE. This is a very useful model for For tha
 }}
 ```
 
-This macro will then compile into the appropriate SQL before execution. If you want to see the code (which I won't list here) simply run `dbt compile -m all_post_types_combined` And if you want to see the beautfiul DAG created, just run `dbt docs generate && dbt docs serve`
+The macro will compile into the appropriate SQL before execution. If you want to see the code (which I won't list here) simply run `dbt compile -m all_post_types_combined` And if you want to see the beautfiul DAG created, just run `dbt docs generate && dbt docs serve`
 ![[dbt_all_post_types_dag.jpg]]
 
-Ok let's keep going.
+Ok let's keep going. Next let's take a look at the `post_activity` CTE. Since it's mostly a SELECT from the base table and a join with `users` we don't need a separate model for it. As far as defining the `activity_type` mapping we handled that already in the previous section above.
+
+Next we have the `user_metrics` CTE.
+```sql
+user_post_metrics AS (
+    SELECT
+        user_id,
+        user_name,
+        TRY_CAST(activity_date AS DATE) AS activity_date,
+        SUM(CASE WHEN activity_type = 'create' AND post_type = 'question' 
+                THEN 1 ELSE 0 END) AS questions_created,
+        SUM(CASE WHEN activity_type = 'create' AND post_type = 'answer' 
+                THEN 1 ELSE 0 END) AS answers_created,
+        SUM(CASE WHEN activity_type = 'edit' AND post_type = 'question'
+                THEN 1 ELSE 0 END) AS questions_edited,
+        SUM(CASE WHEN activity_type = 'edit' AND post_type = 'answer'
+                THEN 1 ELSE 0 END) AS answers_edited,
+        SUM(CASE WHEN activity_type = 'create'
+                THEN 1 ELSE 0 END) AS posts_created,
+        SUM(CASE WHEN activity_type = 'edit'
+                THEN 1 ELSE 0 END)  AS posts_edited
+    FROM 
+        post_types pt
+        JOIN post_activity pa ON pt.post_id = pa.post_id
+    GROUP BY 1,2,3
+```
+
+We can do some interesting things here. First notice all that bolierplate 
