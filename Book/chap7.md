@@ -190,6 +190,6 @@ We do a few very interesting things here. First notice all that boilerplate SQL 
 ```
 
 ## Applying SRP With dbt
-At first the macro seems superfluous. Why bother right? In this case it does seem like the macro is not adding any functionality, however by adding a macro, if we ever decide to change the logic of the macro to support a weird platform, all we have to do is change one file. This macro's logic might be simple, but I've written some very complex macros that have made my code incredibly easy to read, understand and maintain.
+At first the macro seems superfluous. Why bother right? In this case it does seem like the macro is not adding any functionality, however by using a macro, we're applying the Single Responsibility Principle. SR allows us to contain the logic in a single file (the macro) so if we ever decide to change all we have to do is change one file.
 
-Also technically So what did we change? First we removed the `user_post_metrics` CTE and joined directly with the cleaned tables to get the post types and the activity types. Because of that some of the columns had to change, like `post_id` and `activity_date.` We removed the `TRY_CAST()` call since it's already handled inside of `all_post_types_combined` model.
+This macro's logic might be simple, but I've written some very complex macros that have made my code incredibly easy to read, understand and maintain. It's a very good practice and one I unfortunately don't see used very often.
