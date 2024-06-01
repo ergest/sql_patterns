@@ -91,7 +91,7 @@ Dbt makes both of those options easier while also allowing you to create linkage
 
 Let's look at example. We'll take the query from the previous chapter and turn all the CTEs into models.
 
-First we create a model that unions the post types into a single table/view. Since we can, we use the `union_relations()` macro from the `dbt-utils` library:
+First let's tackle the `post_types` CTE. This is a very useful model for For that we create a model that unions the post types into a single table/view. Since we can, we use the `union_relations()` macro from the `dbt-utils` library:
 ```sql
 --listing 7.2 all_post_types_combined
 {{
@@ -106,5 +106,6 @@ First we create a model that unions the post types into a single table/view. Sin
 ```
 
 This macro will then compile into the appropriate SQL before execution. If you want to see the code (which I won't list here) simply run `dbt compile -m all_post_types_combined` And if you want to see the beautfiul DAG created, just run `dbt docs generate && dbt docs serve`
-## Wrapper Patterns
-If you look into the `models/
+![[dbt_all_post_types_dag.jpg]]
+
+Ok let's keep going.
