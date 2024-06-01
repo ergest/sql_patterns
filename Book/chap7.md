@@ -89,6 +89,22 @@ While CTEs provide a great way to decompose a single query into readable and mai
 
 Dbt makes both of those options easier while also allowing you to create linkages across models forming a DAG as we saw in [Chapter 3](chap3). ![[Example-Dag-Dag5.drawio.png]]
 
-Let's look at example. We'll take the query from the previous chapter and turn all the CTEs into models
+Let's look at example. We'll take the query from the previous chapter and turn all the CTEs into models.
+
+First we create a model that unions the post types into a single table/view. Since we can, we use the `union_relations()` macro from the `dbt-utils` library:
+```sql
+--listing 7.2 all_post_types_combined
+{{
+  config(materialized = 'view')
+}}
+
+{{
+    dbt_utils.union_relations(
+	    relations=[ref('posts_answers_clean'), ref('posts_questions_clean')]
+	)
+}}
+```
+
+This macro will then compile into the appropriate SQL before execution. If you want to see the code (which I won't list here) simply run `dbt compile -m all_post_types_combined` And if you want to see the beautfiul DAG created, just run `dbt docs generate && dbt docs serve`
 ## Wrapper Patterns
 If you look into the `models/
