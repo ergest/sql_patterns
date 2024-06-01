@@ -48,7 +48,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "/clean",
+                "query": "",
                 "matchingCase": true,
                 "explainSearch": false,
                 "collapseAll": true,
@@ -65,8 +65,7 @@
               "state": {}
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "horizontal",
@@ -125,6 +124,7 @@
   },
   "active": "8e6b0d89cccb8f39",
   "lastOpenFiles": [
+    "book/img/dbt_user_metrics_dag.jpg",
     "book/img/dbt_all_post_types_dag.jpg",
     "book/chap6.md",
     "book/chap0.md",
