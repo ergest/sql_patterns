@@ -84,5 +84,10 @@ FROM
 
 Notice a couple of things. First of all our code is a lot more compact, easy to read, understand and maintain. Second we're using a `LEFT JOIN` as explained in [Chapter 5](chap5) pattern 3. Also notice how we  assume `NULL` with  `activity_type` and `grouped_activity_type` and `COALESCE()` the input coming from the `LEFT JOIN` in order to protect ourselves.
 
+## Applying Modularity Patterns
+While CTEs provide a great way to decompose a single query into readable and maintainable modules, they don't go far enough. If you wanted to reuse any of them you'd have to manually create views. And when views no longer cut it, due to performance issues, you'd have to materialize them into tables.
+
+Dbt makes both of those options easier while also allowing you to create linkages across models forming a DAG as we saw in [Chapter 3](chap3). 
+
 ## Wrapper Patterns
 If you look into the `models/
