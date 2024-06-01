@@ -151,38 +151,44 @@ user_post_metrics AS (
     GROUP BY 1,2,3
 ```
 
-We can do some interesting things here. First notice all that bolierplate SQL with `SUM` and `CASE` Now this where dbt really shines. We can make a custom macro to hide the functionality behind.
+So what can we do to change this? Take a look at the code below:
 
 ```sql
-{{
-  config(materialized = 'view')
-}}
-
-SELECT
-    ph.user_id,
-    u.user_name,
-    pt.creation_date AS activity_date,
-    {{- sum_if("ph.activity_type = 'create' 
-	    AND pt.post_type = 'question'", 1)}} AS questions_created,
-    {{- sum_if("ph.activity_type = 'create' 
-	    AND pt.post_type = 'answer'", 1)}} AS answers_created,
-    {{- sum_if("ph.activity_type = 'edit' 
-	    AND pt.post_type = 'question'", 1)}} AS questions_edited,
-    {{- sum_if("ph.activity_type = 'edit' 
-	    AND pt.post_type = 'answer'", 1)}} AS answers_edited,
-    {{- sum_if("ph.activity_type = 'create'", 1)}} AS posts_created,
-    {{- sum_if("ph.activity_type = 'create'", 1)}} AS posts_edited
-FROM
-    {{ ref('all_post_types_combined') }} pt
-    JOIN {{ ref('post_history_clean') }} ph
-        ON pt.id = ph.post_id
-    JOIN {{ ref('users_clean')}} u
-        ON ph.user_id = u.id
-WHERE
-    true
-    AND ph.activity_type in ('create', 'edit')
-    AND ph.user_id > 0 --exclude automated processes
-    AND ph.user_id IS NOT NULL --exclude deleted accounts
-GROUP BY 1,2,3
+cte_all_posts_created_and_edited AS (
+    SELECT
+        pa.user_id,
+        TRY_CAST(pa.creation_date AS DATE) AS activity_date,
+        {{- sum_if("pa.grouped_activity_type = 'create' 
+			        AND pt.post_type = 'question'", 1) }} AS questions_created,
+        {{- sum_if("pa.grouped_activity_type = 'create'
+					AND pt.post_type = 'answer'", 1) }} AS answers_created,
+        {{- sum_if("pa.grouped_activity_type = 'edit'
+				   AND pt.post_type = 'question'", 1) }} AS questions_edited,
+        {{- sum_if("pa.grouped_activity_type = 'edit'
+				   AND pt.post_type = 'answer'", 1) }} AS answers_edited,
+        {{- sum_if("pa.grouped_activity_type = 'create'", 1) }} AS posts_created,
+        {{- sum_if("pa.grouped_activity_type = 'create'", 1) }} AS posts_edited
+    FROM
+        {{ ref('all_post_types_combined') }} pt
+        INNER JOIN {{ ref('post_activity_history_clean') }} pa
+            ON pt.post_id = pa.post_id
+    WHERE
+        true
+        AND pa.grouped_activity_type in ('create', 'edit')
+        AND pt.post_type in ('question', 'answer')
+        AND pa.user_id > 0 --exclude automated processes
+        AND pa.user_id IS NOT NULL --exclude deleted accounts
+    GROUP BY 1,2
+)
 ```
+
+We do a few very interesting things here. First notice all that boilerplate SQL with `SUM` and `CASE` statements. This where dbt really shines. We make a custom macro to hide the functionality behind. This is a VERY important pattern unique to dbt.
+```sql
+{% macro sum_if(condition, column) %}
+    SUM(CASE WHEN {{condition}} THEN {{column}} ELSE 0 END)
+{%- endmacro %}
+```
+
+At first the macro seems superfluous. Why bother right? In this case it does seem like the macro is not adding any functionality, however 
+
 So what did we change? First we removed the `user_post_metrics` CTE and joined directly with the cleaned tables to get the post types and the activity types. Because of that some of the columns had to change, like `post_id` and `activity_date.` We removed the `TRY_CAST()` call since it's already handled inside of `all_post_types_combined` model.
