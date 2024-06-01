@@ -151,4 +151,4 @@ user_post_metrics AS (
     GROUP BY 1,2,3
 ```
 
-We can do some interesting things here. First notice all that bolierplate 
+We can do some interesting things here. First notice all that bolierplate SQL with `SUM` and `CASE` Now this where dbt really shines. We can make a macro to hide
