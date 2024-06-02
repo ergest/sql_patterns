@@ -158,16 +158,16 @@ cte_all_posts_created_and_edited AS (
     SELECT
         pa.user_id,
         TRY_CAST(pa.creation_date AS DATE) AS activity_date,
-        {{- sum_if("pa.grouped_activity_type = 'create' 
+        {{- SUMIF("pa.grouped_activity_type = 'create' 
 			        AND pt.post_type = 'question'", 1) }} AS questions_created,
-        {{- sum_if("pa.grouped_activity_type = 'create'
+        {{- SUMIF("pa.grouped_activity_type = 'create'
 					AND pt.post_type = 'answer'", 1) }} AS answers_created,
-        {{- sum_if("pa.grouped_activity_type = 'edit'
+        {{- SUMIF("pa.grouped_activity_type = 'edit'
 				   AND pt.post_type = 'question'", 1) }} AS questions_edited,
-        {{- sum_if("pa.grouped_activity_type = 'edit'
+        {{- SUMIF("pa.grouped_activity_type = 'edit'
 				   AND pt.post_type = 'answer'", 1) }} AS answers_edited,
-        {{- sum_if("pa.grouped_activity_type = 'create'", 1) }} AS posts_created,
-        {{- sum_if("pa.grouped_activity_type = 'create'", 1) }} AS posts_edited
+        {{- SUMIF("pa.grouped_activity_type = 'create'", 1) }} AS posts_created,
+        {{- SUMIF("pa.grouped_activity_type = 'create'", 1) }} AS posts_edited
     FROM
         {{ ref('all_post_types_combined') }} pt
         INNER JOIN {{ ref('post_activity_history_clean') }} pa
@@ -184,7 +184,7 @@ cte_all_posts_created_and_edited AS (
 
 We do a few very interesting things here. First notice all that boilerplate SQL with `SUM` and `CASE` statements. This where dbt really shines. We make a custom macro to hide the functionality behind. This is a VERY important pattern unique to dbt.
 ```sql
-{% macro sum_if(condition, column) %}
+{% macro SUMIF(condition, column) %}
     SUM(CASE WHEN {{condition}} THEN {{column}} ELSE 0 END)
 {%- endmacro %}
 ```
