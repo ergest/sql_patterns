@@ -1,0 +1,13 @@
+version: 2
+
+sqlpatterns:
+  target: dev
+  outputs:
+    dev:
+      path: sqlpatterns.ddb
+      schema: main
+      type: duckdb
+      threads: 4
+      extensions:
+        - httpfs
+        - parquet

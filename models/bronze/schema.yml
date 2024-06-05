@@ -1,0 +1,39 @@
+version: 2
+
+models:
+  - name: comments
+    columns:
+      - name: id
+        tests:
+          - unique
+          - not_null
+  - name: post_history
+    columns:
+      - name: id
+        tests:
+          - unique
+          - not_null
+  - name: posts_answers
+    columns:
+      - name: id
+        tests:
+          - unique
+          - not_null
+  - name: posts_questions
+    columns:
+      - name: id
+        tests:
+          - unique
+          - not_null
+  - name: users
+    columns:
+      - name: id
+        tests:
+          - unique
+          - not_null
+  - name: votes
+    columns:
+      - name: id
+        tests:
+          - unique
+          - not_null

@@ -1,0 +1,7 @@
+
+target/
+dbt_packages/
+logs/
+*.ddb
+*.wal
+*.backup
