@@ -201,3 +201,5 @@ Let's see another example of this pattern. Here's the last part of the code from
     END
 {%- endmacro %}
 ```
+
+Now we can apply that macro to our final model that gets us the same result as the query in the last chapter.
