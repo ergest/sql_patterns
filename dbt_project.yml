@@ -33,4 +33,8 @@ models:
   sqlpatterns:
     # Config indicated by + and applies to all files under models/example/
     gold:
-      +materialized: view
+      +materialized: table
+    silver:
+      +materialized: table
+    bronze:
+      +materialized: table    

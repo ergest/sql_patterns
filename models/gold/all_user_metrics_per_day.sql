@@ -1,7 +1,3 @@
-{{
-  config(materialized = 'table')
-}}
-
 WITH cte_comments_by_user AS (
     SELECT
         user_id,

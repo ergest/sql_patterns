@@ -1,7 +1,3 @@
-{{
-  config(materialized = 'table')
-}}
-
 SELECT
     id as post_id,
     owner_user_id,

@@ -1,7 +1,3 @@
-{{
-  config(materialized = 'table')
-}}
-
 SELECT
     id,
     COALESCE(display_name, 'unknown') AS user_name,
