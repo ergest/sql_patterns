@@ -20,18 +20,6 @@
             }
           },
           {
-            "id": "681d7cee87cc7136",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "book/chap7.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
             "id": "761f34eed58eea1d",
             "type": "leaf",
             "state": {
@@ -43,8 +31,7 @@
               }
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "vertical"
@@ -147,10 +134,10 @@
       "table-editor-obsidian:Advanced Tables Toolbar": false
     }
   },
-  "active": "681d7cee87cc7136",
+  "active": "8e6b0d89cccb8f39",
   "lastOpenFiles": [
-    "book/chap6.md",
     "book/chap7.md",
+    "book/chap6.md",
     "book/chap5.md",
     "book/chap3.md",
     "book/img/dbt_user_metrics_dag.jpg",
