@@ -31,8 +31,7 @@
               }
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "vertical"
@@ -98,7 +97,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "book/chap6.md",
+                "file": "book/chap7.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -135,11 +134,11 @@
       "table-editor-obsidian:Advanced Tables Toolbar": false
     }
   },
-  "active": "761f34eed58eea1d",
+  "active": "8e6b0d89cccb8f39",
   "lastOpenFiles": [
+    "book/chap6.md",
     "book/chap5.md",
     "book/chap7.md",
-    "book/chap6.md",
     "book/chap3.md",
     "book/img/dbt_user_metrics_dag.jpg",
     "book/img/dbt_all_post_types_dag.jpg",
