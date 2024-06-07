@@ -11,10 +11,6 @@ But the beauty of dbt is that it makes it really easy to create our own custom m
 Have a look at this example in the `models/clean` subfolder:
 ```sql
 --model post_history_clean original
-{{
-  config(materialized = 'table')
-}}
-
 SELECT
     id,
     post_id,
