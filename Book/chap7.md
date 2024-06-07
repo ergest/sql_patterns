@@ -253,3 +253,6 @@ FROM
 ```
 
 Can you see how straightforward and simple it looks?
+
+And this is what the final DAG looks like. We have elements that we can use to build other queries without starting from scratch.
+![[dbt_final_report_dag.png]] 
