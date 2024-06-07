@@ -154,16 +154,16 @@ cte_all_posts_created_and_edited AS (
     SELECT
         pa.user_id,
         TRY_CAST(pa.creation_date AS DATE) AS activity_date,
-        {{- SUMIF("pa.grouped_activity_type = 'create' 
+        {{- sumif("pa.grouped_activity_type = 'create' 
 			        AND pt.post_type = 'question'", 1) }} AS questions_created,
-        {{- SUMIF("pa.grouped_activity_type = 'create'
+        {{- sumif("pa.grouped_activity_type = 'create'
 					AND pt.post_type = 'answer'", 1) }} AS answers_created,
-        {{- SUMIF("pa.grouped_activity_type = 'edit'
+        {{- sumif("pa.grouped_activity_type = 'edit'
 				   AND pt.post_type = 'question'", 1) }} AS questions_edited,
-        {{- SUMIF("pa.grouped_activity_type = 'edit'
+        {{- sumif("pa.grouped_activity_type = 'edit'
 				   AND pt.post_type = 'answer'", 1) }} AS answers_edited,
-        {{- SUMIF("pa.grouped_activity_type = 'create'", 1) }} AS posts_created,
-        {{- SUMIF("pa.grouped_activity_type = 'create'", 1) }} AS posts_edited
+        {{- sumif("pa.grouped_activity_type = 'create'", 1) }} AS posts_created,
+        {{- sumif("pa.grouped_activity_type = 'create'", 1) }} AS posts_edited
     FROM
         {{ ref('all_post_types_combined') }} pt
         INNER JOIN {{ ref('post_activity_history_clean') }} pa
@@ -180,7 +180,7 @@ cte_all_posts_created_and_edited AS (
 
 We do a few very interesting things here. First notice all that boilerplate SQL with `SUM` and `CASE` statements. This where dbt really shines. We make a custom macro to hide the functionality behind. This is a VERY important pattern unique to dbt.
 ```sql
-{% macro SUMIF(condition, column) %}
+{% macro sumif(condition, column) %}
     SUM(CASE WHEN {{condition}} THEN {{column}} ELSE 0 END)
 {%- endmacro %}
 ```
@@ -191,3 +191,13 @@ At first the macro seems superfluous. Why bother right? In this case it does see
 This macro's logic might be simple, but I've written some very complex macros that have made my code incredibly easy to read, understand and maintain. It's a very good practice and one I unfortunately don't see used very often.
 
 Let's see another example of this pattern. Here's the last part of the code from [Chapter 6](chap6) and we would like to use SRP to implement the `SAFE_DIVIDE()`
+```sql
+{% macro safe_divide(numerator, denominator) %}
+    CASE
+        WHEN {{denominator}} > 0 THEN
+            ROUND(CAST({{numerator}} AS NUMERIC) / 
+	              CAST({{denominator}} AS NUMERIC), 1)
+        ELSE 0
+    END
+{%- endmacro %}
+```
