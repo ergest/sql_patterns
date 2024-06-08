@@ -41,14 +41,14 @@ generate_series|
 
 There are endless possibilities for how you can use this function, so let's look at some examples.
 
-### Generating transactional data
+### Generating fake transactional data
 
 Here we see an example of how to generate timestamp data using the `generate_series()` function. We take the increasing
 
 ```sql
 WITH cte_create_sequence AS (
-    SELECT generate_series AS id
-    FROM generate_series(100)
+    SELECT seq.id
+    FROM generate_series(100) AS seq (id)
 )
 , cte_create_timestamp AS (
     SELECT id, TIMEZONE('utc', NOW()) - 
