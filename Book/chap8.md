@@ -6,6 +6,8 @@ There are often cases where you have transactional data for every day of the cal
 
 ## Generating fake data with SQL
 
+## Generating fake data with SQL
+
 ## Comparing tables row by row
 
 ## Table Subtraction
