@@ -39,6 +39,13 @@ dbt build
 ```
 You should see something like this:
 ```
+dbt deps
+22:09:11  Running with dbt=1.8.1
+22:09:12  Installing dbt-labs/dbt_utils
+22:09:12  Installed from version 1.2.0
+22:09:12  Up to date!
+
+dbt build
 22:58:23  Running with dbt=1.8.1
 22:58:23  Registered adapter: duckdb=1.8.1
 22:58:23  Found 14 models, 1 seed, 12 data tests, 522 macros
