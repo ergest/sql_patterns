@@ -24,7 +24,21 @@ generate_series|
              10|
 ```
 
-As you see it takes three parameters, start point, end point and step. So we could call it like this if we wanted
+As you see it takes three parameters, start point, end point and step. So we could call it like this if we wanted:
+```sql
+SELECT * FROM generate_series(10,20,2)
+
+--result
+generate_series|
+---------------+
+             10|
+             12|
+             14|
+             16|
+             18|
+             20|
+```
+
 There are endless possibilities for how you can use this function, so let's look at some examples.
 
 ### Generating transactional data
