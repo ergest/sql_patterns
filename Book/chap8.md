@@ -25,6 +25,11 @@ generate_series|
 ```
 
 There are endless possibilities for how you can use this function, so let's look at some examples.
+
+### Generating transactional data
+```sql
+
+```
 ### Generating a date spine
  Sometimes however dates might be missing and you can't use the transaction date as a "date spine" For cases like these, generating an empty "date spine" could be very useful.
 
