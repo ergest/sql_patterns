@@ -268,3 +268,5 @@ Can you see how straightforward and simple it looks?
 
 And this is what the final DAG looks like. We have elements that we can use to build other queries without starting from scratch.
 ![[dbt_final_report_dag.png]] 
+
+With that we wrap up this chapter on dbt patterns. In the next chapter we'll see a few more "odds and ends" patterns that didn't fit anywhere else.
