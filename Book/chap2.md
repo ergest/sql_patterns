@@ -4,9 +4,12 @@ In this chapter we're going to cover some of the core concepts of querying data 
 ## Concept 1: Granularity
 Granularity (also known as the grain of the table) is a measure of the level of detail that determines an individual row in a table or view. This is extremely important when it comes to joining and aggregating data.
 
-A *finely grained* table means a high level of detail like one row per transaction at the millisecond level. 
+A *finely grained* table means a high level of detail like one row per transaction at the millisecond level.
 
 A *coarse grained* table means an aggregated level of detail like count of all transactions per day, week or month.
+
+You can think of granularity as a sliding scale:
+More unique rows, more detail <=====> More aggregated rows, less detail.
 
 Granularity is usually expressed as the column (or combination of columns) that makes up a unique row.
 
@@ -44,19 +47,17 @@ So I'm aggregating by all the columns I expect to make up the unique row and fil
 
 This means we have to be careful when joining with this table on `post_id, user_id, creation_date, post_history_type_id` We have to deal with the duplicate issue first otherwise we'll get incorrect results.
 
-Let's see a couple of methods for doing that.
-
 Our final table will have a grain of one row per user. Only the `users` table has that same granularity. In order to build it we'll have to manipulate the granularity of the source tables so that's what we focus on next.
 
 ## Concept 2: Granularity Manipulation
-Now that you have a grasp of the concept of granularity the next thing to learn is how to manipulate it. What I mean by manipulation is specifically going from a fine grain to a coarser grain.
+Now that you have a grasp of the concept of granularity the next thing we'd want to know is how to manipulate it. What I mean by manipulation is specifically going from a fine grain to a coarser grain.
 
-For example an e-commerce website might store each transaction it performs as a single row on a table with the millisecond timestamp when it ocurred. This gives us a very fine-grained table (i.e. a very high level of detail) 
+For example an e-commerce website might store each transaction it performs as a single row on a table with the millisecond timestamp when it occurred. This gives us a very fine-grained table (i.e. a very high level of detail) 
 
 But if we wanted to know how much revenue you got on a given day, you have to reduce that level of detail to a single row.  This is done via aggregation.
 
 ### Pattern 1: Aggregation
-Aggregation is a way of reducing the level of detail by grouping (aka rolling up) data to a coarser grain. You do that by reducing the number of columns in the output and applying `GROUP BY` to the remaining columns. The more columns you remove, the coarser the grain gets. 
+Aggregation is a way of reducing the level of detail by grouping (aka rolling up) data to a coarser grain. You do that by reducing the number of columns in the output and applying `GROUP BY` to the remaining columns. The more columns you remove, the coarser the grain gets. In Excel this is known as "pivoting" so if you're familia
 
 This is a very common pattern of storing data in a data warehouse. You keep the table at the finest possible grain (i.e. one transaction per row) and then aggregate it up to whatever level is needed for reporting. This way you can always look up the details when you need to debug issues.
 
