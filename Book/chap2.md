@@ -59,7 +59,7 @@ But if we wanted to know how much revenue you got on a given day, you have to re
 ### Pattern 1: Aggregation
 Aggregation is a way of reducing the level of detail by grouping (aka rolling up) data to a coarser grain. You do that by reducing the number of columns in the output and applying `GROUP BY` to the remaining columns. The more columns you remove, the coarser the grain gets. In Excel this is known as "pivoting" which is not to be confused with the pivoting pattern described later.
 
-This is a very common way of storing data in a warehouse. You keep the table at the finest possible grain (i.e. one transaction per row) and then aggregate it up to whatever level is needed for reporting. This way you can always look up the details when you need to debug issues.
+One very important idea about aggregation is that it's "destructive" in the sense that once you aggregate information, all the details are gone. This is why when storing data in a warehouse you'd want to keep the original table at the finest possible grain (i.e. one transaction per row) and then aggregate it "on the fly" up to whatever level is needed for reporting. This way you can always look up the details when you need to debug issues.
 
 Let's look at an example.
 
@@ -143,7 +143,7 @@ In our case we only need to aggregate up to the day level, so we remove the time
 ### Pattern 3: Pivoting Data
 Pivoting is another form of granularity manipulation where you change the shape of aggregated data by turning rows into columns or vice versa. Let's look at the above example and try to pivot the activity type into separate columns for `created` and `edited`
 
-This query will take the above output and turn it into one row per :
+This query will take the above output which is one row per user, per day, per activity and turn it into one row per user, per day while "pivoting" the activities into their own separate columns:
 ```sql
 --listing 2.4
 SELECT
