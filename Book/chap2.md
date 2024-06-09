@@ -232,7 +232,7 @@ id       |creation_date          |post_id |type_id|user_id|
 259457154|2021-12-06 07:56:54.167|70242375|      2|2702894|
 ```
 
-If we join them on `user_id` the granularity of the final result will be multiplied to have as many rows per user:
+If we join them on `user_id` the granularity of the final result will be multiplied to have as many rows per user. Notice how the `user_name` repeats for each row:
 ```sql
 --listing 2.7
 SELECT
@@ -263,7 +263,6 @@ post_id |user_id|user_name     |activity_date          |type_id|
 70242375|2702894|Graham Ritchie|2021-12-06 07:56:54.167|      2|
 ```
 
-Notice how the `user_name` repeats for each row.
 
 So if the history table has 10 entries for the same user and the `users` table has 1, the final result will contain 10 x 1 entries for the same user. If for some reason the `users` contained 2 entries for the same user (messy real world data), we'd see 10 x 2 = 20 entries for that user in the final result and each row would repeat twice.
 
