@@ -57,7 +57,7 @@ For example an e-commerce website might store each transaction it performs as a 
 But if we wanted to know how much revenue you got on a given day, you have to reduce that level of detail to a single row.  This is done via aggregation.
 
 ### Pattern 1: Aggregation
-Aggregation is a way of reducing the level of detail by grouping (aka rolling up) data to a coarser grain. You do that by reducing the number of columns in the output and applying `GROUP BY` to the remaining columns. The more columns you remove, the coarser the grain gets. In Excel this is known as "pivoting" so if you're familiar with that term it's equivalent.
+Aggregation is a way of reducing the level of detail by grouping (aka rolling up) data to a coarser grain. You do that by reducing the number of columns in the output and applying `GROUP BY` to the remaining columns. The more columns you remove, the coarser the grain gets. In Excel this is known as "pivoting" which is not to be confused with the pivoting pattern described later.
 
 This is a very common way of storing data in a warehouse. You keep the table at the finest possible grain (i.e. one transaction per row) and then aggregate it up to whatever level is needed for reporting. This way you can always look up the details when you need to debug issues.
 
@@ -141,11 +141,9 @@ post_id |user_id|activity_date|activity_type|total|
 In our case we only need to aggregate up to the day level, so we remove the time components by using `CAST(AS DATE)` 
 
 ### Pattern 3: Pivoting Data
-Pivoting is another form of granularity manipulation where you change the shape of aggregated data by "pivoting" rows into columns. Let's look at the above example and try to pivot the activity type into separate columns for `created` and `edited` 
+Pivoting is another form of granularity manipulation where you change the shape of aggregated data by turning rows into columns or vice versa. Let's look at the above example and try to pivot the activity type into separate columns for `created` and `edited`
 
-Note that the counts here don't make sense since we already know that there are 3 different `post_history_type_id` for creation and editing. This is simply shown for demonstration purposes.
-
-This is the query will take the above output and turn it into:
+This query will take the above output and turn it into one row per :
 ```sql
 --listing 2.4
 SELECT
