@@ -1,12 +1,12 @@
-# Chapter 2: Core Concepts and Patterns (TBD)
+# Chapter 2: Core Concepts and Patterns
 In this chapter we're going to cover some of the core concepts of querying data and building tables for analysis and data science. We'll start with the most important but underrated concept in SQL; granularity.
 
-## Concept Granularity
-Granularity (also known as the grain of the table) is a measure of the level of detail that determines an individual row in a table or view. This is extremely important when it comes to joins or aggregating data. 
+## Concept 1: Granularity
+Granularity (also known as the grain of the table) is a measure of the level of detail that determines an individual row in a table or view. This is extremely important when it comes to joining and aggregating data.
 
-Granularity comes in two flavors: *fine grain* and *coarse grain*.
+A *finely grained* table means a high level of detail like one row per transaction at the millisecond level. 
 
-A *finely grained* table means a high level of detail like one row per transaction at the millisecond level. A *coarse grained* table means a low level of detail like count of all transactions per day, week or month.
+A *coarse grained* table means an aggregated level of detail like count of all transactions per day, week or month.
 
 Granularity is usually expressed as the column (or combination of columns) that makes up a unique row.
 
