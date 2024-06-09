@@ -57,9 +57,9 @@ For example an e-commerce website might store each transaction it performs as a 
 But if we wanted to know how much revenue you got on a given day, you have to reduce that level of detail to a single row.  This is done via aggregation.
 
 ### Pattern 1: Aggregation
-Aggregation is a way of reducing the level of detail by grouping (aka rolling up) data to a coarser grain. You do that by reducing the number of columns in the output and applying `GROUP BY` to the remaining columns. The more columns you remove, the coarser the grain gets. In Excel this is known as "pivoting" so if you're familia
+Aggregation is a way of reducing the level of detail by grouping (aka rolling up) data to a coarser grain. You do that by reducing the number of columns in the output and applying `GROUP BY` to the remaining columns. The more columns you remove, the coarser the grain gets. In Excel this is known as "pivoting" so if you're familiar with that term it's equivalent.
 
-This is a very common pattern of storing data in a data warehouse. You keep the table at the finest possible grain (i.e. one transaction per row) and then aggregate it up to whatever level is needed for reporting. This way you can always look up the details when you need to debug issues.
+This is a very common way of storing data in a warehouse. You keep the table at the finest possible grain (i.e. one transaction per row) and then aggregate it up to whatever level is needed for reporting. This way you can always look up the details when you need to debug issues.
 
 Let's look at an example.
 
@@ -100,8 +100,8 @@ post_id |user_id|activity_date          |activity_type|
 
 Notice that didn't use an aggregation function like `COUNT()` or `SUM()` when doing a `GROUP BY` and that's perfectly ok since we don't need it. You can see now how we're going to manipulate the granularity to get one row per user. We need the date in order to calculate all the date related metrics.
 
-### Pattern 2: Date Granularity
-The timestamp column `creation_date` is a rich field with both the date and time information (hour, minute, second, microsecond). Timestamp fields are special when it comes to aggregation because they have many levels of granularities built in.
+### Pattern 2: Temporal Granularity
+The timestamp column `creation_date` is a rich field with both the date and time information (hour, minute, second, etc). Timestamp fields are unique when it comes to aggregation because they have many levels of granularities built in.
 
 Given a single timestamp, we can construct granularities for seconds, minutes, hours, days, weeks, months, quarters, years, decades, etc. We do that by using one of the many date manipulation functions like `CAST()`,  `DATE_TRUNC()`, `DATE_PART()`, etc. 
 
