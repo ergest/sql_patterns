@@ -425,6 +425,92 @@ While not exactly multiplication, there's another way to manipulate the granular
 
 `UNION` (distinct) will also append the tables but it will remove all duplicates from the final result thus guaranteeing unique rows. This is slower because of the extra operations to find and remove duplicates. Use this only when you're not sure if the tables contain duplicates or you cannot remove duplicates beforehand.
 
+In fact, not that long ago I fixed the runtime of a query in PostgreSQL from 15 minutes to 1 minute by removing `UNION` replacing it with `UNION ALL` and ensuring I got the same exact results.
+
+Here's the original code:
+```sql
+--original code
+with cte_union_source_data as (
+    select
+        column1,
+        column2,
+        count(*) as total
+    from
+        source_table1
+    group by 1, 2
+    union
+    select
+        column1,
+        column2,
+        count(*) as total
+    from
+        source_table2
+    group by 1, 2
+    union
+    select
+        column1,
+        column2,
+        count(*) as total
+    from
+        source_table3
+    group by 1, 2
+    union
+    select
+        column1,
+        column2,
+		count(*) as total
+    from
+        source_table4
+    group by 1, 2
+)
+select
+    column1,
+    column2,
+    sum(total) as total
+from
+    cte_union_source_data
+group by 1, 2;
+```
+
+Here's the updated code:
+```sql
+-- refactored code
+with cte_union_source_data as (
+    select
+        column1,
+        column2
+    from
+        source_tablel
+    union all
+    select
+        column1,
+        column2
+    from
+        source_table2
+    union all
+    select
+        column1,
+        column2
+    from
+        source_table3
+    union all
+    select
+        column1,
+        column2
+    from
+        source_table4
+)
+select
+    column1,
+    column2,
+    count(*) as total
+from
+    cte_union_source_data
+group by 1, 2;
+```
+
+Notice how the updated code is far more compact while ensuring the same exact results by taking full advantage of the duplicate rows to avoid the second round of aggregation in the final select.
+
 Appending rows to a table also has two requirements:
 1. The number of the columns from all tables has to be the same
 2. The data types of the columns from all the tables has to line up 
