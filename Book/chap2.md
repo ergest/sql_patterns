@@ -43,6 +43,9 @@ creation_date          |post_id |type_id|user_id|total|
 -----------------------+--------+-------+-------+-----+
 2021-12-10 14:09:36.950|70276799|      5|       |    2|
 ```
+
+By the way, DuckDB (and a few other databases) have this very handy new feature where you don
+
 So I'm aggregating by all the columns I expect to make up the unique row and filtering for any that invalidate my assumption. If my hunch is correct, I should get 0 rows from this query. But we don't! We get a duplicate row!
 
 This means we have to be careful when joining with this table on `post_id, user_id, creation_date, post_history_type_id` We have to deal with the duplicate issue first otherwise we'll get incorrect results.
@@ -100,7 +103,7 @@ post_id |user_id|activity_date          |activity_type|
 
 Notice that didn't use an aggregation function like `COUNT()` or `SUM()` when doing a `GROUP BY` and that's perfectly ok since we don't need it. You can see now how we're going to manipulate the granularity to get one row per user. We need the date in order to calculate all the date related metrics.
 
-### Pattern 2: Temporal Granularity
+### Pattern 2: Temporal Dimensionality
 The timestamp column `creation_date` is a rich field with both the date and time information (hour, minute, second, etc). Timestamp fields are unique when it comes to aggregation because they have many levels of granularities built in.
 
 Given a single timestamp, we can construct granularities for seconds, minutes, hours, days, weeks, months, quarters, years, decades, etc. We do that by using one of the many date manipulation functions like `CAST()`,  `DATE_TRUNC()`, `DATE_PART()`, etc. 
