@@ -44,7 +44,24 @@ creation_date          |post_id |type_id|user_id|total|
 2021-12-10 14:09:36.950|70276799|      5|       |    2|
 ```
 
-By the way, DuckDB (and a few other databases) have this very handy new feature where you don
+By the way, DuckDB (and a few other databases) have this very handy new feature where you don't have to list all the columns in a `GROUP BY` and can use `GROUP BY ALL` It's known as "syntactic sugar" So the above query could also be written as this:
+```sql
+--listing 2.1
+SELECT 
+	creation_date,
+	post_id,
+	post_history_type_id AS type_id,
+	user_id,
+	COUNT(*) AS total
+FROM post_history
+GROUP BY ALL
+HAVING COUNT(*) > 1;
+
+--sample output
+creation_date          |post_id |type_id|user_id|total|
+-----------------------+--------+-------+-------+-----+
+2021-12-10 14:09:36.950|70276799|      5|       |    2|
+```
 
 So I'm aggregating by all the columns I expect to make up the unique row and filtering for any that invalidate my assumption. If my hunch is correct, I should get 0 rows from this query. But we don't! We get a duplicate row!
 
@@ -401,14 +418,12 @@ count_star()|
        15704|
 ```
 
-### Pattern 4: Talk about UNION vs UNION ALL
-There are two types of unions, `UNION ALL` and `UNION` (distinct) 
+### Pattern 3: UNION and UNION ALL
+While not exactly multiplication, there's another way to manipulate the granularity of tables and the results you get by appending (or "unioning") rows. There are two types of unions, `UNION ALL` and `UNION`
 
-`UNION ALL` will append two tables without checking if they have the same exact row. This might cause duplicates but it's really fast. If you know for sure your tables don't contain duplicates, this is the preferred way to append them. 
+`UNION ALL` will append two tables without checking if the final results have the same exact row. Since it doesn't worry about duplicating data, it's really fast. If you know for sure your tables don't contain duplicates, this is the preferred way to append them. 
 
-`UNION` (distinct) will append the tables but remove all duplicates from the final result thus guaranteeing unique rows. This is slower because of the extra operations to find and remove duplicates. Use this only when you're not sure if the tables contain duplicates or you cannot remove duplicates beforehand.
-
-Most SQL flavors only use `UNION` keyword for the distinct version, but BigQuery forces you to use `UNION DISTINCT` in order to make the query far more explicit
+`UNION` (distinct) will also append the tables but it will remove all duplicates from the final result thus guaranteeing unique rows. This is slower because of the extra operations to find and remove duplicates. Use this only when you're not sure if the tables contain duplicates or you cannot remove duplicates beforehand.
 
 Appending rows to a table also has two requirements:
 1. The number of the columns from all tables has to be the same
