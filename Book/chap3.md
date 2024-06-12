@@ -241,8 +241,7 @@ WITH post_activity AS (
         AND ph.post_history_type_id BETWEEN 1 AND 6
         AND user_id > 0 --exclude automated processes
         AND user_id IS NOT NULL --exclude deleted accounts
-    GROUP BY
-        1,2,3,4,5
+    GROUP BY ALL
 ),
 post_types AS (
     SELECT
@@ -266,7 +265,6 @@ FROM
     post_activity pa
     JOIN post_types pt ON pa.post_id = pt.post_id
 WHERE user_id = 4603670
-ORDER BY activity_date
 LIMIT 10;
 
 --sample output:
@@ -284,8 +282,9 @@ user_id|activity_date|activity_type|post_type|
 4603670|   2021-12-03|edit         |question |
 ```
 
-The final result should look like this:
+What we really want is to pivot data from rows:
 ```sql
+--table 3.3
 user_id|activity_dt|question_create|answer_create|question_edit|answer_edit|
 -------+-----------+---------------+-------------+-------------+-----------+
 4603670| 2021-12-01|              0|            1|            0|          1|
