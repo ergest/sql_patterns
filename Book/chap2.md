@@ -532,7 +532,6 @@ FROM
 	posts_answers
 ```
 
-As a rule of thumb, when you append tables, it's a good idea to add a constant column to indicate the source table or some kind of type. This is helpful when appending say activity tables to create a long, time-series table and you want to identify each activity type in the final result set.
+As a rule of thumb, when you append tables, it's a good idea to add a constant column to indicate the source table or some kind of type. This is helpful when appending say activity tables to create a long, time-series table and you want to identify each activity type in the final result set. You'll notice in my query above I create a `post_type` column indicating where the data is coming from.
 
-You'll notice in my query above I create a `post_type` column indicating where the data is coming from.
-
+With these key concepts in mind, let's dive into some design patterns.

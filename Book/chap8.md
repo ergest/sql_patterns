@@ -42,7 +42,6 @@ generate_series|
 There are endless possibilities for how you can use this function, so let's look at some examples.
 
 ### Generating fake transactional data
-
 Here we see an example of how to generate timestamp data using the `generate_series()` function. We take the increasing
 
 ```sql

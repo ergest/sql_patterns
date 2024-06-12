@@ -1,10 +1,5 @@
 # Chapter 3: Modularity Patterns
-In this chapter we'll learn:
-- The Concept of Modularity
-- Single Responsibility Principle (SRP)
-- Don't Repeat Yourself Principle (DRY)
-- Self Documenting Code Principle
-- Move Logic Upstream Principle
+In this chapter we'll learn some key concepts that make SQL code more easy to read, understand and maintain. We first talk about the concept of modularity and explore some patterns there. Then we'll cover SRP, DRY and a few other interesting patterns.
 
 ## Concept 1: Modularity
 Every complex system is made up of simple, self contained elements that can be designed, developed and tested independently. And that means you can take very complex queries and systematically break them down into much simpler elements.
