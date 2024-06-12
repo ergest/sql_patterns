@@ -222,6 +222,7 @@ One of my most used rules of thumb is to always use a `LEFT JOIN` when I'm not s
 
 For example in the query below:, we use a left join with the static table `post_history_type_mapping` because we're not sure how the `post_history_type_id` might change. We might have new mappings being created that we haven't added to our lookup table yet and we don't want to limit our final results unknowingly. By the way this query is part of our dbt chapter and explained in [Chapter 7](chap7)
 ```sql
+--listing 5.10
 SELECT
     id,
     post_id,
@@ -249,7 +250,7 @@ Doing this however could mess up age calculations, especially if the age is late
 
 You do this by using `COALESCE()` as described earlier:
 ```sql
---listing 5.7
+--listing 5.11
 SELECT
     id,
     COALESCE(display_name, 'unknown') AS user_name,
@@ -279,7 +280,7 @@ The easiest way to handle this is by excluding zero values in the denominator. T
 
 Here's an example:
 ```sql
---listing 5.8
+--listing 5.12
 WITH cte_test_data AS (
     SELECT 94 as comments_on_post, 38 as posts_created
     UNION ALL
@@ -325,7 +326,7 @@ Then you simply deal with `NULL` values using `COALESCE()` like above. Snowflake
 
 Here's an example:
 ```sql
---listing 5.9
+--listing 5.13
 WITH cte_test_data AS (
     SELECT 94 as comments_on_post, 38 as posts_created
     UNION ALL
@@ -364,7 +365,7 @@ Here are some issues you'll undoubtedly run into with strings.
 
 Many databases are case sensitive so if the same string is stored with different cases it will not match when doing a join. Let's see an example:
 ```sql
---listing 5.10
+--listing 5.14
 SELECT 'string' = 'String' AS test;
 
 test |
@@ -374,7 +375,7 @@ false|
 
 As you can see, a different case causes the test to show as `FALSE` The only way to deal with this problem when joining on strings or matching patterns on a string is to convert all fields to upper or lower case.
 ```sql
---listing 5.11
+--listing 5.15
 SELECT LOWER('string') = LOWER('String') AS test;
 
 test|
@@ -384,7 +385,7 @@ true|
 
 Space padding is the other common issue you deal with strings.
 ```sql
---listing 5.12
+--listing 5.16
 SELECT 'string' = ' string' AS test;
 
 test |
@@ -394,7 +395,7 @@ false|
 
 You deal with this by using the `TRIM()` function which removes all the leading and trailing spaces.
 ```sql
---listing 5.13
+--listing 5.17
 SELECT TRIM('string') = TRIM(' string') AS test;
 
 test|
@@ -407,7 +408,7 @@ So as a rule of thumb whenever it comes to processing strings, it's best to assu
 
 If you ever have to join on an email column these functions are absolutely essential. It's best to combine them just to be sure:
 ```sql
---listing 5.14
+--listing 5.18
 SELECT TRIM(LOWER('String')) = TRIM(LOWER(' string')) AS test;
 
 test|
@@ -429,7 +430,7 @@ true|
 
 If you're replacing multiple offending characters at once, you can do it using multiple nested calls to `REPLACE()` like the example below:
 ```sql
---listing 5.16
+--listing 5.19
 SELECT REPLACE(REPLACE(TRIM(LOWER('String//}')), '/',''),'}','') = TRIM(LOWER(' string')) AS test;
 
 test|
