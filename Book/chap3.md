@@ -284,23 +284,6 @@ user_id|activity_date|activity_type|post_type|
 
 What we really want is to pivot data from rows:
 ```sql
---table 3.3
-user_id|activity_dt|question_create|answer_create|question_edit|answer_edit|
--------+-----------+---------------+-------------+-------------+-----------+
-4603670| 2021-12-01|              0|            1|            0|          1|
-4603670| 2021-12-02|              0|            1|            1|          3|
-4603670| 2021-12-03|              0|            3|            1|          5|
-4603670| 2021-12-04|              0|            2|            0|          6|
-4603670| 2021-12-05|              0|            2|            0|          3|
-4603670| 2021-12-06|              0|            3|            2|          9|
-4603670| 2021-12-07|              0|            2|            3|          2|
-4603670| 2021-12-08|              0|            2|            2|          6|
-4603670| 2021-12-09|              0|            0|            1|          0|
-4603670| 2021-12-10|              0|            1|            1|          1|
-```
-
-How do we go from *Table 3.2* to *Table 3.3*? If you recall from **Chapter 2**, we can use aggregation and pivoting:
-```sql
 --listing 3.3
 WITH post_activity AS (
     SELECT
@@ -591,6 +574,7 @@ What could be made into a view in our specific query?
 
 I think the `post_types` CTE would be a good candidate. That way whenever you have to combine all the post types you don't have to use that CTE everywhere.
 ```sql
+--listing 3.7
 CREATE OR REPLACE VIEW v_post_types AS
     SELECT
         id AS post_id,
@@ -617,7 +601,7 @@ When you're designing a query and breaking it up into CTEs, there is one princip
 
 Let's take a look at the example from earlier:
 ```sql
---listing 3.6
+--listing 3.8
 WITH post_activity AS (
     SELECT
         ph.post_id,
@@ -648,6 +632,7 @@ This CTE performs several operations like aggregation -- to decrease granularity
 What's great it is that we can also use it for generating user metrics:
 ```sql
 --code snippet will not actually run
+--listing 3.9
 SELECT
     user_id,
     CAST(pa.activity_date AS DATE) AS activity_date,
@@ -669,6 +654,7 @@ GROUP BY
 and to join with comments and votes to user level data via the `post_id`
 ```sql
 --code snippet will not actually run
+--listing 3.10
 , comments_on_user_post AS (
     SELECT
         pa.user_id,
@@ -709,7 +695,7 @@ The DRY principle states that if you find yourself copy-pasting the same chunk o
 
 To illustrate let's rewrite the query from the previous chapter so that it still produces the same result but it clearly shows repeating code
 ```sql
---listing 3.7
+--listing 3.11
 WITH post_activity AS (
     SELECT
         ph.post_id,
@@ -790,4 +776,4 @@ user_id|activity_dt|question_create|answer_create|question_edit|answer_edit|
 ```
 This query will get you the same results as table 3.3 you saw earlier but notice that the `questions` and `answers` CTEs both have almost identical code. What if we had 10 different post types? You'd be copying and pasting a lot of code thus repeating yourself. Also, the subquery that handles the `UNION` is not ideal. I'm not a fan of subqueries.
 
-With that out of the way let's now look at performance patterns.
+With that out of the way let's now look at some performance patterns.

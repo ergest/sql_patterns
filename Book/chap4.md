@@ -135,7 +135,7 @@ Here's an example you've seen before. In the `post_activity` CTE we select only 
 Compared to:
 ```sql
 --code snippet will not run
---listing 4.4
+--listing 4.5
 ,post_types AS (
     SELECT
 	    pq.*,
@@ -162,7 +162,7 @@ Sorting is best left to reporting and BI tools if it's not needed, or done at th
 For example, the following is unnecessary and slows down performance because the sorting is done is inside a CTE. You don't need to sort your data yet.
 ```sql
 --code snippet will not run
---listing 4.5
+--listing 4.6
 , votes_on_user_post AS (
   	SELECT
         pa.user_id,
@@ -192,7 +192,7 @@ Let's see some examples:
 
 The `tags` column in both questions and answers is a collection of strings separated by `|` character as you see here:
 ```sql
---listing 4.6
+--listing 4.7
 SELECT 
     q.id AS post_id,
     q.creation_date,
@@ -222,7 +222,7 @@ Suppose we're looking for posts mentioning SQL. How would we do it? I'm pretty s
 
 Here's an example of what NOT to do (unless you're doing ad-hoc querying)
 ```sql
---listing 4.5
+--listing 4.8
 SELECT
     q.id AS post_id,
     q.creation_date,
@@ -237,7 +237,7 @@ LIMIT 10;
 
 Here's how to get the same result without using functions in `WHERE`
 ```sql
---listing 4.6
+--listing 4.9
 SELECT
     q.id AS post_id,
     q.creation_date,
@@ -254,7 +254,7 @@ In our small database this query will be quite fast, however by using the functi
 
 Alternatively you can perform the `LOWER()` operator beforehand in a CTE or view like this:
 ```sql
---listing 4.6
+--listing 4.10
 WITH cte_lowercase_tags AS (
 	SELECT
 	    q.id AS post_id,
@@ -288,7 +288,7 @@ Let's look at a few more examples.
 
 Here's we're trying to filter by performing a math operation in the `WHERE` clause. Same thing applies. The database performs a full table scan before filtering.
 ```sql
---listing 4.7
+--listing 4.11
 SELECT
     q.id AS post_id,
     q.creation_date,
@@ -317,7 +317,7 @@ post_id |creation_date          |total_activity|
 
 We can do the same thing here:
 ```sql
---listing 4.8
+--listing 4.12
 WITH cte_lowercase_tags AS (
 	SELECT
 	    q.id AS post_id,
@@ -348,7 +348,7 @@ post_id |creation_date          |total_activity|
 
 Let's look at another common example with date functions where we can avoid CTEs altogether:
 ```sql
---listing 4.9
+--listing 4.13
 SELECT
     q.id AS post_id,
     q.creation_date,
@@ -376,7 +376,7 @@ post_id |creation_date          |week_of_year|
 
 With dates we can be a little cleverer and avoid using CTEs. Since our date is from 2021, we can have to hard-code the start of the year and cast it to date (`2021-01-01::date`) in order calculate the start date and end date of the 50th week of 2021. You can use a function like `CURRENT_DATE()` instead to get the current year's date.
 ```sql
---listing 4.10
+--listing 4.14
 SELECT
     q.id AS post_id,
     q.creation_date,
@@ -417,7 +417,7 @@ The most insidious application of `DISTINCT` I have personally dealt with is whe
 
 Here's an example with our database. Suppose I'm trying to get the total user activity (i.e. posts created, edited and commented on) My original query looked like this.
 ```sql
---listing 4.11
+--listing 4.15
 WITH cte_user_activity_by_type AS (
     SELECT
         user_id,
@@ -466,7 +466,7 @@ Notice how I'm using two CTEs for aggregation and how I append them using `UNION
 
 We could rewrite the query using `UNION ALL` while simultaneously avoiding expensive aggregation like this:
 ```sql
---listing 4.12
+--listing 4.16
 WITH cte_user_activity_by_type AS (
     SELECT
         user_id,
@@ -494,7 +494,7 @@ Using `OR` in the `WHERE` clause can be quite natural based on the logic you're 
 
 If you use `OR` to search for multiple values of the same column, there will be no performance issues. In fact you already do this without realizing it. Let's see an example. This query will get all the created posts
 ```sql
---listing 4.13
+--listing 4.17
     SELECT
         post_id,
         creation_date,
@@ -507,7 +507,7 @@ If you use `OR` to search for multiple values of the same column, there will be 
 
 But did you know that the above is equivalent to this?
 ```sql
---listing 4.13
+--listing 4.18
     SELECT
         post_id,
         creation_date,
@@ -522,7 +522,7 @@ But did you know that the above is equivalent to this?
 
 This is an example where using `OR` in the `WHERE` clause doesn't incur a performance penalty. You can even combine `OR` with `AND` (as long as you use parenthesis in the right place) and you'll still be ok because the `OR` is applying to a single column.
 ```sql
---listing 4.14
+--listing 4.19
     SELECT
         post_id,
         creation_date,
@@ -545,7 +545,7 @@ This is an example where using `OR` in the `WHERE` clause doesn't incur a perfor
 
 However a query like would very likely be problematic:
 ```sql
---listing 4.15
+--listing 4.20
 SELECT
     ph.post_id,
     ph.creation_date,
@@ -562,6 +562,7 @@ When I see a query like this, I immediately know it will cause problems. It migh
 
 But there's good news! You can rewrite the above query using `UNION ALL` get the same exact result while seeing 10x - 100x performance improvement. Here it is:
 ```sql
+--listing 4.21
 SELECT
     post_id,
     ph.creation_date,
