@@ -515,7 +515,7 @@ Appending rows to a table also has two requirements:
 1. The number of the columns from all tables has to be the same
 2. The data types of the columns from all the tables has to line up 
 
-You can achieve the first requirement by using `SELECT` to choose only the columns that match across multiple tables or if you know the tables have the same exact schema. Note that when you union tables with different schemas, you have to line up all the columns in the right order. This is useful when two tables have the same column named differently.
+You can achieve the first requirement by choosing only the columns that match across multiple tables or if you know the tables have the same exact schema. Note that when you union tables with different schemas, you have to line up all the columns in the right order. This is useful when two tables have the same column named differently.
 
 For example:
 ```sql
@@ -536,9 +536,3 @@ As a rule of thumb, when you append tables, it's a good idea to add a constant c
 
 You'll notice in my query above I create a `post_type` column indicating where the data is coming from.
 
-#### Talk about deduping rows via row_number() and qualify
-#### Talk about rank() and dense_rank() applications
-
-## Crosstab
-## Deduping Data Deliberately
-(by using row_number() with qualify())

@@ -112,3 +112,9 @@ FROM
 
 ## Cubes and Rollups
 
+#### Talk about deduping rows via row_number() and qualify
+#### Talk about rank() and dense_rank() applications
+
+## Crosstab
+## Deduping Data Deliberately
+(by using row_number() with qualify())
