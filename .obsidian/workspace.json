@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "book/chap6.md",
+                "file": "book/chap8.md",
                 "mode": "source",
                 "source": false
               }
@@ -97,7 +97,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "book/chap6.md",
+                "file": "book/chap8.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -136,6 +136,7 @@
   },
   "active": "8e6b0d89cccb8f39",
   "lastOpenFiles": [
+    "book/chap6.md",
     "book/chap5.md",
     "book/chap4.md",
     "book/chap3.md",
@@ -149,7 +150,6 @@
     "book/img/qstudio.jar",
     "book/img/Unconfirmed 328120.crdownload",
     "book/img/dbt_final_report_dag.png",
-    "book/chap6.md",
     "book/img/dbt_user_metrics_dag.jpg",
     "book/img/dbt_all_post_types_dag.jpg",
     "book/img/Example-Dag-Dag5.drawio.png",

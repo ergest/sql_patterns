@@ -117,3 +117,5 @@ FROM
 ## Crosstab
 ## Deduping Data Deliberately
 (by using row_number() with qualify())
+
+## Temporal joins
