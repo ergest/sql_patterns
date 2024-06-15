@@ -99,9 +99,9 @@ tags                    |VARCHAR  |
 view_count              |VARCHAR  |
 ```
 
-Both tables have an `id` column that identifies a single post, a `creation_date` column that identifies the timestamp when the post was created and a few other attributes like `score, answer_count` and `comment_count`.
+Both tables have an `id` column that identifies a single post, a `creation_date` column that identifies the timestamp when the post was created and a few other attributes like `score, answer_count` and `comment_count`
 
-Note the `parent_id` column which signifies a hierarchical structure. The `parent_id` is a one-to-many relationship that links up an answer to the corresponding question. A single question can have multiple answers but an answer belongs to one and only one question. This is relation 1 in the **Figure 1.1** above.
+Note the `parent_id` column which signifies a hierarchical structure. This is a very common way to model one-to-many relationship within the same table. In our case a single question can have multiple answers but an answer belongs to one and only one question. This is relation 1 in the Figure 1.1 above.
 
 Both post types (question and answer) have a one-to-many relationship to the `post_history`. These are relations 3 and 4 in the diagram above.
 
