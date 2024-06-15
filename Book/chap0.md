@@ -63,7 +63,7 @@ In **Chapter 5** we cover *Robustness* patterns. They teach you ways to make you
 
 In **Chapter 6** we wrap up our project and you get to see the entire query. By now you should be able to understand it and know exactly how it was designed. I recap the project so that you get another chance to review all the patterns.
 
-In **Chapter 7** we cover advanced tools like _dbt_  and you get to see how the same patterns we learned in previous chapters apply to _dbt_ These are patterns I actively use everyday in my job and have helped me to make my code not only easier to maintain and debug but also portable across many platforms.
+In **Chapter 7** we cover advanced tools like _dbt_  where you get to see how the same patterns we learned in previous chapters apply to them. These are patterns I actively use everyday in my job and have helped me make my code easier to maintain, debug and extend.
 
 In **Chapter 8** we cover a mixed bag of SQL patterns that come up over and over again in daily practice. You'll see how to generate fake data using SQL, build a date dimensional table, compare two tables, etc.
 

@@ -1,11 +1,11 @@
 # Chapter 1: Understanding the Database
-In this chapter we're going to get into the details of the project that will help you learn the SQL Patterns. As you saw in the introduction, we're using a real-world, public dataset from StackOverflow.
+In this chapter we're going to get into the details of the project that we'll be developing throughout the book. As you saw in the introduction, we're using a real-world, public dataset from StackOverflow.
 
-Before we dive into writing queries you should make sure you have the proper development environment set up. I will not list the instructions here in case things change so I'll add them to the GitHub repo. Make sure you visit: https://github.com/ergest/sqlpatterns for the most up to date instructions.
+Before we dive into writing queries you should make sure you have the proper development environment set up. I will not list the instructions here in case things change so I'll add them to the GitHub repo. Make sure you visit: https://github.com/ergest/sql_patterns for the most up to date instructions.
 
-StackOverflow is a popular website where users post questions about any technical topic such as programming languages, databases, etc. and others can post answers to these questions. They can also vote on the answers or comment on them.
+StackOverflow is a popular website where users post questions about technical topics such as programming languages, databases, etc. and other user can post answers, comment and vote on them.
 
-Based on the quality of the answers, users gain reputation and badges which they can use  as social proof both on StackOverflow and on other websites.
+Based on the quality of the answers, users gain reputation and badges which act as social proof both on StackOverflow and on other websites.
 
 Using this dataset we're going to build a table that calculates reputation metrics for every user. This type of table is sometimes called a "feature table" and can be used in other applications in data science and analytics. You simply replace the `user_id` with a `customer_id` or another entity.
 
