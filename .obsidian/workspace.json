@@ -25,7 +25,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "book/chap8.md",
+                "file": "book/chap0.md",
                 "mode": "source",
                 "source": false
               }
@@ -138,13 +138,13 @@
   "lastOpenFiles": [
     "book/chap0.md",
     "book/chap8.md",
+    "book/chap1.md",
     "book/chap7.md",
     "book/chap6.md",
     "book/chap5.md",
     "book/chap4.md",
     "book/chap3.md",
     "book/chap2.md",
-    "book/chap1.md",
     "book/img/jre-8u411-macosx-x64.dmg",
     "book/img/Unconfirmed 934680.crdownload",
     "book/img/qstudio.jar",

@@ -9,7 +9,7 @@ Based on the quality of the answers, users gain reputation and badges which act 
 
 Using this dataset we're going to build a table that calculates reputation metrics for every user. This type of table is sometimes called a "feature table" and can be used in other applications in data science and analytics. You simply replace the `user_id` with a `customer_id` or another entity.
 
-Since the query to build it is complex, it's the perfect tool to illustrate some of the patterns described in this book.
+Since the query to build it is complex, it's the perfect tool to illustrate the patterns described in this book.
 
 The schema of that table would look something like this:
 ```sql
@@ -39,12 +39,10 @@ The schema of that table would look something like this:
 | comments_on_post_per_post | NUMERIC |
 ```
 
-As you can see, we need to transform the source data model to a new model that has one row per `user_id` Before we do that, we need to first understand the source data.
+## Understanding the source Data Model
+Writing accurate and efficient SQL begins with understanding the source data model you're working with. There may already exist documentation and diagrams explaining it but more often than not you'll have to learn as you go.
 
-## Understanding the Data Model
-Writing accurate and efficient SQL begins with understanding the data model you're working with. This may already exist in the form of documentation and diagrams but more often than not you'll have to learn it as you go.
-
-The original StackOverflow (SO) data model is different from the one loaded in BigQuery. When the engineers loaded it, they modified the mode somewhat. For example the SO model contains a single `Posts` table for all the different post types whereas BigQuery split each one into a separate table.
+The original StackOverflow (SO) data model is different from the one provided in my repo. That's because I pulled it from BigQuery where the engineers modified the original model somewhat. For example the SO model contains a single `Posts` table for all the different types of post types whereas BigQuery split each one into a separate table.
 
 ![StackOverflow BQ ER Diagram](img/er_diagram.jpeg)
 **Figure 1.1 - StackOverflow ER diagram**
@@ -56,7 +54,7 @@ SELECT table_name
 FROM information_schema.tables
 WHERE table_name like 'posts_%';
 ```
-Assuming you've set things up properly here's the result of the query in DBeaver (in text output mode) I'll only use this format henceforth so your output might be different in the GUI.
+Assuming you've set things up properly here's the results from DBeaver (in text output mode) I'll only use this format henceforth so your output might be different in the GUI.
 ```
 table_name     |
 ---------------+
@@ -101,7 +99,7 @@ tags                    |VARCHAR  |
 view_count              |VARCHAR  |
 ```
 
-Both tables have an `id` column that identifies a single post, `creation_date` that identifies the timestamp when the post was created and a few other attributes like `score` for the upvotes and downvotes. 
+Both tables have an `id` column that identifies a single post, a `creation_date` column that identifies the timestamp when the post was created and a few other attributes like `score, answer_count` and `comment_count`.
 
 Note the `parent_id` column which signifies a hierarchical structure. The `parent_id` is a one-to-many relationship that links up an answer to the corresponding question. A single question can have multiple answers but an answer belongs to one and only one question. This is relation 1 in the **Figure 1.1** above.
 
