@@ -1,9 +1,9 @@
 # Introduction
 This is a book about SQL Patterns. Patterns describe problems that occur over and over in our professional settings. A pattern is like a template that you can apply to different problems. Once you learn each one, you can apply them to solve problems faster and make your code better.
 
-We can illustrate this with an example. In fiction writing, authors rarely write from scratch. They use character patterns like: “antihero”, “sidekick”, “mad scientist”, “girl next door.” They also use plot devices like "romantic comedy," "melodrama", "red herring", "foreshadowing", "cliffhangers", etc. This helps them write better books, movies and TV shows faster.
+We can illustrate this with an example. In fiction writing, authors rarely write from scratch. They use character patterns like: “antihero”, “sidekick”, “mad scientist”, “girl next door.” They use plot devices like "romantic comedy," "melodrama", "red herring", "foreshadowing", "cliffhangers", etc. These patterns help them write better books, movies and TV shows faster.
 
-Learning and applying patterns is how you level up in your career.
+**Learning and applying patterns is how you level up in your career.**
 
 Each pattern consists of four elements:
 
@@ -13,12 +13,12 @@ Each pattern consists of four elements:
 4. The **tradeoffs** are the consequences of applying that specific solution
 
 ## Who am I
-I’ve been writing SQL for 15+ years. I’ve seen and written hundreds of thousands of lines of code. Over time I noticed a set of patterns and best practices I always come back to when writing queries. These patterns made my code more efficient, easier to understand and a breeze to maintain.
+I’ve been writing SQL for nearly two decades now. I’ve seen and written hundreds of thousands of lines of code. Over time I noticed a set of patterns and best practices I always came back to when writing queries. These patterns made my code more efficient, easier to understand and a breeze to maintain.
 
 ## Why did I write this book
-I have a background in computer science. As part of the curriculum we learn how to make our code more efficient, more readable and easy to debug. As I started to write SQL, I applied many of these lessons to my own code.
+I have a background in computer science. As part of the curriculum we learn software engineering patterns that make our code more efficient, more readable and easier to debug. As I started to write SQL, I started applying many of these lessons to my own code.
 
-When reviewing other people’s code I would often spot the same mistakes. There were chunks of code that would repeat everywhere. The queries were long, complex and slow. I would often have rewrite them just so I could understand what they were doing.
+When reviewing other people’s code I would often spot the same mistakes. There were chunks of code that would repeat everywhere. The queries were long, complex and slow. I'd often have torewrite them just so I could understand what they were doing.
 
 Software engineers have long used design patterns to make their code easier to write, understand and maintain. I looked around for a book or course that taught these same patterns for SQL. There are a lot of SQL books that show you how to query data, how to transform and model it but couldn’t find one that explained how to organize code, so I decided to write it myself.
 

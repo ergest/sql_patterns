@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "book/chap8.md",
+                "file": "book/chap0.md",
                 "mode": "source",
                 "source": false
               }
@@ -97,7 +97,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "book/chap8.md",
+                "file": "book/chap0.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -136,13 +136,13 @@
   },
   "active": "8e6b0d89cccb8f39",
   "lastOpenFiles": [
+    "book/chap8.md",
     "book/chap6.md",
     "book/chap5.md",
     "book/chap4.md",
     "book/chap3.md",
     "book/chap2.md",
     "book/chap1.md",
-    "book/chap8.md",
     "book/chap0.md",
     "book/chap7.md",
     "book/img/jre-8u411-macosx-x64.dmg",
