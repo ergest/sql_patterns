@@ -55,16 +55,18 @@ In **Chapter 1** we introduce the StackOverflow database we'll be working with t
 
 In **Chapter 2** we cover *Core Concepts and Patterns*. These are data transformation patterns that act as our basic building blocks throughout the book. I explain each one using the StackOverflow dataset since we'll be using every one in our final query. The remaining patterns are grouped into four categories and each has its own chapter.
 
-In **Chapter 3** we cover *Modularity Patterns*. We start off by learning how to decompose large queries into smaller, more modular and reusable pieces to make it easy to solve just about any complex problem. We cover how modularizing queries helps make your code easy to read, understand, maintain and extend.
+In **Chapter 3** we cover *Modularity Patterns*. We start off by learning how to decompose large queries into smaller, more modular and reusable pieces to make your code easy to read, understand, maintain and extend.
 
 In **Chapter 4** we cover *Performance* patterns. They teach you ways to make your code faster without sacrificing functionality or clarity. It’s a delicate balance because performant code can sometimes look really messy. We don't cover any one platform specifically but rather patterns that work across multiple platforms.
 
-In **Chapter 4** we cover *Advanced Modularity* where we take what we learned in Chapter 3 and apply it to *dbt* (tm). These are patterns I use everyday in my job and have helped me to make my code not only easier to maintain and debug but also portable across many platforms.
+In **Chapter 5** we cover *Robustness* patterns. They teach you ways to make your code resistant to unexpected data problems, such as duplicate rows, missing values, division by zero, type conversion issues, NULLs, etc.
 
-In **Chapter 6** we cover *Robustness* patterns. They teach you ways to make your code resistant to messy data, such as duplicate rows, missing values, unexpected NULLs, etc.
+In **Chapter 6** we wrap up our project and you get to see the entire query. By now you should be able to understand it and know exactly how it was designed. I recap the project so that you get another chance to review all the patterns.
+
+In **Chapter 7** we cover advanced tools like _dbt_  and you get to see how the same patterns we learned in previous chapters apply to _dbt_ These are patterns I actively use everyday in my job and have helped me to make my code not only easier to maintain and debug but also portable across many platforms.
+
+In **Chapter 8** we cover a mixed bag of SQL patterns that come up over and over again in daily practice. You'll see how to generate fake data using SQL, build a date dimensional table, compare two tables, etc.
 
 The project is interwoven throughout the book. I make sure that each chapter covers some section of the final query.
-
-In **Chapter 7** we wrap up our project and you get to see the entire query. By now you should be able to understand it and know exactly how it was designed. I recap the entire project so that you get another chance to review all the patterns. The goal here is to allow you to see all the patterns together and give you ideas on how to apply them in your day-to-day work.
 
 With that out of the way, let's dive into the project.
