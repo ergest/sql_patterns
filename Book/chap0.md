@@ -36,9 +36,7 @@ If you find that your SQL code breaks easily when data changes and you want to m
 If you use (or plan to use) tools like `dbt` or `sqlmesh` professionally this book is for you.
 
 ## What you'll learn in this book
-I'm a huge fan of project-based learning. You can learn anything if you can come up with an interesting project that uses what you're learning. I used such a project when I taught myself data science.
-
-That's why for this book I wanted to come up with an interesting and useful data project to organize it around. I explain each pattern as I walk you through the project.
+I'm a huge fan of project-based learning. You can learn anything if you can come up with an interesting project that uses what you're learning. I used such a project when I taught myself data science. That's why for this book I came up with an interesting and useful data project to organize it around.
 
 This will ensure that you learn the material better and remember it the next time you need to apply it.
 
@@ -46,22 +44,22 @@ In the previous edition of this book I used the StackOverflow dataset that's pub
 
 First of all I made the tables available as parquet files in GitHub. Second I decided to use the freely available (and may I say quite amazing) DuckDB. The instructions for setting everything up are available on this repo: https://github.com/ergest/sql_patterns
 
-I've also included all the code in the repo so you can copy/paste it and run it. I do however strongly encourage you to actually type it yourself. You'll learn better that way.
+I've included all the code listings from each chapter in the repo so you can copy/paste it and run it but I strongly recommend you actually type it yourself. You'll learn better that way.
 
-Using this dataset we're going to build a table which calculates reputation metrics. You can use this same type of table to calculate a customer engagement score or a customer 360 table.
+For the project we're going to build a table which calculates user reputation metrics using the above dataset. You can use this same type of table to calculate a customer engagement score or a customer 360 table.
 
 As we go through the project, we'll cover each pattern when it arises. That will help you understand why we're using that pattern at that exact moment. Each chapter will cover a select group of patterns while building on the previous chapters.
 
-## How this book is organized (TBD)
-In **Chapter 1** we introduce the StackOverflow database we'll be working with throughout the book. We'll make sure you set up your development environment correctly and can run the queries.
+## How this book is organized
+In **Chapter 1** we introduce the StackOverflow database we'll be working with throughout the book. We'll also make sure you set up your development environment correctly and can run all the queries. I've made sure everything works but if you have questions, feel free to reach out. My contact information is below.
 
 In **Chapter 2** we cover *Core Concepts and Patterns*. These are data transformation patterns that act as our basic building blocks throughout the book. I explain each one using the StackOverflow dataset since we'll be using every one in our final query. The remaining patterns are grouped into four categories and each has its own chapter.
 
 In **Chapter 3** we cover *Modularity Patterns*. We start off by learning how to decompose large queries into smaller, more modular and reusable pieces to make it easy to solve just about any complex problem. We cover how modularizing queries helps make your code easy to read, understand, maintain and extend.
 
-In **Chapter 4** we cover *Advanced Modularity* where we take what we learned in Chapter 3 and apply it to *dbt* (tm). These are patterns I use everyday in my job and have helped me to make my code not only easier to maintain and debug but also portable across many platforms.
+In **Chapter 4** we cover *Performance* patterns. They teach you ways to make your code faster without sacrificing functionality or clarity. It’s a delicate balance because performant code can sometimes look really messy. We don't cover any one platform specifically but rather patterns that work across multiple platforms.
 
-In **Chapter 5** we cover *Performance* patterns. They teach you ways to make your code faster without sacrificing functionality or clarity. It’s a delicate balance because performant code can sometimes look really messy. We don't cover any one platform specifically but rather patterns that work across multiple platforms.
+In **Chapter 4** we cover *Advanced Modularity* where we take what we learned in Chapter 3 and apply it to *dbt* (tm). These are patterns I use everyday in my job and have helped me to make my code not only easier to maintain and debug but also portable across many platforms.
 
 In **Chapter 6** we cover *Robustness* patterns. They teach you ways to make your code resistant to messy data, such as duplicate rows, missing values, unexpected NULLs, etc.
 
