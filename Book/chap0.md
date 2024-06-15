@@ -18,14 +18,14 @@ I’ve been writing SQL for nearly two decades now. I’ve seen and written hund
 ## Why did I write this book
 I have a background in computer science. As part of the curriculum we learn software engineering patterns that make our code more efficient, more readable and easier to debug. As I started to write SQL, I started applying many of these lessons to my own code.
 
-When reviewing other people’s code I would often spot the same mistakes. There were chunks of code that would repeat everywhere. The queries were long, complex and slow. I'd often have torewrite them just so I could understand what they were doing.
+When reviewing other people’s code I would often spot the same mistakes. There were chunks of code that would repeat everywhere. The queries were long, complex and slow. I'd often have to rewrite them just so I could understand what they were doing.
 
-Software engineers have long used design patterns to make their code easier to write, understand and maintain. I looked around for a book or course that taught these same patterns for SQL. There are a lot of SQL books that show you how to query data, how to transform and model it but couldn’t find one that explained how to organize code, so I decided to write it myself.
+Software engineers have long used design patterns to make their code easier to write, understand and maintain. I looked around for a book or course that taught these same patterns for SQL. While there were a lot of SQL books that show you how to query data, how to transform and model it, I couldn’t find one that explained how to organize code, so I decided to write one.
 
-## Who this book is for
-This book is for anyone who is familiar with SQL and wants to take their skills to the next level. We won't cover any of the basic syntax here so make sure you have that down pat. I expect you to already know how to join tables and do basic filtering and aggregation.
+## Who is this book for
+This book is for anyone who is familiar with SQL and wants to take their coding skills to the next level. We won't cover any of the basic syntax here so make sure you have that down pat. I expect you to already know how to join tables and do basic filtering and aggregation.
 
-If you're using SQL to build complex data processing workflows -- like I have -- this book is a must for you.
+If you're using SQL to build complex data processing workflows -- like I do -- this book is a must for you.
 
 If you find that your SQL code is often inefficient and slow and you want to make it faster, this book is for you.
 
@@ -33,8 +33,10 @@ If you find that your SQL code is long, messy and hard to understand and you wan
 
 If you find that your SQL code breaks easily when data changes and you want to make it more resilient, this book is for you.
 
+If you use (or plan to use) tools like `dbt` or `sqlmesh` professionally this book is for you.
+
 ## What you'll learn in this book
-I'm a huge fan of project-based learning. You can learn anything if you can come up with an interesting project to use it thing in. I used a project when I taught myself data science.
+I'm a huge fan of project-based learning. You can learn anything if you can come up with an interesting project that uses what you're learning. I used such a project when I taught myself data science.
 
 That's why for this book I wanted to come up with an interesting and useful data project to organize it around. I explain each pattern as I walk you through the project.
 
@@ -42,7 +44,7 @@ This will ensure that you learn the material better and remember it the next tim
 
 In the previous edition of this book I used the StackOverflow dataset that's publicly available in BigQuery. Realizing that not everyone has access to this and that it could dissappear at any moment I decided to make a few changes
 
-First of all I made the tables available as parquet files in GitHub. Second I decided to use the freely available (and may I say quite amazing) DuckDB. The instructions for setting everything up are available on this repo: https://github.com/ergest/sqlpatterns
+First of all I made the tables available as parquet files in GitHub. Second I decided to use the freely available (and may I say quite amazing) DuckDB. The instructions for setting everything up are available on this repo: https://github.com/ergest/sql_patterns
 
 I've also included all the code in the repo so you can copy/paste it and run it. I do however strongly encourage you to actually type it yourself. You'll learn better that way.
 
