@@ -1,8 +1,8 @@
---listing 2.3
+--listing 2.2.2
 SELECT
     ph.post_id,
     ph.user_id,
-    DATE_TRUNC('day', ph.creation_date) AS activity_date,
+    ph.creation_date AS activity_date,
     CASE WHEN ph.post_history_type_id IN (1,2,3) THEN 'create'
          WHEN ph.post_history_type_id IN (4,5,6) THEN 'edit' 
     END AS activity_type,

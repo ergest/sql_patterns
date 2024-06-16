@@ -1,11 +1,12 @@
---listing 2.2
+--listing 2.4
 SELECT
     ph.post_id,
     ph.user_id,
-    ph.creation_date AS activity_date,
-    CASE WHEN ph.post_history_type_id IN (1,2,3) THEN 'create'
-         WHEN ph.post_history_type_id IN (4,5,6) THEN 'edit' 
-    END AS activity_type
+    DATE_TRUNC('day', ph.creation_date) AS activity_date,
+    SUM(CASE WHEN ph.post_history_type_id IN (1,2,3)
+		THEN 1 ELSE 0 END) AS total+created,
+    SUM(CASE WHEN ph.post_history_type_id IN (4,5,6)
+		THEN 1 ELSE 0 END) AS total_edited
 FROM
     post_history ph
 WHERE
@@ -17,4 +18,4 @@ WHERE
     AND ph.creation_date <= '2021-12-31'
     AND ph.post_id = 70182248
 GROUP BY
-    1,2,3,4;
+    1,2,3;
