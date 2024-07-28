@@ -1,0 +1,15 @@
+vote_type_id,vote_type
+1,acceptedbyoriginator
+2,upmod
+3,downmod
+4,offensive
+5,favorite
+6,close
+7,reopen
+8,bountystart
+9,bountyclose
+10,deletion
+11,undeletion
+12,spam
+15,moderatorreview
+16,approveeditsuggestion
