@@ -27,7 +27,7 @@ Before you do anything you'll need to clone this repo locally. Create a folder w
 ```
 mkdir sqlpatterns
 cd sqlpatterns
-git clone https://github.com/ergest/sqlpatterns.git
+git clone https://github.com/ergest/sql_patterns.git
 ```
 
 ## Build the DuckDB database using dbt
