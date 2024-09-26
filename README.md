@@ -20,10 +20,10 @@ Plugins:
   - duckdb:   1.8.1 - Up to date!
 ```
 
-_Note:_ If you're using VSCode for your development, I highly recommend you download and install the `Power User for dbt Core` VSCode extension [here](https://marketplace.visualstudio.com/items?itemName=innoverio.vscode-dbt-power-user) It should walk you through the steps of connecting to your dbt virtual environment so you can build dbt models from a right click menu inside VSCode as well as view lineage.
+_Note:_ If you're using VSCode for your development, I highly recommend you download and install the `Power User for dbt Core` VSCode extension [here](https://marketplace.visualstudio.com/items?itemName=innoverio.vscode-dbt-power-user). It should walk you through the steps of connecting to your dbt virtual environment so you can build dbt models from a right click menu inside VSCode as well as view lineage.
 
 ## Clone the github repo into your local folder
-Before you do anything you'll need to clone this repo locally. Create a folder where you'll be doing all the work called `sqlpatterns` Then cd into the folder and clone the repo. I'm assuming you know how to use basic `git` commands, but really all you need to run is `git clone https://github.com/ergest/sqlpatterns.git` This should get you all the necessary files to set up a local DuckDB database. This repo is a `dbt` setup so you'll want to install `dbt` first.
+Before you do anything you'll need to clone this repo locally. Create a folder where you'll be doing all the work called `sqlpatterns`. Then cd into the folder and clone the repo. I'm assuming you know how to use basic `git` commands, but really all you need to run is `git clone https://github.com/ergest/sql_patterns.git` This should get you all the necessary files to set up a local DuckDB database. This repo is a `dbt` setup so you'll want to install `dbt` first.
 ```
 mkdir sqlpatterns
 cd sqlpatterns
